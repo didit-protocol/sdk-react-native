@@ -7,8 +7,6 @@ import { TurboModuleRegistry, type TurboModule } from 'react-native';
 export type VerificationConfig = {
   /** ISO 639-1 language code (e.g. "en", "fr", "ar"). Maps to SupportedLanguage on native. */
   languageCode?: string;
-  /** Whether to use a custom intro screen (skips SDK built-in intro). Default: false. */
-  customIntroScreen?: boolean;
   /** Custom font family name. Must be registered by the host app. */
   fontFamily?: string;
   /** Enable SDK logging for debugging. Default: false. */

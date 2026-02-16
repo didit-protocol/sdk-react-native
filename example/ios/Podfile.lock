@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - DiditSDK (3.1.0)
+  - DiditSDK (3.1.1)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
   - FBLazyVector (0.83.0)
@@ -2732,7 +2732,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  DiditSDK: 3a1ff1252d30cbb7d9b9416a07566233b1f1c8ef
+  DiditSDK: ffe5b36fdb458f64a5987e75f072e493b34cde94
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: a293a88992c4c33f0aee184acab0b64a08ff9458

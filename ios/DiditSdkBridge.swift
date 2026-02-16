@@ -152,7 +152,6 @@ public class DiditSdkBridge: NSObject {
 
         return DiditSdk.Configuration(
             languageLocale: language,
-            customIntroScreen: dict["customIntroScreen"] as? Bool ?? false,
             fontFamily: dict["fontFamily"] as? String,
             loggingEnabled: dict["loggingEnabled"] as? Bool ?? false
         )

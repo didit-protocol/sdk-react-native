@@ -112,13 +112,6 @@ export interface DiditConfig {
   languageCode?: string;
 
   /**
-   * Whether to skip the SDK's built-in intro screen.
-   * Set to `true` if you want to show your own intro screen before starting verification.
-   * Default: `false`.
-   */
-  customIntroScreen?: boolean;
-
-  /**
    * Custom font family name to use throughout the SDK UI.
    * The font must be registered in your app's native configuration.
    * If not set, falls back to the system font.

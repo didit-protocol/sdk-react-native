@@ -129,7 +129,6 @@ export async function startVerification(
   const nativeConfig = config
     ? {
         languageCode: config.languageCode,
-        customIntroScreen: config.customIntroScreen,
         fontFamily: config.fontFamily,
         loggingEnabled: config.loggingEnabled,
       }
@@ -167,7 +166,6 @@ export async function startVerificationWithWorkflow(
   const nativeConfig = options?.config
     ? {
         languageCode: options.config.languageCode,
-        customIntroScreen: options.config.customIntroScreen,
         fontFamily: options.config.fontFamily,
         loggingEnabled: options.config.loggingEnabled,
       }
