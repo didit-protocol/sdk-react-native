@@ -76,7 +76,9 @@ Then add the config plugin to your `app.json` (or `app.config.js`):
 }
 ```
 
-That's it. The plugin automatically configures the required Android Maven repository. iOS dependencies are resolved by CocoaPods during the build.
+That's it. The plugin automatically configures both platforms:
+- **Android:** Adds the Didit Maven repository to Gradle
+- **iOS:** Adds the DiditSDK podspec to the Podfile
 
 > **Note:** This SDK uses native modules (camera, NFC) that are not available in Expo Go. You must use a [development build](https://docs.expo.dev/develop/development-builds/introduction/) or run `npx expo prebuild` to generate the native projects.
 
@@ -90,7 +92,14 @@ yarn add @didit-protocol/sdk-react-native
 
 #### iOS
 
-Install CocoaPods dependencies:
+Add the DiditSDK pod to your `Podfile` (it's not on CocoaPods trunk):
+
+```ruby
+# In your ios/Podfile, inside the target block:
+pod 'DiditSDK', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+```
+
+Then install dependencies:
 
 ```sh
 cd ios
