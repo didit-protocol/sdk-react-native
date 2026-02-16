@@ -1,6 +1,7 @@
 const {
   withProjectBuildGradle,
   withSettingsGradle,
+  withAppBuildGradle,
   withPodfile,
   createRunOncePlugin,
 } = require('@expo/config-plugins');
@@ -68,11 +69,38 @@ function withDiditSettingsGradle(config) {
 }
 
 /**
- * Applies both Gradle mods so the plugin works with either project structure.
+ * Adds a packaging exclusion to android/app/build.gradle to avoid
+ * META-INF conflicts from BouncyCastle / jspecify transitive dependencies.
+ */
+const PACKAGING_BLOCK = `
+    packaging {
+        resources {
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
+    }`;
+
+function withDiditPackagingExclusion(config) {
+  return withAppBuildGradle(config, (mod) => {
+    if (mod.modResults.contents.includes('META-INF/versions/9/OSGI-INF/MANIFEST.MF')) {
+      return mod;
+    }
+
+    mod.modResults.contents = mod.modResults.contents.replace(
+      /android\s*\{/,
+      (m) => `${m}\n${PACKAGING_BLOCK}`
+    );
+
+    return mod;
+  });
+}
+
+/**
+ * Applies all Android Gradle mods so the plugin works with either project structure.
  */
 function withDiditAndroidMaven(config) {
   config = withDiditBuildGradle(config);
   config = withDiditSettingsGradle(config);
+  config = withDiditPackagingExclusion(config);
   return config;
 }
 
@@ -117,7 +145,7 @@ function withDiditIosPodspec(config) {
  * Expo config plugin for @didit-protocol/sdk-react-native.
  *
  * Automatically configures:
- * - Android: Adds the Didit Maven repository to Gradle
+ * - Android: Adds the Didit Maven repository to Gradle and packaging exclusions
  * - iOS: Adds the DiditSDK podspec to the Podfile
  */
 function withDiditSdk(config) {
