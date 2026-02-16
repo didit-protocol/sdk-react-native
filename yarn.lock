@@ -1567,8 +1567,12 @@ __metadata:
     turbo: "npm:^2.5.6"
     typescript: "npm:^5.9.2"
   peerDependencies:
+    "@expo/config-plugins": ">=7.0.0"
     react: "*"
     react-native: "*"
+  peerDependenciesMeta:
+    "@expo/config-plugins":
+      optional: true
   languageName: unknown
   linkType: soft
 

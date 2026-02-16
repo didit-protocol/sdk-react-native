@@ -60,13 +60,35 @@ Camera and NFC hardware features are declared as optional (`android:required="fa
 
 ## Installation
 
+### Expo
+
+```sh
+npx expo install @didit-protocol/sdk-react-native
+```
+
+Then add the config plugin to your `app.json` (or `app.config.js`):
+
+```json
+{
+  "expo": {
+    "plugins": ["@didit-protocol/sdk-react-native"]
+  }
+}
+```
+
+That's it. The plugin automatically configures the required Android Maven repository. iOS dependencies are resolved by CocoaPods during the build.
+
+> **Note:** This SDK uses native modules (camera, NFC) that are not available in Expo Go. You must use a [development build](https://docs.expo.dev/develop/development-builds/introduction/) or run `npx expo prebuild` to generate the native projects.
+
+### React Native CLI
+
 ```sh
 npm install @didit-protocol/sdk-react-native
 # or
 yarn add @didit-protocol/sdk-react-native
 ```
 
-### iOS Setup
+#### iOS
 
 Install CocoaPods dependencies:
 
@@ -75,9 +97,7 @@ cd ios
 bundle exec pod install
 ```
 
-The SDK depends on `DiditSDK` for iOS, which is declared in the podspec and installed automatically.
-
-### Android Setup
+#### Android
 
 Add the Didit Maven repository to your project-level `settings.gradle`:
 
@@ -91,7 +111,7 @@ dependencyResolutionManagement {
 }
 ```
 
-The native Android SDK dependency (`me.didit:didit-sdk`) is declared in the library's `build.gradle` and resolved automatically.
+The native SDK dependencies for both platforms are declared in the library and resolved automatically.
 
 ## Quick Start
 

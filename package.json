@@ -19,6 +19,7 @@
     "ios",
     "cpp",
     "*.podspec",
+    "expo-plugin.js",
     "react-native.config.js",
     "!ios/build",
     "!android/build",
@@ -84,8 +85,14 @@
     "typescript": "^5.9.2"
   },
   "peerDependencies": {
+    "@expo/config-plugins": ">=7.0.0",
     "react": "*",
     "react-native": "*"
+  },
+  "peerDependenciesMeta": {
+    "@expo/config-plugins": {
+      "optional": true
+    }
   },
   "workspaces": [
     "example"
@@ -149,6 +156,12 @@
       "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
     ]
+  },
+  "expo": {
+    "autolinking": {
+      "nativeModulesDir": "."
+    },
+    "configPlugin": "./expo-plugin.js"
   },
   "create-react-native-library": {
     "type": "turbo-module",
