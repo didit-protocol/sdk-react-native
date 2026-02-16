@@ -19,6 +19,9 @@ end
 target 'SdkReactNativeExample' do
   config = use_native_modules!
 
+  # DiditSDK is not on CocoaPods trunk — reference the podspec from GitHub directly.
+  pod 'DiditSDK', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
