@@ -15,7 +15,7 @@ import {
   startVerificationWithWorkflow,
   VerificationStatus,
   type VerificationResult,
-} from 'sdk-react-native';
+} from '@didit-protocol/sdk-react-native';
 
 export default function App() {
   const [token, setToken] = useState('');

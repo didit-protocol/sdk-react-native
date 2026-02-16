@@ -114,7 +114,7 @@ function mapErrorType(errorType?: string) {
  *
  * @example
  * ```ts
- * import { startVerification, VerificationStatus } from 'sdk-react-native';
+ * import { startVerification, VerificationStatus } from '@didit-protocol/sdk-react-native';
  *
  * const result = await startVerification('session-token-here');
  * if (result.type === 'completed' && result.session.status === VerificationStatus.Approved) {
@@ -150,7 +150,7 @@ export async function startVerification(
  *
  * @example
  * ```ts
- * import { startVerificationWithWorkflow } from 'sdk-react-native';
+ * import { startVerificationWithWorkflow } from '@didit-protocol/sdk-react-native';
  *
  * const result = await startVerificationWithWorkflow('workflow-id', {
  *   vendorData: 'user-123',
