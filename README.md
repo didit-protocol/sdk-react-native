@@ -620,4 +620,4 @@ yarn run:android
 
 ## License
 
-Copyright (c) 2025 Didit. All rights reserved.
+Copyright (c) 2026 Didit. All rights reserved.

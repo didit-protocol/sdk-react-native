@@ -77,7 +77,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // Didit native Android SDK
-  implementation "me.didit:didit-sdk:3.0.0"
+  implementation "me.didit:didit-sdk:3.2.0"
 
   // Coroutines (required for state flow observation)
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"

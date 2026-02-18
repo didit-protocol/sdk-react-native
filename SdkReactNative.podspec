@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
   s.swift_version = "5.0"
 
   # Didit native iOS SDK dependency
-  s.dependency "DiditSDK", "~> 3.1"
+  s.dependency "DiditSDK", "~> 3.2"
 
   install_modules_dependencies(s)
 end
