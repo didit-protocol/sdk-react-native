@@ -81,7 +81,11 @@ const PACKAGING_BLOCK = `
 
 function withDiditPackagingExclusion(config) {
   return withAppBuildGradle(config, (mod) => {
-    if (mod.modResults.contents.includes('META-INF/versions/9/OSGI-INF/MANIFEST.MF')) {
+    if (
+      mod.modResults.contents.includes(
+        'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
+      )
+    ) {
       return mod;
     }
 
