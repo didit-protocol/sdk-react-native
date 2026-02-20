@@ -1,6 +1,6 @@
 {
   "name": "@didit-protocol/sdk-react-native",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "React Native wrapper for Didit Identity Verification SDK",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -111,7 +111,12 @@
     "source": "src",
     "output": "lib",
     "targets": [
-      ["commonjs", { "esm": true }],
+      [
+        "commonjs",
+        {
+          "esm": true
+        }
+      ],
       [
         "module",
         {
