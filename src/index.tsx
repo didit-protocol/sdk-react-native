@@ -132,7 +132,7 @@ export async function startVerification(
         fontFamily: config.fontFamily,
         loggingEnabled: config.loggingEnabled,
       }
-    : null;
+    : {};
 
   const raw = await NativeSdkReactNative.startVerification(token, nativeConfig);
   return mapNativeResult(raw);
@@ -169,7 +169,7 @@ export async function startVerificationWithWorkflow(
         fontFamily: options.config.fontFamily,
         loggingEnabled: options.config.loggingEnabled,
       }
-    : null;
+    : {};
 
   const nativeContactDetails = options?.contactDetails
     ? {
@@ -178,7 +178,7 @@ export async function startVerificationWithWorkflow(
         emailLang: options.contactDetails.emailLang,
         phone: options.contactDetails.phone,
       }
-    : null;
+    : {};
 
   const nativeExpectedDetails = options?.expectedDetails
     ? {
@@ -193,7 +193,7 @@ export async function startVerificationWithWorkflow(
         ipAddress: options.expectedDetails.ipAddress,
         portraitImage: options.expectedDetails.portraitImage,
       }
-    : null;
+    : {};
 
   const raw = await NativeSdkReactNative.startVerificationWithWorkflow(
     workflowId,
