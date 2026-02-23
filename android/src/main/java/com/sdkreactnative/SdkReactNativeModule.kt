@@ -5,11 +5,13 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import me.didit.sdk.Configuration
 import me.didit.sdk.DiditSdk
 import me.didit.sdk.DiditSdkState
@@ -41,20 +43,24 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         config: ReadableMap?,
         promise: Promise
     ) {
+        Log.d(TAG, "startVerification: token=${token.take(8)}..., config=$config")
+        val activity = currentActivity
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
+                Log.d(TAG, "startVerification: parsed configuration=$configuration")
 
                 DiditSdk.startVerification(
                     token = token,
                     configuration = configuration
                 ) { result ->
+                    Log.d(TAG, "startVerification: onResult callback fired, type=${result::class.simpleName}")
                     promise.resolve(mapVerificationResult(result))
                 }
 
-                // Wait for state to become Ready, then launch the UI
-                awaitReadyAndLaunchUI(promise)
+                awaitReadyAndLaunchUI(promise, activity)
             } catch (e: Exception) {
+                Log.e(TAG, "startVerification: exception", e)
                 rejectWithError(promise, e)
             }
         }
@@ -71,11 +77,15 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         config: ReadableMap?,
         promise: Promise
     ) {
+        Log.d(TAG, "startVerificationWithWorkflow: workflowId=$workflowId, vendorData=$vendorData, metadata=$metadata")
+        Log.d(TAG, "startVerificationWithWorkflow: contactDetails=$contactDetails, expectedDetails=$expectedDetails, config=$config")
+        val activity = currentActivity
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
                 val contact = parseContactDetails(contactDetails)
                 val expected = parseExpectedDetails(expectedDetails)
+                Log.d(TAG, "startVerificationWithWorkflow: parsed configuration=$configuration, contact=$contact, expected=$expected")
 
                 DiditSdk.startVerification(
                     workflowId = workflowId,
@@ -85,12 +95,13 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                     expectedDetails = expected,
                     configuration = configuration
                 ) { result ->
+                    Log.d(TAG, "startVerificationWithWorkflow: onResult callback fired, type=${result::class.simpleName}")
                     promise.resolve(mapVerificationResult(result))
                 }
 
-                // Wait for state to become Ready, then launch the UI
-                awaitReadyAndLaunchUI(promise)
+                awaitReadyAndLaunchUI(promise, activity)
             } catch (e: Exception) {
+                Log.e(TAG, "startVerificationWithWorkflow: exception", e)
                 rejectWithError(promise, e)
             }
         }
@@ -100,41 +111,65 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
 
     /**
      * Waits for the SDK state to become Ready, then launches the verification UI.
-     * If the state becomes Error, the SDK's onResult callback will fire with a failure.
+     * If the state becomes Error, resolves the promise with a failure result.
+     * Includes a timeout to prevent the promise from hanging indefinitely.
      */
-    private suspend fun awaitReadyAndLaunchUI(promise: Promise) {
-        // Collect state until Ready or Error
-        DiditSdk.state.first { state ->
-            when (state) {
-                is DiditSdkState.Ready -> {
-                    val activity = currentActivity
-                    if (activity != null) {
+    private suspend fun awaitReadyAndLaunchUI(promise: Promise, activity: android.app.Activity?) {
+        if (activity == null) {
+            Log.e(TAG, "awaitReadyAndLaunchUI: no active Activity at call time")
+            val errorResult = mapVerificationResult(
+                VerificationResult.Failed(
+                    error = VerificationError.Unknown("No active Activity available to present verification UI."),
+                    session = null
+                )
+            )
+            promise.resolve(errorResult)
+            return
+        }
+
+        val TIMEOUT_MS = 30_000L
+
+        val stateReached = withTimeoutOrNull(TIMEOUT_MS) {
+            DiditSdk.state.first { state ->
+                Log.d(TAG, "awaitReadyAndLaunchUI: SDK state = $state")
+                when (state) {
+                    is DiditSdkState.Ready -> {
+                        Log.d(TAG, "awaitReadyAndLaunchUI: launching verification UI")
                         DiditSdk.launchVerificationUI(activity)
-                    } else {
-                        // Cannot launch UI without an activity
+                        true
+                    }
+                    is DiditSdkState.Error -> {
+                        Log.e(TAG, "awaitReadyAndLaunchUI: SDK entered Error state: ${state.message}")
                         val errorResult = mapVerificationResult(
                             VerificationResult.Failed(
-                                error = VerificationError.Unknown("No active Activity available to present verification UI."),
+                                error = VerificationError.Unknown(state.message ?: "SDK entered error state."),
                                 session = null
                             )
                         )
                         promise.resolve(errorResult)
+                        true
                     }
-                    true // Stop collecting
+                    else -> false
                 }
-                is DiditSdkState.Error -> {
-                    // The SDK's onResult callback will handle the error
-                    true // Stop collecting
-                }
-                else -> false // Keep waiting
             }
+        }
+
+        if (stateReached == null) {
+            Log.e(TAG, "awaitReadyAndLaunchUI: timed out waiting for SDK state after ${TIMEOUT_MS}ms")
+            val errorResult = mapVerificationResult(
+                VerificationResult.Failed(
+                    error = VerificationError.Unknown("Timed out waiting for verification SDK to become ready."),
+                    session = null
+                )
+            )
+            promise.resolve(errorResult)
         }
     }
 
     // ─── Configuration Parsing ───────────────────────────────────────────────
 
     private fun parseConfiguration(map: ReadableMap?): Configuration? {
-        if (map == null) return null
+        if (map == null || !map.keySetIterator().hasNextKey()) return null
 
         var language: SupportedLanguage? = null
         if (map.hasKey("languageCode")) {
@@ -152,7 +187,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     private fun parseContactDetails(map: ReadableMap?): ContactDetails? {
-        if (map == null) return null
+        if (map == null || !map.keySetIterator().hasNextKey()) return null
 
         return ContactDetails(
             email = if (map.hasKey("email")) map.getString("email") else null,
@@ -163,7 +198,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     private fun parseExpectedDetails(map: ReadableMap?): ExpectedDetails? {
-        if (map == null) return null
+        if (map == null || !map.keySetIterator().hasNextKey()) return null
 
         return ExpectedDetails(
             firstName = if (map.hasKey("firstName")) map.getString("firstName") else null,
@@ -230,5 +265,6 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
 
     companion object {
         const val NAME = NativeSdkReactNativeSpec.NAME
+        private const val TAG = "DiditSdkRN"
     }
 }
