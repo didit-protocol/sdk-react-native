@@ -143,7 +143,7 @@ public class DiditSdkBridge: NSObject {
     // MARK: - Configuration Parsing
 
     private func parseConfiguration(_ dict: NSDictionary?) -> DiditSdk.Configuration? {
-        guard let dict = dict else { return nil }
+        guard let dict = dict, dict.count > 0 else { return nil }
 
         var language: SupportedLanguage?
         if let code = dict["languageCode"] as? String {
@@ -158,7 +158,7 @@ public class DiditSdkBridge: NSObject {
     }
 
     private func parseContactDetails(_ dict: NSDictionary?) -> ContactDetails? {
-        guard let dict = dict else { return nil }
+        guard let dict = dict, dict.count > 0 else { return nil }
 
         return ContactDetails(
             email: dict["email"] as? String,
@@ -169,7 +169,7 @@ public class DiditSdkBridge: NSObject {
     }
 
     private func parseExpectedDetails(_ dict: NSDictionary?) -> ExpectedDetails? {
-        guard let dict = dict else { return nil }
+        guard let dict = dict, dict.count > 0 else { return nil }
 
         return ExpectedDetails(
             firstName: dict["firstName"] as? String,

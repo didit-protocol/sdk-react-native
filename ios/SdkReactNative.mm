@@ -78,7 +78,7 @@
                   resolve:(RCTPromiseResolveBlock)resolve
                    reject:(RCTPromiseRejectBlock)reject
 {
-    NSDictionary *configDict = [self configDictFrom:config];
+    NSDictionary *configDict = (&config != nullptr) ? [self configDictFrom:config] : nil;
 
     [_bridge startVerificationWithToken:token
                                  config:configDict
@@ -96,9 +96,9 @@
                               resolve:(RCTPromiseResolveBlock)resolve
                                reject:(RCTPromiseRejectBlock)reject
 {
-    NSDictionary *configDict = [self configDictFrom:config];
-    NSDictionary *contactDict = [self contactDictFrom:contactDetails];
-    NSDictionary *expectedDict = [self expectedDictFrom:expectedDetails];
+    NSDictionary *configDict = (&config != nullptr) ? [self configDictFrom:config] : nil;
+    NSDictionary *contactDict = (&contactDetails != nullptr) ? [self contactDictFrom:contactDetails] : nil;
+    NSDictionary *expectedDict = (&expectedDetails != nullptr) ? [self expectedDictFrom:expectedDetails] : nil;
 
     [_bridge startVerificationWithWorkflowWithWorkflowId:workflowId
                                               vendorData:vendorData

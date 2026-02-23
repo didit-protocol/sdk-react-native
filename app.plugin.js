@@ -69,29 +69,37 @@ function withDiditSettingsGradle(config) {
 }
 
 /**
- * Adds a packaging exclusion to android/app/build.gradle to avoid
- * META-INF conflicts from BouncyCastle / jspecify transitive dependencies.
+ * Adds BouncyCastle dependency exclusions and packaging rules to
+ * android/app/build.gradle to avoid duplicate class and META-INF
+ * conflicts from BouncyCastle transitive dependencies.
+ *
+ * The DiditSDK uses jdk18on BouncyCastle modules. Host apps may have
+ * other dependencies that pull in older jdk15to18 or jdk15on variants,
+ * causing duplicate class errors during Android builds.
  */
-const PACKAGING_BLOCK = `
+const DIDIT_ANDROID_BLOCK = `
+    configurations.configureEach {
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+        exclude group: 'org.bouncycastle', module: 'bcutil-jdk15to18'
+        exclude group: 'org.bouncycastle', module: 'bcpkix-jdk15to18'
+        exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
     packaging {
         resources {
-            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+            pickFirsts += ['org/bouncycastle/**']
+            excludes += 'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
         }
     }`;
 
 function withDiditPackagingExclusion(config) {
   return withAppBuildGradle(config, (mod) => {
-    if (
-      mod.modResults.contents.includes(
-        'META-INF/versions/9/OSGI-INF/MANIFEST.MF'
-      )
-    ) {
+    if (mod.modResults.contents.includes('bcprov-jdk15to18')) {
       return mod;
     }
 
     mod.modResults.contents = mod.modResults.contents.replace(
       /android\s*\{/,
-      (m) => `${m}\n${PACKAGING_BLOCK}`
+      (m) => `${m}\n${DIDIT_ANDROID_BLOCK}`
     );
 
     return mod;
