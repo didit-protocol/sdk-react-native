@@ -58,6 +58,16 @@ The following permissions are declared in the native SDK's `AndroidManifest.xml`
 
 Camera and NFC hardware features are declared as optional (`android:required="false"`), so your app can be installed on devices without these features.
 
+#### Runtime Permissions
+
+The SDK handles Android runtime permission requests automatically. When the user reaches a step that requires camera access:
+
+1. The SDK prompts for camera permission if not already granted
+2. If the user **denies** the permission, an error message is displayed with a "Try Again" button
+3. If the user **grants** the permission, the verification flow continues
+
+You do not need to request camera permission in your app code before calling `startVerification()` — the SDK manages this internally.
+
 ## Installation
 
 ### Expo
