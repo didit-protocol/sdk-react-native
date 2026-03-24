@@ -34,6 +34,15 @@
     if (config.loggingEnabled().has_value()) {
         dict[@"loggingEnabled"] = @(config.loggingEnabled().value());
     }
+    if (config.showCloseButton().has_value()) {
+        dict[@"showCloseButton"] = @(config.showCloseButton().value());
+    }
+    if (config.showExitConfirmation().has_value()) {
+        dict[@"showExitConfirmation"] = @(config.showExitConfirmation().value());
+    }
+    if (config.closeOnComplete().has_value()) {
+        dict[@"closeOnComplete"] = @(config.closeOnComplete().value());
+    }
     return dict;
 }
 

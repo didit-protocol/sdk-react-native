@@ -11,6 +11,12 @@ export type VerificationConfig = {
   fontFamily?: string;
   /** Enable SDK logging for debugging. Default: false. */
   loggingEnabled?: boolean;
+  /** Show close (X) button on verification step screens. Default: true. */
+  showCloseButton?: boolean;
+  /** Show confirmation dialog when user attempts to exit. Default: true. */
+  showExitConfirmation?: boolean;
+  /** Automatically dismiss verification UI when complete. Default: false. */
+  closeOnComplete?: boolean;
 };
 
 /**

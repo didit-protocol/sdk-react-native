@@ -123,6 +123,24 @@ export interface DiditConfig {
    * Default: `false`.
    */
   loggingEnabled?: boolean;
+
+  /**
+   * Show close (X) button on verification step screens.
+   * Default: `true`.
+   */
+  showCloseButton?: boolean;
+
+  /**
+   * Show confirmation dialog when user attempts to exit.
+   * Default: `true`.
+   */
+  showExitConfirmation?: boolean;
+
+  /**
+   * Automatically dismiss verification UI when complete.
+   * Default: `false`.
+   */
+  closeOnComplete?: boolean;
 }
 
 /**

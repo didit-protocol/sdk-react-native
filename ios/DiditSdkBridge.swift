@@ -61,16 +61,11 @@ public class DiditSdkBridge: NSObject {
             guard let self = self else { return }
 
             let configuration = self.parseConfiguration(config)
-            let contact = self.parseContactDetails(contactDetails)
-            let expected = self.parseExpectedDetails(expectedDetails)
 
             self.presentVerification(completion: completion) {
                 DiditSdk.shared.startVerification(
                     workflowId: workflowId,
                     vendorData: vendorData,
-                    metadata: metadata,
-                    contactDetails: contact,
-                    expectedDetails: expected,
                     configuration: configuration
                 )
             }
@@ -96,12 +91,9 @@ public class DiditSdkBridge: NSObject {
             return
         }
 
-        // Create a SwiftUI view that hosts the verification flow
         let bridgeView = DiditBridgeView(
             onResult: { [weak self] result in
                 let mapped = Self.mapVerificationResult(result)
-
-                // Dismiss the hosting controller after the SDK's fullScreenCover has dismissed
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     self?.hostingController?.dismiss(animated: false) {
                         self?.hostingController = nil
@@ -153,37 +145,13 @@ public class DiditSdkBridge: NSObject {
         return DiditSdk.Configuration(
             languageLocale: language,
             fontFamily: dict["fontFamily"] as? String,
-            loggingEnabled: dict["loggingEnabled"] as? Bool ?? false
+            loggingEnabled: dict["loggingEnabled"] as? Bool ?? false,
+            showCloseButton: dict["showCloseButton"] as? Bool ?? true,
+            showExitConfirmation: dict["showExitConfirmation"] as? Bool ?? true,
+            closeOnComplete: dict["closeOnComplete"] as? Bool ?? false
         )
     }
 
-    private func parseContactDetails(_ dict: NSDictionary?) -> ContactDetails? {
-        guard let dict = dict, dict.count > 0 else { return nil }
-
-        return ContactDetails(
-            email: dict["email"] as? String,
-            sendNotificationEmails: dict["sendNotificationEmails"] as? Bool,
-            emailLang: dict["emailLang"] as? String,
-            phone: dict["phone"] as? String
-        )
-    }
-
-    private func parseExpectedDetails(_ dict: NSDictionary?) -> ExpectedDetails? {
-        guard let dict = dict, dict.count > 0 else { return nil }
-
-        return ExpectedDetails(
-            firstName: dict["firstName"] as? String,
-            lastName: dict["lastName"] as? String,
-            dateOfBirth: dict["dateOfBirth"] as? String,
-            gender: dict["gender"] as? String,
-            nationality: dict["nationality"] as? String,
-            country: dict["country"] as? String,
-            address: dict["address"] as? String,
-            identificationNumber: dict["identificationNumber"] as? String,
-            ipAddress: dict["ipAddress"] as? String,
-            portraitImage: dict["portraitImage"] as? String
-        )
-    }
 
     // MARK: - Result Mapping
 

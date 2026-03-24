@@ -182,6 +182,9 @@ const result = await startVerification('your-session-token', {
   languageCode: 'es',
   fontFamily: 'Avenir',
   loggingEnabled: true,
+  showCloseButton: true,
+  showExitConfirmation: true,
+  closeOnComplete: false,
 });
 
 // With startVerificationWithWorkflow — config is inside options
@@ -190,6 +193,8 @@ const result = await startVerificationWithWorkflow('your-workflow-id', {
   config: {
     languageCode: 'es',
     loggingEnabled: true,
+    showCloseButton: true,
+    showExitConfirmation: true,
   },
 });
 ```
@@ -201,6 +206,9 @@ const result = await startVerificationWithWorkflow('your-workflow-id', {
 | `languageCode` | `string` | Device locale | ISO 639-1 language code (e.g. `"en"`, `"fr"`, `"ar"`) |
 | `fontFamily` | `string` | System font | Custom font family name |
 | `loggingEnabled` | `boolean` | `false` | Enable SDK debug logging |
+| `showCloseButton` | `boolean` | `true` | Show close (X) button on verification step screens |
+| `showExitConfirmation` | `boolean` | `true` | Show confirmation dialog when user attempts to exit |
+| `closeOnComplete` | `boolean` | `false` | Automatically dismiss verification UI when complete |
 
 All fields are optional. If no config is provided, the SDK uses sensible defaults.
 
@@ -279,93 +287,29 @@ await startVerification(token, { languageCode: 'fr' });
 | Georgian | `ka` | Chinese (Traditional) | `zh-TW` |
 | Montenegrin | `cnr` | Somali | `so` |
 
-## Advanced Options
+## Advanced Session Parameters
 
-These options are only available with `startVerificationWithWorkflow`, where the SDK creates the session on your behalf.
-
-### Contact Details (Prefill)
-
-Provide contact details to prefill verification forms and enable email notifications:
+For advanced session parameters such as `contact_details`, `expected_details`, `metadata`, and `callback`, use the **Backend Session** method. Your backend calls [POST /v3/session/](https://docs.didit.me) with full parameters, then passes the `session_token` to the SDK:
 
 ```tsx
-const result = await startVerificationWithWorkflow('your-workflow-id', {
-  contactDetails: {
-    email: 'user@example.com',
-    sendNotificationEmails: true,
-    emailLang: 'en',
-    phone: '+14155552671',
-  },
-});
+// Your backend creates the session with advanced parameters:
+// POST /v3/session/ with contact_details, expected_details, metadata, etc.
+// Then passes the session_token to the SDK:
+const result = await startVerification(sessionTokenFromBackend);
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `email` | `string` | Email address for verification notifications |
-| `sendNotificationEmails` | `boolean` | Whether to send status update emails to the user |
-| `emailLang` | `string` | ISO 639-1 language code for notification emails |
-| `phone` | `string` | Phone number in E.164 format (e.g. `"+14155552671"`) |
-
-All fields are optional. Only provide the ones relevant to your use case.
-
-### Expected Details (Cross-Validation)
-
-Provide expected user details for cross-validation against data extracted from documents. The SDK compares these values with what it reads from the user's ID:
-
-```tsx
-const result = await startVerificationWithWorkflow('your-workflow-id', {
-  expectedDetails: {
-    firstName: 'John',
-    lastName: 'Doe',
-    dateOfBirth: '1990-05-15',
-    nationality: 'USA',
-    country: 'USA',
-  },
-});
-```
-
-| Field | Type | Format | Description |
-|-------|------|--------|-------------|
-| `firstName` | `string` | — | Expected first name |
-| `lastName` | `string` | — | Expected last name |
-| `dateOfBirth` | `string` | `YYYY-MM-DD` | Expected date of birth |
-| `gender` | `string` | — | Expected gender |
-| `nationality` | `string` | ISO 3166-1 alpha-3 | Expected nationality (e.g. `"USA"`, `"GBR"`) |
-| `country` | `string` | ISO 3166-1 alpha-3 | Expected country of residence |
-| `address` | `string` | — | Expected address |
-| `identificationNumber` | `string` | — | Expected document ID number |
-| `ipAddress` | `string` | — | Expected IP address |
-| `portraitImage` | `string` | — | Base64-encoded portrait image for face comparison |
-
-All fields are optional.
-
-### Metadata
-
-Store custom JSON metadata with the session (not displayed to the user):
-
-```tsx
-const result = await startVerificationWithWorkflow('your-workflow-id', {
-  vendorData: 'user-123',
-  metadata: '{"internalId": "abc123", "source": "mobile"}',
-});
-```
+> **Note:** The `startVerificationWithWorkflow` method only supports `vendorData`. For any other session parameters, use the Backend Session method.
 
 ### Full Workflow Example
 
 ```tsx
 const result = await startVerificationWithWorkflow('your-workflow-id', {
   vendorData: 'user-123',
-  metadata: '{"source": "react-native"}',
-  contactDetails: {
-    email: 'user@example.com',
-    sendNotificationEmails: true,
-  },
-  expectedDetails: {
-    firstName: 'John',
-    lastName: 'Doe',
-  },
   config: {
     languageCode: 'en',
     loggingEnabled: true,
+    showCloseButton: true,
+    showExitConfirmation: true,
   },
 });
 ```
@@ -576,10 +520,9 @@ Returns: `Promise<VerificationResult>`
 | Field | Type | Description |
 |-------|------|-------------|
 | `vendorData` | `string` | Your user identifier or reference |
-| `metadata` | `string` | Custom JSON metadata for the session |
-| `contactDetails` | `ContactDetails` | Prefill contact information |
-| `expectedDetails` | `ExpectedDetails` | Expected identity details for cross-validation |
 | `config` | `DiditConfig` | SDK configuration options |
+
+> **Note:** For advanced session parameters (`contactDetails`, `expectedDetails`, `metadata`), use the Backend Session method (`startVerification` with a token created via POST /v3/session/).
 
 ## Exported Types
 

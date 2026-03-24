@@ -20,8 +20,6 @@ import me.didit.sdk.VerificationError
 import me.didit.sdk.VerificationResult
 import me.didit.sdk.VerificationStatus
 import me.didit.sdk.core.localization.SupportedLanguage
-import me.didit.sdk.models.ContactDetails
-import me.didit.sdk.models.ExpectedDetails
 
 class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     NativeSdkReactNativeSpec(reactContext) {
@@ -83,16 +81,11 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
-                val contact = parseContactDetails(contactDetails)
-                val expected = parseExpectedDetails(expectedDetails)
-                Log.d(TAG, "startVerificationWithWorkflow: parsed configuration=$configuration, contact=$contact, expected=$expected")
+                Log.d(TAG, "startVerificationWithWorkflow: parsed configuration=$configuration")
 
                 DiditSdk.startVerification(
                     workflowId = workflowId,
                     vendorData = vendorData,
-                    metadata = metadata,
-                    contactDetails = contact,
-                    expectedDetails = expected,
                     configuration = configuration
                 ) { result ->
                     Log.d(TAG, "startVerificationWithWorkflow: onResult callback fired, type=${result::class.simpleName}")
@@ -182,37 +175,13 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         return Configuration(
             languageLocale = language,
             fontFamily = if (map.hasKey("fontFamily")) map.getString("fontFamily") else null,
-            loggingEnabled = if (map.hasKey("loggingEnabled")) map.getBoolean("loggingEnabled") else false
+            loggingEnabled = if (map.hasKey("loggingEnabled")) map.getBoolean("loggingEnabled") else false,
+            showCloseButton = if (map.hasKey("showCloseButton")) map.getBoolean("showCloseButton") else true,
+            showExitConfirmation = if (map.hasKey("showExitConfirmation")) map.getBoolean("showExitConfirmation") else true,
+            closeOnComplete = if (map.hasKey("closeOnComplete")) map.getBoolean("closeOnComplete") else false
         )
     }
 
-    private fun parseContactDetails(map: ReadableMap?): ContactDetails? {
-        if (map == null || !map.keySetIterator().hasNextKey()) return null
-
-        return ContactDetails(
-            email = if (map.hasKey("email")) map.getString("email") else null,
-            sendNotificationEmails = if (map.hasKey("sendNotificationEmails")) map.getBoolean("sendNotificationEmails") else null,
-            emailLang = if (map.hasKey("emailLang")) map.getString("emailLang") else null,
-            phone = if (map.hasKey("phone")) map.getString("phone") else null
-        )
-    }
-
-    private fun parseExpectedDetails(map: ReadableMap?): ExpectedDetails? {
-        if (map == null || !map.keySetIterator().hasNextKey()) return null
-
-        return ExpectedDetails(
-            firstName = if (map.hasKey("firstName")) map.getString("firstName") else null,
-            lastName = if (map.hasKey("lastName")) map.getString("lastName") else null,
-            dateOfBirth = if (map.hasKey("dateOfBirth")) map.getString("dateOfBirth") else null,
-            gender = if (map.hasKey("gender")) map.getString("gender") else null,
-            nationality = if (map.hasKey("nationality")) map.getString("nationality") else null,
-            country = if (map.hasKey("country")) map.getString("country") else null,
-            address = if (map.hasKey("address")) map.getString("address") else null,
-            identificationNumber = if (map.hasKey("identificationNumber")) map.getString("identificationNumber") else null,
-            ipAddress = if (map.hasKey("ipAddress")) map.getString("ipAddress") else null,
-            portraitImage = if (map.hasKey("portraitImage")) map.getString("portraitImage") else null
-        )
-    }
 
     // ─── Result Mapping ──────────────────────────────────────────────────────
 

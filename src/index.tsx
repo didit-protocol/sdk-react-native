@@ -131,6 +131,9 @@ export async function startVerification(
         languageCode: config.languageCode,
         fontFamily: config.fontFamily,
         loggingEnabled: config.loggingEnabled,
+        showCloseButton: config.showCloseButton,
+        showExitConfirmation: config.showExitConfirmation,
+        closeOnComplete: config.closeOnComplete,
       }
     : {};
 
@@ -168,6 +171,9 @@ export async function startVerificationWithWorkflow(
         languageCode: options.config.languageCode,
         fontFamily: options.config.fontFamily,
         loggingEnabled: options.config.loggingEnabled,
+        showCloseButton: options.config.showCloseButton,
+        showExitConfirmation: options.config.showExitConfirmation,
+        closeOnComplete: options.config.closeOnComplete,
       }
     : {};
 
