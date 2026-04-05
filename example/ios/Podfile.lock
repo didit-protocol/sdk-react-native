@@ -1,8 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - DiditSDK (3.2.4):
-    - MediaPipeTasksVision
-    - NFCPassportReader (~> 2.0)
+  - DiditSDK (3.2.9)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
   - FBLazyVector (0.83.0)
@@ -11,12 +9,6 @@ PODS:
   - hermes-engine (0.14.0):
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
-  - MediaPipeTasksCommon (0.10.33)
-  - MediaPipeTasksVision (0.10.33):
-    - MediaPipeTasksCommon (= 0.10.33)
-  - NFCPassportReader (2.3.0):
-    - OpenSSL-Universal (= 3.3.3001)
-  - OpenSSL-Universal (3.3.3001)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -2458,7 +2450,7 @@ PODS:
     - React-perflogger (= 0.83.0)
     - React-utils (= 0.83.0)
     - SocketRocket
-  - SdkReactNative (3.2.6):
+  - SdkReactNative (3.2.7):
     - boost
     - DiditSDK (~> 3.2)
     - DoubleConversion
@@ -2492,7 +2484,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
-  - DiditSDK (from `../../../mobile-sdks/ios/sdk`)
+  - DiditSDK (from `https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - fast_float (from `../node_modules/react-native/third-party-podspecs/fast_float.podspec`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -2575,17 +2567,13 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - MediaPipeTasksCommon
-    - MediaPipeTasksVision
-    - NFCPassportReader
-    - OpenSSL-Universal
     - SocketRocket
 
 EXTERNAL SOURCES:
   boost:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DiditSDK:
-    :path: "../../../mobile-sdks/ios/sdk"
+    :podspec: https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
   fast_float:
@@ -2744,17 +2732,13 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  DiditSDK: 2de51a2be1efe7744838feb9ed8174a91191976b
+  DiditSDK: 8dbd51910efebaabd3fcca14a238cc15d0486a6c
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: a293a88992c4c33f0aee184acab0b64a08ff9458
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: ce33e8ac7c682a86889b51dc19f31508cd04efac
-  MediaPipeTasksCommon: 912f7942cc3aa057bb406af435aaea4c1959255a
-  MediaPipeTasksVision: 2df54e614f029da790f442c8b330a37c841a422f
-  NFCPassportReader: 16f98e181157d694bd02b0daef0c31e6b1ad767a
-  OpenSSL-Universal: 6082b0bf950e5636fe0d78def171184e2b3899c2
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: 2b70c6e3abe00396cefd8913efbf6a2db01a2b36
   RCTRequired: f3540eee8094231581d40c5c6d41b0f170237a81
@@ -2824,10 +2808,10 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: ebcf3a78dc1bcdf054c9e8d309244bade6b31568
   ReactCodegen: 11c08ff43a62009d48c71de000352e4515918801
   ReactCommon: 424cc34cf5055d69a3dcf02f3436481afb8b0f6f
-  SdkReactNative: aceaffdd0b27eb22acdf3aee55b0f4bbe3dd4c05
+  SdkReactNative: c3aa310a134e9d684c8ed87c6c07797288a79dc8
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 6ca93c8c13f56baeec55eb608577619b17a4d64e
 
-PODFILE CHECKSUM: 7feb0f101d45303af2814e111f678176871869e3
+PODFILE CHECKSUM: 1eb5b38b7b8485da20e6793d48ca2ab16a74702a
 
 COCOAPODS: 1.16.2
