@@ -202,6 +202,8 @@ public class DiditSdkBridge: NSObject {
         switch error {
         case .sessionExpired:
             return "sessionExpired"
+        case .retryBlocked:
+            return "retryBlocked"
         case .networkError:
             return "networkError"
         case .cameraAccessDenied:
