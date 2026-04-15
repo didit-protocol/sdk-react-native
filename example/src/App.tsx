@@ -18,7 +18,7 @@ import {
 } from '@didit-protocol/sdk-react-native';
 
 export default function App() {
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState('9VMHqtJmhTut');
   const [workflowId, setWorkflowId] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);

@@ -1,13 +1,13 @@
 import UIKit
 import SwiftUI
-import DiditSDK
+@preconcurrency import DiditSDK
 
 // MARK: - Swift Bridge for React Native TurboModule
 
 /// Bridge class that exposes DiditSDK functionality to Objective-C++.
 /// This is the adapter between the ObjC++ TurboModule and the Swift DiditSDK.
 @objcMembers
-public class DiditSdkBridge: NSObject {
+public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
     private var hostingController: UIViewController?
 
@@ -21,17 +21,16 @@ public class DiditSdkBridge: NSObject {
     public func startVerification(
         token: String,
         config: NSDictionary?,
-        completion: @escaping (NSDictionary) -> Void
+        completion: @escaping @Sendable (NSDictionary) -> Void
     ) {
+        let parsed = ParsedConfig(config)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-
-            let configuration = self.parseConfiguration(config)
 
             self.presentVerification(completion: completion) {
                 DiditSdk.shared.startVerification(
                     token: token,
-                    configuration: configuration
+                    configuration: parsed.toConfiguration()
                 )
             }
         }
@@ -55,18 +54,17 @@ public class DiditSdkBridge: NSObject {
         contactDetails: NSDictionary?,
         expectedDetails: NSDictionary?,
         config: NSDictionary?,
-        completion: @escaping (NSDictionary) -> Void
+        completion: @escaping @Sendable (NSDictionary) -> Void
     ) {
+        let parsed = ParsedConfig(config)
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-
-            let configuration = self.parseConfiguration(config)
 
             self.presentVerification(completion: completion) {
                 DiditSdk.shared.startVerification(
                     workflowId: workflowId,
                     vendorData: vendorData,
-                    configuration: configuration
+                    configuration: parsed.toConfiguration()
                 )
             }
         }
@@ -78,8 +76,8 @@ public class DiditSdkBridge: NSObject {
     /// Uses the public `.diditVerification(onComplete:)` SwiftUI modifier,
     /// so no internal SDK types need to be exposed.
     private func presentVerification(
-        completion: @escaping (NSDictionary) -> Void,
-        startAction: @escaping () -> Void
+        completion: @escaping @Sendable (NSDictionary) -> Void,
+        startAction: @escaping @Sendable () -> Void
     ) {
         guard let rootVC = Self.findRootViewController() else {
             let error: NSDictionary = [
@@ -134,22 +132,51 @@ public class DiditSdkBridge: NSObject {
 
     // MARK: - Configuration Parsing
 
-    private func parseConfiguration(_ dict: NSDictionary?) -> DiditSdk.Configuration? {
-        guard let dict = dict, dict.count > 0 else { return nil }
+    /// Sendable value type that captures config primitives before crossing concurrency boundaries.
+    private struct ParsedConfig: Sendable {
+        let languageCode: String?
+        let fontFamily: String?
+        let loggingEnabled: Bool
+        let showCloseButton: Bool
+        let showExitConfirmation: Bool
+        let closeOnComplete: Bool
+        let isEmpty: Bool
 
-        var language: SupportedLanguage?
-        if let code = dict["languageCode"] as? String {
-            language = SupportedLanguage.allCases.first { $0.code == code }
+        init(_ dict: NSDictionary?) {
+            guard let dict = dict, dict.count > 0 else {
+                self.languageCode = nil
+                self.fontFamily = nil
+                self.loggingEnabled = false
+                self.showCloseButton = true
+                self.showExitConfirmation = true
+                self.closeOnComplete = false
+                self.isEmpty = true
+                return
+            }
+            self.languageCode = dict["languageCode"] as? String
+            self.fontFamily = dict["fontFamily"] as? String
+            self.loggingEnabled = dict["loggingEnabled"] as? Bool ?? false
+            self.showCloseButton = dict["showCloseButton"] as? Bool ?? true
+            self.showExitConfirmation = dict["showExitConfirmation"] as? Bool ?? true
+            self.closeOnComplete = dict["closeOnComplete"] as? Bool ?? false
+            self.isEmpty = false
         }
 
-        return DiditSdk.Configuration(
-            languageLocale: language,
-            fontFamily: dict["fontFamily"] as? String,
-            loggingEnabled: dict["loggingEnabled"] as? Bool ?? false,
-            showCloseButton: dict["showCloseButton"] as? Bool ?? true,
-            showExitConfirmation: dict["showExitConfirmation"] as? Bool ?? true,
-            closeOnComplete: dict["closeOnComplete"] as? Bool ?? false
-        )
+        func toConfiguration() -> DiditSdk.Configuration? {
+            guard !isEmpty else { return nil }
+            var language: SupportedLanguage?
+            if let code = languageCode {
+                language = SupportedLanguage.allCases.first { $0.code == code }
+            }
+            return DiditSdk.Configuration(
+                languageLocale: language,
+                fontFamily: fontFamily,
+                loggingEnabled: loggingEnabled,
+                showCloseButton: showCloseButton,
+                showExitConfirmation: showExitConfirmation,
+                closeOnComplete: closeOnComplete
+            )
+        }
     }
 
 
@@ -163,6 +190,7 @@ public class DiditSdkBridge: NSObject {
         case .approved: return "Approved"
         case .pending: return "Pending"
         case .declined: return "Declined"
+        @unknown default: return "Pending"
         }
     }
 
@@ -195,6 +223,13 @@ public class DiditSdkBridge: NSObject {
                 dict["status"] = statusString(session.status)
             }
             return dict
+
+        @unknown default:
+            return [
+                "type": "failed",
+                "errorType": "unknown",
+                "errorMessage": "Unrecognized verification result"
+            ]
         }
     }
 
@@ -208,6 +243,8 @@ public class DiditSdkBridge: NSObject {
             return "cameraAccessDenied"
         case .unknown:
             return "unknown"
+        @unknown default:
+            return "unknown"
         }
     }
 }
@@ -217,8 +254,8 @@ public class DiditSdkBridge: NSObject {
 /// A transparent SwiftUI view that uses the public `.diditVerification` modifier
 /// to host the verification flow. This avoids needing to access internal SDK types.
 private struct DiditBridgeView: View {
-    let onResult: (VerificationResult) -> Void
-    let startAction: () -> Void
+    let onResult: @Sendable (VerificationResult) -> Void
+    let startAction: @Sendable () -> Void
 
     var body: some View {
         Color.clear

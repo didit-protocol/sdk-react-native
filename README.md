@@ -13,7 +13,7 @@ A React Native wrapper for the Didit Identity Verification SDK. Supports both iO
 | Platform | Minimum Version | Notes |
 |----------|----------------|-------|
 | iOS | 13.0+ | NFC passport reading requires iOS 15.0+ |
-| Android | API 23+ (6.0) | Kotlin 1.9+, Java 17+ |
+| Android | API 24+ (7.0) | Kotlin 1.9+, Java 17+ |
 
 ## Permissions
 
