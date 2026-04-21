@@ -1,0 +1,24 @@
+{
+  "name": "sdk-react-native-expo-example",
+  "version": "1.0.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
+    "prebuild": "expo prebuild --clean"
+  },
+  "dependencies": {
+    "@didit-protocol/sdk-react-native": "workspace:*",
+    "expo": "~55.0.0",
+    "react": "19.2.0",
+    "react-native": "0.83.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.2.0",
+    "babel-preset-expo": "~13.0.0",
+    "typescript": "~5.8.3"
+  }
+}

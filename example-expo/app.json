@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "DiditExpoExample",
+    "slug": "didit-expo-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "plugins": ["@didit-protocol/sdk-react-native"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "me.didit.sdk.reactnative.expo-example",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera access is required for identity verification to capture documents and facial photos.",
+        "NFCReaderUsageDescription": "NFC is used to read passport chip data for identity verification.",
+        "NSLocationWhenInUseUsageDescription": "Location access is used to detect your country for identity verification.",
+        "com.apple.developer.nfc.readersession.iso7816.select-identifiers": [
+          "A0000002471001"
+        ]
+      }
+    },
+    "android": {
+      "package": "me.didit.sdk.reactnative.expoexample",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}
