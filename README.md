@@ -248,7 +248,7 @@ await startVerification(token, { loggingEnabled: true });
 
 ### Language Settings
 
-The SDK supports 40+ languages. If no language is specified, the SDK uses the device locale with English as fallback.
+The SDK supports 53 languages. If no language is specified, the SDK uses the device locale with English as fallback.
 
 ```tsx
 // Use device locale (default)
@@ -262,30 +262,33 @@ await startVerification(token, { languageCode: 'fr' });
 
 | Language | Code | Language | Code |
 |----------|------|----------|------|
-| English | `en` | Korean | `ko` |
-| Arabic | `ar` | Lithuanian | `lt` |
-| Bulgarian | `bg` | Latvian | `lv` |
-| Bengali | `bn` | Macedonian | `mk` |
+| Albanian | `sq` | Kazakh | `kk` |
+| Arabic | `ar` | Korean | `ko` |
+| Armenian | `hy` | Kyrgyz | `ky` |
+| Bengali | `bn` | Latvian | `lv` |
+| Bosnian | `bs` | Lithuanian | `lt` |
+| Bulgarian | `bg` | Macedonian | `mk` |
 | Catalan | `ca` | Malay | `ms` |
-| Czech | `cs` | Dutch | `nl` |
-| Danish | `da` | Norwegian | `no` |
-| German | `de` | Polish | `pl` |
-| Greek | `el` | Portuguese | `pt` |
-| Spanish | `es` | Portuguese (Brazil) | `pt-BR` |
-| Estonian | `et` | Romanian | `ro` |
-| Persian | `fa` | Russian | `ru` |
+| Chinese | `zh` | Montenegrin | `cnr` |
+| Chinese (Simplified) | `zh-CN` | Norwegian | `no` |
+| Chinese (Traditional) | `zh-TW` | Persian | `fa` |
+| Croatian | `hr` | Polish | `pl` |
+| Czech | `cs` | Portuguese | `pt` |
+| Danish | `da` | Portuguese (Brazil) | `pt-BR` |
+| Dutch | `nl` | Romanian | `ro` |
+| English | `en` | Russian | `ru` |
+| Estonian | `et` | Serbian | `sr` |
 | Finnish | `fi` | Slovak | `sk` |
 | French | `fr` | Slovenian | `sl` |
-| Hebrew | `he` | Serbian | `sr` |
-| Hindi | `hi` | Swedish | `sv` |
-| Croatian | `hr` | Thai | `th` |
-| Hungarian | `hu` | Turkish | `tr` |
-| Armenian | `hy` | Ukrainian | `uk` |
+| Georgian | `ka` | Somali | `so` |
+| German | `de` | Spanish | `es` |
+| Greek | `el` | Swedish | `sv` |
+| Hebrew | `he` | Thai | `th` |
+| Hindi | `hi` | Turkish | `tr` |
+| Hungarian | `hu` | Ukrainian | `uk` |
 | Indonesian | `id` | Uzbek | `uz` |
 | Italian | `it` | Vietnamese | `vi` |
-| Japanese | `ja` | Chinese (Simplified) | `zh` |
-| Georgian | `ka` | Chinese (Traditional) | `zh-TW` |
-| Montenegrin | `cnr` | Somali | `so` |
+| Japanese | `ja` |  |  |
 
 ## Advanced Session Parameters
 
