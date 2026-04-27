@@ -28,10 +28,12 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             guard let self = self else { return }
 
             self.presentVerification(completion: completion) {
-                DiditSdk.shared.startVerification(
-                    token: token,
-                    configuration: parsed.toConfiguration()
-                )
+                MainActor.assumeIsolated {
+                    DiditSdk.shared.startVerification(
+                        token: token,
+                        configuration: parsed.toConfiguration()
+                    )
+                }
             }
         }
     }
@@ -61,11 +63,13 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             guard let self = self else { return }
 
             self.presentVerification(completion: completion) {
-                DiditSdk.shared.startVerification(
-                    workflowId: workflowId,
-                    vendorData: vendorData,
-                    configuration: parsed.toConfiguration()
-                )
+                MainActor.assumeIsolated {
+                    DiditSdk.shared.startVerification(
+                        workflowId: workflowId,
+                        vendorData: vendorData,
+                        configuration: parsed.toConfiguration()
+                    )
+                }
             }
         }
     }
