@@ -220,6 +220,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
             is VerificationError.CameraAccessDenied -> "cameraAccessDenied"
             is VerificationError.NotInitialized -> "notInitialized"
             is VerificationError.ApiError -> "apiError"
+            is VerificationError.RetryBlocked -> "retryBlocked"
             is VerificationError.Unknown -> "unknown"
         }
     }
