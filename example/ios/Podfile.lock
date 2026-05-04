@@ -1,6 +1,6 @@
 PODS:
   - boost (1.84.0)
-  - DiditSDK (3.2.11)
+  - DiditSDK (3.3.4)
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
   - FBLazyVector (0.83.0)
@@ -2450,9 +2450,9 @@ PODS:
     - React-perflogger (= 0.83.0)
     - React-utils (= 0.83.0)
     - SocketRocket
-  - SdkReactNative (3.2.8):
+  - SdkReactNative (3.2.10):
     - boost
-    - DiditSDK (~> 3.2)
+    - DiditSDK (~> 3.3)
     - DoubleConversion
     - fast_float
     - fmt
@@ -2732,7 +2732,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  DiditSDK: 6788d08d5f7552d34d324bd46c020d2889f08a1d
+  DiditSDK: 932bf86f2d24999cab67a72bcc3501d6dcc5cfa5
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: a293a88992c4c33f0aee184acab0b64a08ff9458
@@ -2808,7 +2808,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: ebcf3a78dc1bcdf054c9e8d309244bade6b31568
   ReactCodegen: 11c08ff43a62009d48c71de000352e4515918801
   ReactCommon: 424cc34cf5055d69a3dcf02f3436481afb8b0f6f
-  SdkReactNative: 5930f445facfcf4ea4ac6c4630a36663b97d583d
+  SdkReactNative: eddeb6e0f934df32132f4c70660383a5f1448617
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 6ca93c8c13f56baeec55eb608577619b17a4d64e
 
