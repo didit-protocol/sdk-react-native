@@ -5,7 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "newArchEnabled": true,
-    "plugins": ["@didit-protocol/sdk-react-native"],
+    "plugins": [
+      [
+        "@didit-protocol/sdk-react-native",
+        {
+          "iosNfcEnabled": false,
+          "androidNfcEnabled": false
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "me.didit.sdk.reactnative.expo-example",
