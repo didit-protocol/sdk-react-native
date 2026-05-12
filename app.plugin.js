@@ -2,6 +2,7 @@ const {
   withProjectBuildGradle,
   withSettingsGradle,
   withAppBuildGradle,
+  withGradleProperties,
   withPodfile,
   createRunOncePlugin,
 } = require('@expo/config-plugins');
@@ -14,7 +15,20 @@ const MAVEN_LINE = `        maven { url "${MAVEN_REPO}" }`;
 const PODSPEC_URL =
   'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec';
 
-const POD_LINE = `  pod 'DiditSDK', :podspec => '${PODSPEC_URL}'`;
+function normalizeOptions(props = {}) {
+  return {
+    androidNfcEnabled: props.androidNfcEnabled !== false,
+    iosNfcEnabled: props.iosNfcEnabled !== false,
+  };
+}
+
+function diditPodBlock(iosNfcEnabled) {
+  return [
+    `  didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', '${iosNfcEnabled}').downcase != 'false'`,
+    "  didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'",
+    `  pod didit_sdk_ios_pod, :podspec => '${PODSPEC_URL}'`,
+  ].join('\n');
+}
 
 // ── Android ──────────────────────────────────────────────────────────────────
 
@@ -91,7 +105,11 @@ const DIDIT_ANDROID_BLOCK = `
         }
     }`;
 
-function withDiditPackagingExclusion(config) {
+function withDiditPackagingExclusion(config, androidNfcEnabled) {
+  if (!androidNfcEnabled) {
+    return config;
+  }
+
   return withAppBuildGradle(config, (mod) => {
     if (mod.modResults.contents.includes('bcprov-jdk15to18')) {
       return mod;
@@ -106,13 +124,28 @@ function withDiditPackagingExclusion(config) {
   });
 }
 
+function withDiditAndroidNfcProperty(config, androidNfcEnabled) {
+  return withGradleProperties(config, (mod) => {
+    mod.modResults = mod.modResults.filter(
+      (item) => item.key !== 'diditSdkAndroidNfcEnabled'
+    );
+    mod.modResults.push({
+      type: 'property',
+      key: 'diditSdkAndroidNfcEnabled',
+      value: String(androidNfcEnabled),
+    });
+    return mod;
+  });
+}
+
 /**
  * Applies all Android Gradle mods so the plugin works with either project structure.
  */
-function withDiditAndroidMaven(config) {
+function withDiditAndroidMaven(config, options) {
   config = withDiditBuildGradle(config);
   config = withDiditSettingsGradle(config);
-  config = withDiditPackagingExclusion(config);
+  config = withDiditAndroidNfcProperty(config, options.androidNfcEnabled);
+  config = withDiditPackagingExclusion(config, options.androidNfcEnabled);
   return config;
 }
 
@@ -124,26 +157,30 @@ function withDiditAndroidMaven(config) {
  *
  * Uses the standard withPodfile mod (not withDangerousMod).
  */
-function withDiditIosPodspec(config) {
+function withDiditIosPodspec(config, options) {
   return withPodfile(config, (mod) => {
-    if (mod.modResults.contents.includes(PODSPEC_URL)) {
+    if (mod.modResults.contents.includes('didit_sdk_ios_pod')) {
       return mod;
     }
 
-    const contents = mod.modResults.contents;
+    const contents = mod.modResults.contents
+      .split('\n')
+      .filter((line) => !line.includes(PODSPEC_URL))
+      .join('\n');
+    const podBlock = diditPodBlock(options.iosNfcEnabled);
 
     // Expo projects: inject after use_expo_modules!
     if (contents.includes('use_expo_modules!')) {
       mod.modResults.contents = contents.replace(
         /use_expo_modules!/,
-        (m) => `${m}\n\n${POD_LINE}`
+        (m) => `${m}\n\n${podBlock}`
       );
     }
     // RN CLI projects: inject after the target ... do line
     else {
       mod.modResults.contents = contents.replace(
         /(target\s+'.+'\s+do)/,
-        (m) => `${m}\n\n${POD_LINE}`
+        (m) => `${m}\n\n${podBlock}`
       );
     }
 
@@ -160,9 +197,10 @@ function withDiditIosPodspec(config) {
  * - Android: Adds the Didit Maven repository to Gradle and packaging exclusions
  * - iOS: Adds the DiditSDK podspec to the Podfile
  */
-function withDiditSdk(config) {
-  config = withDiditAndroidMaven(config);
-  config = withDiditIosPodspec(config);
+function withDiditSdk(config, props) {
+  const options = normalizeOptions(props);
+  config = withDiditAndroidMaven(config, options);
+  config = withDiditIosPodspec(config, options);
   return config;
 }
 

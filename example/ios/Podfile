@@ -1,4 +1,9 @@
 ENV['RCT_NEW_ARCH_ENABLED'] = '1'
+didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', 'true').downcase != 'false'
+
+def max_ios_version(*versions)
+  versions.map(&:to_s).max_by { |version| Gem::Version.new(version) }
+end
 
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
@@ -7,7 +12,7 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+platform :ios, didit_sdk_ios_nfc_enabled ? max_ios_version(min_ios_version_supported, '15.0') : min_ios_version_supported
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -20,7 +25,13 @@ target 'SdkReactNativeExample' do
   config = use_native_modules!
 
   # DiditSDK is not on CocoaPods trunk — reference the podspec from GitHub directly.
-  pod 'DiditSDK', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+  didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'
+  didit_sdk_ios_path = ENV['DIDIT_SDK_IOS_PATH']
+  if didit_sdk_ios_path.nil? || didit_sdk_ios_path.empty?
+    pod didit_sdk_ios_pod, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+  else
+    pod didit_sdk_ios_pod, :path => didit_sdk_ios_path
+  end
 
   use_react_native!(
     :path => config[:reactNativePath],

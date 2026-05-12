@@ -17,7 +17,7 @@ A React Native wrapper for the Didit Identity Verification SDK. Supports both iO
 
 ## Permissions
 
-The SDK uses the camera, NFC, and location on both platforms. Native permissions are declared by the underlying native SDKs and merged automatically.
+The SDK uses the camera, location, and optionally NFC on both platforms. Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
 
 ### iOS
 
@@ -26,11 +26,17 @@ Add the following keys to your app's `Info.plist`:
 ```xml
 <key>NSCameraUsageDescription</key>
 <string>Camera access is required to scan your identity documents for verification.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Microphone access is required to record video for liveness verification.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Photo library access is required to upload document images.</string>
 <key>NFCReaderUsageDescription</key>
 <string>NFC is used to read passport chip data for identity verification.</string>
 <key>NSLocationWhenInUseUsageDescription</key>
 <string>Location access is used to detect your country for identity verification.</string>
 ```
+
+Missing required iOS privacy keys will cause iOS to terminate the app as soon as the SDK accesses that protected resource.
 
 #### NFC Configuration (for passport/ID chip reading)
 
@@ -41,9 +47,22 @@ Add the following keys to your app's `Info.plist`:
    ```xml
    <key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
    <array>
+       <string>D23300000045737445494420763335</string>
        <string>A0000002471001</string>
+       <string>A0000002472001</string>
+       <string>00000000000000</string>
    </array>
    ```
+
+3. **Add an entitlements file** with NFC tag reading enabled:
+   ```xml
+   <key>com.apple.developer.nfc.readersession.formats</key>
+   <array>
+       <string>TAG</string>
+   </array>
+   ```
+
+Make sure the app's provisioning profile includes the NFC Tag Reading capability. This NFC configuration is not needed when NFC is disabled.
 
 ### Android
 
@@ -68,6 +87,17 @@ The SDK handles Android runtime permission requests automatically. When the user
 
 You do not need to request camera permission in your app code before calling `startVerification()` — the SDK manages this internally.
 
+## NFC Dependencies
+
+NFC is enabled by default on both platforms.
+
+| Platform | Default native dependency | No-NFC native dependency | How to disable NFC |
+|----------|---------------------------|--------------------------|--------------------|
+| iOS | `DiditSDK` | `DiditSDK/Core` | `DIDIT_SDK_IOS_NFC_ENABLED=false` before `pod install` |
+| Android | `me.didit:didit-sdk` | `me.didit:didit-sdk-core` | `diditSdkAndroidNfcEnabled=false` in `android/gradle.properties` |
+
+When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, Android NFC packaging rules, or NFC-related provisioning setup.
+
 ## Installation
 
 ### Expo
@@ -76,12 +106,30 @@ You do not need to request camera permission in your app code before calling `st
 npx expo install @didit-protocol/sdk-react-native
 ```
 
-Then add the config plugin to your `app.json` (or `app.config.js`):
+Then add the config plugin to your `app.json` (or `app.config.js`). NFC is enabled by default:
 
 ```json
 {
   "expo": {
     "plugins": ["@didit-protocol/sdk-react-native"]
+  }
+}
+```
+
+To build without NFC dependencies:
+
+```json
+{
+  "expo": {
+    "plugins": [
+      [
+        "@didit-protocol/sdk-react-native",
+        {
+          "iosNfcEnabled": false,
+          "androidNfcEnabled": false
+        }
+      ]
+    ]
   }
 }
 ```
@@ -102,11 +150,20 @@ yarn add @didit-protocol/sdk-react-native
 
 #### iOS
 
-Add the DiditSDK pod to your `Podfile` (it's not on CocoaPods trunk):
+Add the DiditSDK pod to your `Podfile` (it's not on CocoaPods trunk). NFC is enabled by default:
 
 ```ruby
-# In your ios/Podfile, inside the target block:
-pod 'DiditSDK', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', 'true').downcase != 'false'
+
+def max_ios_version(*versions)
+  versions.map(&:to_s).max_by { |version| Gem::Version.new(version) }
+end
+
+platform :ios, didit_sdk_ios_nfc_enabled ? max_ios_version(min_ios_version_supported, '15.0') : min_ios_version_supported
+
+# Inside your app target:
+didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'
+pod didit_sdk_ios_pod, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
 ```
 
 Then install dependencies:
@@ -115,6 +172,16 @@ Then install dependencies:
 cd ios
 bundle exec pod install
 ```
+
+To build without NFC dependencies:
+
+```sh
+cd ios
+rm -rf Pods Podfile.lock
+DIDIT_SDK_IOS_NFC_ENABLED=false bundle exec pod install
+```
+
+When switching back to the full NFC SDK, clean CocoaPods again and run `bundle exec pod install` without `DIDIT_SDK_IOS_NFC_ENABLED=false`.
 
 #### Android
 
@@ -129,6 +196,14 @@ dependencyResolutionManagement {
     }
 }
 ```
+
+By default, the React Native plugin depends on the full Android SDK, including NFC passport reading. To build without Android NFC dependencies, add this to `android/gradle.properties`:
+
+```properties
+diditSdkAndroidNfcEnabled=false
+```
+
+Remove that property, or set it to `true`, to use the full Android SDK with NFC.
 
 The native SDK dependencies for both platforms are declared in the library and resolved automatically.
 

@@ -28,6 +28,10 @@
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>NFC is used to read passport chip data for identity verification.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access is required to record video for liveness verification.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo library access is required to upload document images.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -57,7 +61,10 @@
 	<false/>
 	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
 	<array>
+		<string>D23300000045737445494420763335</string>
 		<string>A0000002471001</string>
+		<string>A0000002472001</string>
+		<string>00000000000000</string>
 	</array>
 </dict>
 </plist>

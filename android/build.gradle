@@ -32,6 +32,13 @@ apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
 
+def diditSdkAndroidNfcEnabled = (
+  rootProject.findProperty("diditSdkAndroidNfcEnabled")
+    ?: findProperty("diditSdkAndroidNfcEnabled")
+    ?: "true"
+).toString().toBoolean()
+def diditSdkAndroidArtifact = diditSdkAndroidNfcEnabled ? "didit-sdk" : "didit-sdk-core"
+
 android {
   namespace "com.sdkreactnative"
 
@@ -84,7 +91,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // Didit native Android SDK
-  implementation "me.didit:didit-sdk:3.5.5"
+  implementation "me.didit:$diditSdkAndroidArtifact:3.5.6"
 
   // Coroutines (required for state flow observation)
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
