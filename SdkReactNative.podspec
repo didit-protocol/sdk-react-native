@@ -1,7 +1,30 @@
 require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
-didit_sdk_ios_nfc_enabled = ENV.fetch("DIDIT_SDK_IOS_NFC_ENABLED", "true").downcase != "false"
+
+# Resolve whether NFC is enabled with this precedence:
+#   1. DIDIT_SDK_IOS_NFC_ENABLED env var (always wins, used by RN CLI projects
+#      and as a one-off override for `pod install`).
+#   2. ios/Podfile.properties.json's "didit.iosNfcEnabled" key (written by the
+#      Expo config plugin via withPodfileProperties).
+#   3. Default to "true" (full DiditSDK with NFC).
+#
+# Reading from Podfile.properties.json keeps the wrapper podspec and the host
+# Podfile in lockstep when an Expo project sets `iosNfcEnabled: false` on the
+# config plugin, without requiring users to also export an env var manually.
+didit_sdk_ios_nfc_enabled = if ENV.key?("DIDIT_SDK_IOS_NFC_ENABLED")
+  ENV["DIDIT_SDK_IOS_NFC_ENABLED"].to_s.downcase != "false"
+else
+  installation_root = Pod::Config.instance.installation_root.to_s rescue Dir.pwd
+  podfile_props_path = File.join(installation_root, "Podfile.properties.json")
+  if File.exist?(podfile_props_path)
+    props = JSON.parse(File.read(podfile_props_path)) rescue {}
+    props.fetch("didit.iosNfcEnabled", "true").to_s.downcase != "false"
+  else
+    true
+  end
+end
+
 max_ios_version = lambda do |*versions|
   versions.map(&:to_s).max_by { |version| Gem::Version.new(version) }
 end

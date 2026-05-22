@@ -4,8 +4,12 @@ const {
   withAppBuildGradle,
   withGradleProperties,
   withPodfile,
+  withPodfileProperties,
   createRunOncePlugin,
 } = require('@expo/config-plugins');
+const {
+  mergeContents,
+} = require('@expo/config-plugins/build/utils/generateCode');
 
 const MAVEN_REPO =
   'https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository';
@@ -15,19 +19,22 @@ const MAVEN_LINE = `        maven { url "${MAVEN_REPO}" }`;
 const PODSPEC_URL =
   'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec';
 
+// Key written into ios/Podfile.properties.json so the Podfile and the
+// SdkReactNative.podspec it loads can both read the same value at
+// `pod install` time. Mirrors the `apple.*` / `expo.*` pattern used by
+// expo-build-properties (see https://docs.expo.dev/config-plugins/development-and-debugging/).
+const PODFILE_PROPS_KEY = 'didit.iosNfcEnabled';
+
+// Tag handed to mergeContents — drives the auto-generated marker comments
+// (`# @generated begin ... - expo prebuild (DO NOT MODIFY) sync-...`) so the
+// pod block is rewritten cleanly on every prebuild.
+const POD_BLOCK_TAG = 'didit-sdk-react-native-pod';
+
 function normalizeOptions(props = {}) {
   return {
     androidNfcEnabled: props.androidNfcEnabled !== false,
     iosNfcEnabled: props.iosNfcEnabled !== false,
   };
-}
-
-function diditPodBlock(iosNfcEnabled) {
-  return [
-    `  didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', '${iosNfcEnabled}').downcase != 'false'`,
-    "  didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'",
-    `  pod didit_sdk_ios_pod, :podspec => '${PODSPEC_URL}'`,
-  ].join('\n');
 }
 
 // ── Android ──────────────────────────────────────────────────────────────────
@@ -152,36 +159,55 @@ function withDiditAndroidMaven(config, options) {
 // ── iOS ──────────────────────────────────────────────────────────────────────
 
 /**
- * Injects the DiditSDK podspec reference into the iOS Podfile so CocoaPods
- * can resolve the native iOS SDK dependency.
+ * Writes `didit.iosNfcEnabled` into ios/Podfile.properties.json. This is the
+ * same `withPodfileProperties` pattern used by expo-build-properties for keys
+ * such as `apple.ccacheEnabled` and `expo.useHermesV1`.
  *
- * Uses the standard withPodfile mod (not withDangerousMod).
+ * Both the host Podfile (via `withDiditIosPodspec`) and the
+ * SdkReactNative.podspec read this key, so they always agree on which
+ * `DiditSDK` / `DiditSDK/Core` subspec to resolve.
  */
-function withDiditIosPodspec(config, options) {
+function withDiditIosNfcProperty(config, options) {
+  return withPodfileProperties(config, (mod) => {
+    mod.modResults[PODFILE_PROPS_KEY] = String(options.iosNfcEnabled);
+    return mod;
+  });
+}
+
+/**
+ * Injects a single `pod 'DiditSDK', :podspec => ...` block into the host
+ * Podfile so CocoaPods knows where to fetch the Didit native iOS SDK from
+ * (it isn't published to the trunk).
+ *
+ * Idempotency, value updates, and the `# @generated begin … sync-…` marker
+ * comments are all handled by `mergeContents` — repeated `expo prebuild`
+ * runs converge to a stable Podfile and toggling `iosNfcEnabled` rewrites
+ * the block in place.
+ */
+function withDiditIosPodspec(config) {
   return withPodfile(config, (mod) => {
-    if (mod.modResults.contents.includes('didit_sdk_ios_pod')) {
-      return mod;
-    }
+    const isExpoPodfile = mod.modResults.contents.includes('use_expo_modules!');
+    const newSrc = [
+      "didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', " +
+        (isExpoPodfile
+          ? `podfile_properties.fetch('${PODFILE_PROPS_KEY}', 'true')`
+          : "'true'") +
+        ").downcase != 'false'",
+      "didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'",
+      `pod didit_sdk_ios_pod, :podspec => '${PODSPEC_URL}'`,
+    ].join('\n');
 
-    const contents = mod.modResults.contents
-      .split('\n')
-      .filter((line) => !line.includes(PODSPEC_URL))
-      .join('\n');
-    const podBlock = diditPodBlock(options.iosNfcEnabled);
+    const result = mergeContents({
+      tag: POD_BLOCK_TAG,
+      src: mod.modResults.contents,
+      newSrc,
+      anchor: isExpoPodfile ? /use_expo_modules!/ : /target\s+'.+'\s+do/,
+      offset: 1,
+      comment: '#',
+    });
 
-    // Expo projects: inject after use_expo_modules!
-    if (contents.includes('use_expo_modules!')) {
-      mod.modResults.contents = contents.replace(
-        /use_expo_modules!/,
-        (m) => `${m}\n\n${podBlock}`
-      );
-    }
-    // RN CLI projects: inject after the target ... do line
-    else {
-      mod.modResults.contents = contents.replace(
-        /(target\s+'.+'\s+do)/,
-        (m) => `${m}\n\n${podBlock}`
-      );
+    if (result.didMerge || result.didClear) {
+      mod.modResults.contents = result.contents;
     }
 
     return mod;
@@ -194,13 +220,18 @@ function withDiditIosPodspec(config, options) {
  * Expo config plugin for @didit-protocol/sdk-react-native.
  *
  * Automatically configures:
- * - Android: Adds the Didit Maven repository to Gradle and packaging exclusions
- * - iOS: Adds the DiditSDK podspec to the Podfile
+ * - Android: Adds the Didit Maven repository to Gradle, packaging exclusions,
+ *   and writes `diditSdkAndroidNfcEnabled` to gradle.properties.
+ * - iOS: Writes `didit.iosNfcEnabled` to Podfile.properties.json and adds
+ *   a single `pod 'DiditSDK', :podspec => '…'` block to the Podfile.
+ *   The wrapper podspec reads the same JSON key, so both pieces always
+ *   resolve to the same `DiditSDK` (NFC) or `DiditSDK/Core` subspec.
  */
 function withDiditSdk(config, props) {
   const options = normalizeOptions(props);
   config = withDiditAndroidMaven(config, options);
-  config = withDiditIosPodspec(config, options);
+  config = withDiditIosNfcProperty(config, options);
+  config = withDiditIosPodspec(config);
   return config;
 }
 

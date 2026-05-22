@@ -93,8 +93,8 @@ NFC is enabled by default on both platforms.
 
 | Platform | Default native dependency | No-NFC native dependency | How to disable NFC |
 |----------|---------------------------|--------------------------|--------------------|
-| iOS | `DiditSDK` | `DiditSDK/Core` | `DIDIT_SDK_IOS_NFC_ENABLED=false` before `pod install` |
-| Android | `me.didit:didit-sdk` | `me.didit:didit-sdk-core` | `diditSdkAndroidNfcEnabled=false` in `android/gradle.properties` |
+| iOS | `DiditSDK` | `DiditSDK/Core` | Expo: `iosNfcEnabled: false` on the config plugin (handled automatically). React Native CLI: `DIDIT_SDK_IOS_NFC_ENABLED=false` before `pod install`. |
+| Android | `me.didit:didit-sdk` | `me.didit:didit-sdk-core` | Expo: `androidNfcEnabled: false` on the config plugin (handled automatically). React Native CLI: `diditSdkAndroidNfcEnabled=false` in `android/gradle.properties`. |
 
 When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, Android NFC packaging rules, or NFC-related provisioning setup.
 
@@ -135,8 +135,10 @@ To build without NFC dependencies:
 ```
 
 That's it. The plugin automatically configures both platforms:
-- **Android:** Adds the Didit Maven repository to Gradle
-- **iOS:** Adds the DiditSDK podspec to the Podfile
+- **Android:** Adds the Didit Maven repository to Gradle and writes `diditSdkAndroidNfcEnabled` to `android/gradle.properties`.
+- **iOS:** Adds the DiditSDK podspec to the Podfile and writes `didit.iosNfcEnabled` to `ios/Podfile.properties.json`, seeding `ENV['DIDIT_SDK_IOS_NFC_ENABLED']` so the Podfile and the wrapper podspec resolve to the same `DiditSDK` (NFC) or `DiditSDK/Core` (no-NFC) subspec.
+
+You do **not** need to set `DIDIT_SDK_IOS_NFC_ENABLED` manually before `pod install` when using the Expo plugin.
 
 > **Note:** This SDK uses native modules (camera, NFC) that are not available in Expo Go. You must use a [development build](https://docs.expo.dev/develop/development-builds/introduction/) or run `npx expo prebuild` to generate the native projects.
 
