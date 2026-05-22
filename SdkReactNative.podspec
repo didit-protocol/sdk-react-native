@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
 
   # Didit native iOS SDK dependency
   didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? "DiditSDK" : "DiditSDK/Core"
-  s.dependency didit_sdk_ios_pod, "~> 3.5"
+  s.dependency didit_sdk_ios_pod, "~> 3.6"
 
   install_modules_dependencies(s)
 end
