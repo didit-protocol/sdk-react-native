@@ -1,4 +1,4 @@
-## 4.0.0
+## 4.0.1
 
 - Update native Android SDK to 4.0.2.
 - Update native iOS SDK to 4.0.2.

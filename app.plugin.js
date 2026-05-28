@@ -4,8 +4,12 @@ const {
   withAppBuildGradle,
   withGradleProperties,
   withPodfile,
+  withPodfileProperties,
   createRunOncePlugin,
 } = require('@expo/config-plugins');
+const {
+  mergeContents,
+} = require('@expo/config-plugins/build/utils/generateCode');
 
 const MAVEN_REPO =
   'https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository';
@@ -16,6 +20,8 @@ const PODSPEC_URL =
   'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec';
 
 const VALID_VARIANTS = ['all', 'core', 'autodetection', 'nfc'];
+const PODFILE_PROPS_KEY = 'didit.iosVariant';
+const POD_BLOCK_TAG = 'didit-sdk-react-native-pod';
 
 function normalizeVariant(value, fallback) {
   if (typeof value !== 'string') {
@@ -49,9 +55,12 @@ function normalizeOptions(props = {}) {
   };
 }
 
-function diditPodBlock(iosVariant) {
+function diditPodBlock(iosVariant, isRubyExpression = false) {
+  const variantAssignment = isRubyExpression
+    ? `  $DiditSdkIosVariant = ${iosVariant}`
+    : `  $DiditSdkIosVariant = '${iosVariant}'`;
   return [
-    `  $DiditSdkIosVariant = '${iosVariant}'`,
+    variantAssignment,
     '  didit_sdk_subspec = case $DiditSdkIosVariant',
     "                      when 'all'           then 'DiditSDK/All'",
     "                      when 'core'          then 'DiditSDK/Core'",
@@ -187,41 +196,44 @@ function withDiditAndroidMaven(config, options) {
 
 // ── iOS ──────────────────────────────────────────────────────────────────────
 
+function withDiditIosVariantProperty(config, options) {
+  return withPodfileProperties(config, (mod) => {
+    mod.modResults[PODFILE_PROPS_KEY] = options.iosVariant;
+    return mod;
+  });
+}
+
 /**
- * Injects the DiditSDK podspec reference into the iOS Podfile so CocoaPods
- * can resolve the native iOS SDK dependency.
+ * Injects a single `pod 'DiditSDK', :podspec => ...` block into the host
+ * Podfile so CocoaPods knows where to fetch the Didit native iOS SDK from
+ * (it isn't published to the trunk).
  *
- * Uses the standard withPodfile mod (not withDangerousMod).
+ * Idempotency, value updates, and the `# @generated begin … sync-…` marker
+ * comments are all handled by `mergeContents` — repeated `expo prebuild`
+ * runs converge to a stable Podfile and toggling `iosNfcEnabled` rewrites
+ * the block in place.
  */
 function withDiditIosPodspec(config, options) {
   return withPodfile(config, (mod) => {
-    if (
-      mod.modResults.contents.includes('didit_sdk_subspec') ||
-      mod.modResults.contents.includes('$DiditSdkIosVariant')
-    ) {
-      return mod;
-    }
+    const isExpoPodfile = mod.modResults.contents.includes('use_expo_modules!');
+    const newSrc = isExpoPodfile
+      ? diditPodBlock(
+          `podfile_properties.fetch('${PODFILE_PROPS_KEY}', '${options.iosVariant}')`,
+          true
+        )
+      : diditPodBlock(options.iosVariant);
 
-    const contents = mod.modResults.contents
-      .split('\n')
-      .filter((line) => !line.includes(PODSPEC_URL))
-      .join('\n');
-    const podBlock = diditPodBlock(options.iosVariant);
+    const result = mergeContents({
+      tag: POD_BLOCK_TAG,
+      src: mod.modResults.contents,
+      newSrc,
+      anchor: isExpoPodfile ? /use_expo_modules!/ : /target\s+'.+'\s+do/,
+      offset: isExpoPodfile ? 0 : 1,
+      comment: '#',
+    });
 
-    // Expo projects: inject before use_expo_modules! so $DiditSdkIosVariant is
-    // already available when CocoaPods evaluates the autolinked RN podspec.
-    if (contents.includes('use_expo_modules!')) {
-      mod.modResults.contents = contents.replace(
-        /use_expo_modules!/,
-        (m) => `${podBlock}\n\n${m}`
-      );
-    }
-    // RN CLI projects: inject after the target ... do line
-    else {
-      mod.modResults.contents = contents.replace(
-        /(target\s+'.+'\s+do)/,
-        (m) => `${m}\n\n${podBlock}`
-      );
+    if (result.didMerge || result.didClear) {
+      mod.modResults.contents = result.contents;
     }
 
     return mod;
@@ -234,12 +246,15 @@ function withDiditIosPodspec(config, options) {
  * Expo config plugin for @didit-protocol/sdk-react-native.
  *
  * Automatically configures:
- * - Android: Adds the Didit Maven repository to Gradle and packaging exclusions
- * - iOS: Adds the DiditSDK podspec to the Podfile
+ * - Android: Adds the Didit Maven repository to Gradle, packaging exclusions,
+ *   and writes `diditSdkAndroidVariant` to gradle.properties.
+ * - iOS: Writes `didit.iosVariant` to Podfile.properties.json and adds
+ *   a DiditSDK variant block to the Podfile.
  */
 function withDiditSdk(config, props) {
   const options = normalizeOptions(props);
   config = withDiditAndroidMaven(config, options);
+  config = withDiditIosVariantProperty(config, options);
   config = withDiditIosPodspec(config, options);
   return config;
 }

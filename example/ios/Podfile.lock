@@ -2465,7 +2465,7 @@ PODS:
     - React-perflogger (= 0.83.0)
     - React-utils (= 0.83.0)
     - SocketRocket
-  - SdkReactNative (4.0.0):
+  - SdkReactNative (4.0.1):
     - boost
     - DiditSDK/All (~> 4.0)
     - DoubleConversion
