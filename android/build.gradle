@@ -32,12 +32,38 @@ apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
 
-def diditSdkAndroidNfcEnabled = (
+def diditSdkAndroidVariantProperty = (
+  rootProject.findProperty("diditSdkAndroidVariant")
+    ?: findProperty("diditSdkAndroidVariant")
+)
+def diditSdkAndroidLegacyNfcEnabled = (
   rootProject.findProperty("diditSdkAndroidNfcEnabled")
     ?: findProperty("diditSdkAndroidNfcEnabled")
     ?: "true"
 ).toString().toBoolean()
-def diditSdkAndroidArtifact = diditSdkAndroidNfcEnabled ? "didit-sdk" : "didit-sdk-core"
+def diditSdkAndroidVariant = (
+  diditSdkAndroidVariantProperty != null
+    ? diditSdkAndroidVariantProperty
+    : (diditSdkAndroidLegacyNfcEnabled ? "all" : "core")
+).toString().toLowerCase()
+def diditSdkAndroidArtifact
+switch (diditSdkAndroidVariant) {
+  case "all":
+    diditSdkAndroidArtifact = "didit-sdk"
+    break
+  case "core":
+    diditSdkAndroidArtifact = "didit-sdk-core"
+    break
+  case "autodetection":
+    diditSdkAndroidArtifact = "didit-sdk-autodetection"
+    break
+  case "nfc":
+    diditSdkAndroidArtifact = "didit-sdk-nfc"
+    break
+  default:
+    throw new GradleException("Invalid diditSdkAndroidVariant '${diditSdkAndroidVariant}'. Supported values: all, core, autodetection, nfc.")
+}
+def diditSdkAndroidUsesNfc = diditSdkAndroidVariant == "all" || diditSdkAndroidVariant == "nfc"
 
 android {
   namespace "com.sdkreactnative"
@@ -72,11 +98,13 @@ android {
     jvmTarget = "17"
   }
 
-  configurations.configureEach {
-    exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
-    exclude group: 'org.bouncycastle', module: 'bcutil-jdk15to18'
-    exclude group: 'org.bouncycastle', module: 'bcpkix-jdk15to18'
-    exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+  if (diditSdkAndroidUsesNfc) {
+    configurations.configureEach {
+      exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+      exclude group: 'org.bouncycastle', module: 'bcutil-jdk15to18'
+      exclude group: 'org.bouncycastle', module: 'bcpkix-jdk15to18'
+      exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
   }
 }
 
@@ -91,7 +119,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // Didit native Android SDK
-  implementation "me.didit:$diditSdkAndroidArtifact:3.5.6"
+  implementation "me.didit:$diditSdkAndroidArtifact:4.0.2"
 
   // Coroutines (required for state flow observation)
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"

@@ -23,6 +23,7 @@ export type VerificationErrorType =
   | 'cameraAccessDenied'
   | 'notInitialized'
   | 'apiError'
+  | 'retryBlocked'
   | 'unknown';
 
 /**
@@ -102,6 +103,14 @@ export type VerificationResult =
 // ─── Configuration Types ─────────────────────────────────────────────────────
 
 /**
+ * Which physical camera lens to use for a capture step.
+ */
+export enum CameraLens {
+  Front = 'front',
+  Back = 'back',
+}
+
+/**
  * Configuration options for the Didit verification SDK.
  */
 export interface DiditConfig {
@@ -141,6 +150,32 @@ export interface DiditConfig {
    * Default: `false`.
    */
   closeOnComplete?: boolean;
+
+  /**
+   * Lens used when first entering the document capture screen.
+   * If omitted, the native SDK uses its default (back camera).
+   */
+  defaultDocumentCamera?: CameraLens;
+
+  /**
+   * Lens used when first entering the liveness (passive face) capture screen.
+   * If omitted, the native SDK uses its default (front camera).
+   */
+  defaultLivenessCamera?: CameraLens;
+
+  /**
+   * Show the in-capture camera switcher on the document capture screen.
+   * Set to `false` to lock the user to `defaultDocumentCamera`.
+   * Default: `true`.
+   */
+  showDocumentCameraSwitchButton?: boolean;
+
+  /**
+   * Show the in-capture camera switcher on the liveness capture screen.
+   * Set to `false` to lock the user to `defaultLivenessCamera`.
+   * Default: `true`.
+   */
+  showLivenessCameraSwitchButton?: boolean;
 }
 
 /**

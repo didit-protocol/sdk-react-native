@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {
+  CameraLens,
   startVerification,
   startVerificationWithWorkflow,
   VerificationStatus,
@@ -18,7 +19,7 @@ import {
 } from '@didit-protocol/sdk-react-native';
 
 export default function App() {
-  const [token, setToken] = useState('');
+  const [token, setToken] = useState('tjtg3LsqyY-N');
   const [workflowId, setWorkflowId] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
@@ -35,6 +36,10 @@ export default function App() {
     try {
       const verificationResult = await startVerification(token.trim(), {
         loggingEnabled: true,
+        defaultDocumentCamera: CameraLens.Back,
+        defaultLivenessCamera: CameraLens.Front,
+        showDocumentCameraSwitchButton: true,
+        showLivenessCameraSwitchButton: true,
       });
       setResult(verificationResult);
       showResultAlert(verificationResult);
@@ -58,7 +63,13 @@ export default function App() {
       const verificationResult = await startVerificationWithWorkflow(
         workflowId.trim(),
         {
-          config: { loggingEnabled: true },
+          config: {
+            loggingEnabled: true,
+            defaultDocumentCamera: CameraLens.Back,
+            defaultLivenessCamera: CameraLens.Front,
+            showDocumentCameraSwitchButton: true,
+            showLivenessCameraSwitchButton: true,
+          },
         }
       );
       setResult(verificationResult);

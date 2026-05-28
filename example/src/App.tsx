@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {
+  CameraLens,
   startVerification,
   startVerificationWithWorkflow,
   VerificationStatus,
@@ -35,6 +36,10 @@ export default function App() {
     try {
       const verificationResult = await startVerification(token.trim(), {
         loggingEnabled: true,
+        defaultDocumentCamera: CameraLens.Back,
+        defaultLivenessCamera: CameraLens.Front,
+        showDocumentCameraSwitchButton: true,
+        showLivenessCameraSwitchButton: true,
       });
       setResult(verificationResult);
       showResultAlert(verificationResult);
@@ -58,7 +63,13 @@ export default function App() {
       const verificationResult = await startVerificationWithWorkflow(
         workflowId.trim(),
         {
-          config: { loggingEnabled: true },
+          config: {
+            loggingEnabled: true,
+            defaultDocumentCamera: CameraLens.Back,
+            defaultLivenessCamera: CameraLens.Front,
+            showDocumentCameraSwitchButton: true,
+            showLivenessCameraSwitchButton: true,
+          },
         }
       );
       setResult(verificationResult);

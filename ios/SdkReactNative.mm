@@ -43,6 +43,18 @@
     if (config.closeOnComplete().has_value()) {
         dict[@"closeOnComplete"] = @(config.closeOnComplete().value());
     }
+    if (config.defaultDocumentCamera()) {
+        dict[@"defaultDocumentCamera"] = config.defaultDocumentCamera();
+    }
+    if (config.defaultLivenessCamera()) {
+        dict[@"defaultLivenessCamera"] = config.defaultLivenessCamera();
+    }
+    if (config.showDocumentCameraSwitchButton().has_value()) {
+        dict[@"showDocumentCameraSwitchButton"] = @(config.showDocumentCameraSwitchButton().value());
+    }
+    if (config.showLivenessCameraSwitchButton().has_value()) {
+        dict[@"showLivenessCameraSwitchButton"] = @(config.showLivenessCameraSwitchButton().value());
+    }
     return dict;
 }
 

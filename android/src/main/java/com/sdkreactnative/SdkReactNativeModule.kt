@@ -12,6 +12,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import me.didit.sdk.CameraLens
 import me.didit.sdk.Configuration
 import me.didit.sdk.DiditSdk
 import me.didit.sdk.DiditSdkState
@@ -178,8 +179,18 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
             loggingEnabled = if (map.hasKey("loggingEnabled")) map.getBoolean("loggingEnabled") else false,
             showCloseButton = if (map.hasKey("showCloseButton")) map.getBoolean("showCloseButton") else true,
             showExitConfirmation = if (map.hasKey("showExitConfirmation")) map.getBoolean("showExitConfirmation") else true,
-            closeOnComplete = if (map.hasKey("closeOnComplete")) map.getBoolean("closeOnComplete") else false
+            closeOnComplete = if (map.hasKey("closeOnComplete")) map.getBoolean("closeOnComplete") else false,
+            defaultDocumentCamera = if (map.hasKey("defaultDocumentCamera")) parseCameraLens(map.getString("defaultDocumentCamera")) ?: CameraLens.BACK else CameraLens.BACK,
+            defaultLivenessCamera = if (map.hasKey("defaultLivenessCamera")) parseCameraLens(map.getString("defaultLivenessCamera")) ?: CameraLens.FRONT else CameraLens.FRONT,
+            showDocumentCameraSwitchButton = if (map.hasKey("showDocumentCameraSwitchButton")) map.getBoolean("showDocumentCameraSwitchButton") else true,
+            showLivenessCameraSwitchButton = if (map.hasKey("showLivenessCameraSwitchButton")) map.getBoolean("showLivenessCameraSwitchButton") else true
         )
+    }
+
+    private fun parseCameraLens(value: String?): CameraLens? = when (value?.lowercase()) {
+        "front" -> CameraLens.FRONT
+        "back" -> CameraLens.BACK
+        else -> null
     }
 
 

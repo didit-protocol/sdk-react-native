@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0E74C89DCBACF21F9140A2AA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 586D54014D35E50D12F3EDE5 /* PrivacyInfo.xcprivacy */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		1A4E8AC12884E4FAA45CBE66 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7AC4739BA9444551D8087B /* ExpoModulesProvider.swift */; };
-		336E3CC687AC9759C032E4DC /* libPods-DiditExpoExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC11098045F22E60B5730F43 /* libPods-DiditExpoExample.a */; };
+		1F63D0FBDA965046904A0148 /* libPods-DiditExpoExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90EA31D4BB38BB71D1AFDCA6 /* libPods-DiditExpoExample.a */; };
+		36DE53FAFBF2A3780CD20F58 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 810A176AC8C1929832E7587F /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		D3B2F5EDC02B66C5935838A5 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92FAC627B51295BC573C26A /* ExpoModulesProvider.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -20,16 +20,16 @@
 		13B07F961A680F5B00A75B9A /* DiditExpoExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DiditExpoExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = DiditExpoExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = DiditExpoExample/Info.plist; sourceTree = "<group>"; };
-		586D54014D35E50D12F3EDE5 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = DiditExpoExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		792B832ECE9EF3CA35484273 /* Pods-DiditExpoExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DiditExpoExample.debug.xcconfig"; path = "Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample.debug.xcconfig"; sourceTree = "<group>"; };
-		9ED4A44E14DC8C873545EC91 /* Pods-DiditExpoExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DiditExpoExample.release.xcconfig"; path = "Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample.release.xcconfig"; sourceTree = "<group>"; };
+		810A176AC8C1929832E7587F /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = DiditExpoExample/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		90EA31D4BB38BB71D1AFDCA6 /* libPods-DiditExpoExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DiditExpoExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A92FAC627B51295BC573C26A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-DiditExpoExample/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = DiditExpoExample/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		BF7AC4739BA9444551D8087B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-DiditExpoExample/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		C4060ABF2F94BCC38EDDA40E /* Pods-DiditExpoExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DiditExpoExample.release.xcconfig"; path = "Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample.release.xcconfig"; sourceTree = "<group>"; };
+		D343C8C5479B313962C13A6C /* Pods-DiditExpoExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DiditExpoExample.debug.xcconfig"; path = "Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DiditExpoExample/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* DiditExpoExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "DiditExpoExample-Bridging-Header.h"; path = "DiditExpoExample/DiditExpoExample-Bridging-Header.h"; sourceTree = "<group>"; };
-		FC11098045F22E60B5730F43 /* libPods-DiditExpoExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DiditExpoExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,23 +37,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				336E3CC687AC9759C032E4DC /* libPods-DiditExpoExample.a in Frameworks */,
+				1F63D0FBDA965046904A0148 /* libPods-DiditExpoExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		10D01FE53E47CE36F532DFAF /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				792B832ECE9EF3CA35484273 /* Pods-DiditExpoExample.debug.xcconfig */,
-				9ED4A44E14DC8C873545EC91 /* Pods-DiditExpoExample.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		13B07FAE1A68108700A75B9A /* DiditExpoExample */ = {
 			isa = PBXGroup;
 			children = (
@@ -63,26 +53,44 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				586D54014D35E50D12F3EDE5 /* PrivacyInfo.xcprivacy */,
+				810A176AC8C1929832E7587F /* PrivacyInfo.xcprivacy */,
 			);
 			name = DiditExpoExample;
+			sourceTree = "<group>";
+		};
+		2575FE0185036194D64CB455 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D343C8C5479B313962C13A6C /* Pods-DiditExpoExample.debug.xcconfig */,
+				C4060ABF2F94BCC38EDDA40E /* Pods-DiditExpoExample.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		2607F879749F7E2954F23F0D /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				5AB7AC1D5A988507131E7332 /* DiditExpoExample */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				FC11098045F22E60B5730F43 /* libPods-DiditExpoExample.a */,
+				90EA31D4BB38BB71D1AFDCA6 /* libPods-DiditExpoExample.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		7B26CF76FA0D0BA2B020233D /* ExpoModulesProviders */ = {
+		5AB7AC1D5A988507131E7332 /* DiditExpoExample */ = {
 			isa = PBXGroup;
 			children = (
-				92EF3A7D419D7D5A3C755706 /* DiditExpoExample */,
+				A92FAC627B51295BC573C26A /* ExpoModulesProvider.swift */,
 			);
-			name = ExpoModulesProviders;
+			name = DiditExpoExample;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -99,8 +107,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				10D01FE53E47CE36F532DFAF /* Pods */,
-				7B26CF76FA0D0BA2B020233D /* ExpoModulesProviders */,
+				2575FE0185036194D64CB455 /* Pods */,
+				2607F879749F7E2954F23F0D /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -113,14 +121,6 @@
 				13B07F961A680F5B00A75B9A /* DiditExpoExample.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		92EF3A7D419D7D5A3C755706 /* DiditExpoExample */ = {
-			isa = PBXGroup;
-			children = (
-				BF7AC4739BA9444551D8087B /* ExpoModulesProvider.swift */,
-			);
-			name = DiditExpoExample;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "DiditExpoExample" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				32FCB76C73D0DDE931906D45 /* [Expo] Configure project */,
+				E8A46B2A9AB89FF144914644 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				7D4927709407FD554D88481B /* [CP] Embed Pods Frameworks */,
+				CABF2BE9F37BD8779FF906C7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				0E74C89DCBACF21F9140A2AA /* PrivacyInfo.xcprivacy in Resources */,
+				36DE53FAFBF2A3780CD20F58 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,56 +242,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		32FCB76C73D0DDE931906D45 /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/DiditExpoExample/DiditExpoExample.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-DiditExpoExample/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-DiditExpoExample/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-DiditExpoExample/expo-configure-project.sh\"\n";
-		};
-		7D4927709407FD554D88481B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/DiditSDK.framework/DiditSDK",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/OpenSSL.framework/OpenSSL",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermesvm.framework/hermesvm",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DiditSDK.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -318,6 +268,56 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		CABF2BE9F37BD8779FF906C7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Full/DiditSDK.framework/DiditSDK",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Full/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermesvm.framework/hermesvm",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DiditSDK.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermesvm.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E8A46B2A9AB89FF144914644 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/DiditExpoExample/DiditExpoExample.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-DiditExpoExample/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-DiditExpoExample/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-DiditExpoExample/expo-configure-project.sh\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -326,7 +326,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				1A4E8AC12884E4FAA45CBE66 /* ExpoModulesProvider.swift in Sources */,
+				D3B2F5EDC02B66C5935838A5 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -335,7 +335,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 792B832ECE9EF3CA35484273 /* Pods-DiditExpoExample.debug.xcconfig */;
+			baseConfigurationReference = D343C8C5479B313962C13A6C /* Pods-DiditExpoExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -371,7 +371,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9ED4A44E14DC8C873545EC91 /* Pods-DiditExpoExample.release.xcconfig */;
+			baseConfigurationReference = C4060ABF2F94BCC38EDDA40E /* Pods-DiditExpoExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

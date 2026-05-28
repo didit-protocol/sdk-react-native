@@ -4,7 +4,7 @@ import { VerificationStatus } from './types';
 import type { VerificationResult, DiditConfig, WorkflowOptions } from './types';
 
 // Re-export all public types
-export { VerificationStatus } from './types';
+export { VerificationStatus, CameraLens } from './types';
 export type {
   VerificationResult,
   VerificationCompleted,
@@ -93,6 +93,7 @@ function mapErrorType(errorType?: string) {
     case 'cameraAccessDenied':
     case 'notInitialized':
     case 'apiError':
+    case 'retryBlocked':
       return errorType;
     default:
       return 'unknown' as const;
@@ -134,6 +135,10 @@ export async function startVerification(
         showCloseButton: config.showCloseButton,
         showExitConfirmation: config.showExitConfirmation,
         closeOnComplete: config.closeOnComplete,
+        defaultDocumentCamera: config.defaultDocumentCamera,
+        defaultLivenessCamera: config.defaultLivenessCamera,
+        showDocumentCameraSwitchButton: config.showDocumentCameraSwitchButton,
+        showLivenessCameraSwitchButton: config.showLivenessCameraSwitchButton,
       }
     : {};
 
@@ -174,6 +179,12 @@ export async function startVerificationWithWorkflow(
         showCloseButton: options.config.showCloseButton,
         showExitConfirmation: options.config.showExitConfirmation,
         closeOnComplete: options.config.closeOnComplete,
+        defaultDocumentCamera: options.config.defaultDocumentCamera,
+        defaultLivenessCamera: options.config.defaultLivenessCamera,
+        showDocumentCameraSwitchButton:
+          options.config.showDocumentCameraSwitchButton,
+        showLivenessCameraSwitchButton:
+          options.config.showLivenessCameraSwitchButton,
       }
     : {};
 

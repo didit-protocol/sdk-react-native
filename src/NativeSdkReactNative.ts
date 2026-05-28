@@ -17,6 +17,14 @@ export type VerificationConfig = {
   showExitConfirmation?: boolean;
   /** Automatically dismiss verification UI when complete. Default: false. */
   closeOnComplete?: boolean;
+  /** Lens used when first entering the document capture screen: "front" or "back". */
+  defaultDocumentCamera?: string;
+  /** Lens used when first entering the liveness capture screen: "front" or "back". */
+  defaultLivenessCamera?: string;
+  /** Show the in-capture camera switcher on the document screen. Default: true. */
+  showDocumentCameraSwitchButton?: boolean;
+  /** Show the in-capture camera switcher on the liveness screen. Default: true. */
+  showLivenessCameraSwitchButton?: boolean;
 };
 
 /**

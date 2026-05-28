@@ -87,16 +87,31 @@ The SDK handles Android runtime permission requests automatically. When the user
 
 You do not need to request camera permission in your app code before calling `startVerification()` — the SDK manages this internally.
 
-## NFC Dependencies
+## Native SDK Variants
 
-NFC is enabled by default on both platforms.
+NFC and auto-detection are enabled by default on both platforms.
 
-| Platform | Default native dependency | No-NFC native dependency | How to disable NFC |
-|----------|---------------------------|--------------------------|--------------------|
-| iOS | `DiditSDK` | `DiditSDK/Core` | `DIDIT_SDK_IOS_NFC_ENABLED=false` before `pod install` |
-| Android | `me.didit:didit-sdk` | `me.didit:didit-sdk-core` | `diditSdkAndroidNfcEnabled=false` in `android/gradle.properties` |
+The React Native plugin can install the same native SDK variants exposed by the iOS and Android SDKs:
 
-When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, Android NFC packaging rules, or NFC-related provisioning setup.
+| Variant | Automatic capture | NFC passport reading | Use when |
+|---------|-------------------|----------------------|----------|
+| `all` | Yes | Yes | You want the complete SDK (default) |
+| `core` | No | No | You only need manual capture and the smallest binary |
+| `autodetection` | Yes | No | You need automatic capture without NFC |
+| `nfc` | No | Yes | You need NFC passport reading without automatic capture |
+
+### Empirical iOS Sizes
+
+Measured against the React Native example app using a Release `iphoneos` build with native iOS SDK 4.0.2. `DiditSDK` is linked statically into the app executable, so the app executable is the most useful place to see the SDK's impact. Compressed values are IPA-like zips of the `.app` payload.
+
+| Variant | `.app` bundle | App executable Mach-O | OpenSSL framework | Compressed IPA-like zip |
+|---------|--------------:|----------------------:|------------------:|------------------------:|
+| `core` | 30.3 MB | 22.1 MB | - | 9.1 MB |
+| `autodetection` | 49.4 MB | 41.1 MB | - | 15.2 MB |
+| `nfc` | 41.3 MB | 23.1 MB | 9.8 MB | 14.2 MB |
+| `all` | 60.3 MB | 42.2 MB | 9.8 MB | 20.3 MB |
+
+When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, Android NFC packaging rules, or NFC-related provisioning setup. When auto-detection is disabled, the document and face capture steps fall back to a manual shutter button.
 
 ## Installation
 
@@ -106,7 +121,7 @@ When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, An
 npx expo install @didit-protocol/sdk-react-native
 ```
 
-Then add the config plugin to your `app.json` (or `app.config.js`). NFC is enabled by default:
+Then add the config plugin to your `app.json` (or `app.config.js`). The default native variant is `all`:
 
 ```json
 {
@@ -116,7 +131,7 @@ Then add the config plugin to your `app.json` (or `app.config.js`). NFC is enabl
 }
 ```
 
-To build without NFC dependencies:
+To choose a smaller native variant:
 
 ```json
 {
@@ -125,8 +140,8 @@ To build without NFC dependencies:
       [
         "@didit-protocol/sdk-react-native",
         {
-          "iosNfcEnabled": false,
-          "androidNfcEnabled": false
+          "iosVariant": "core",
+          "androidVariant": "core"
         }
       ]
     ]
@@ -135,8 +150,10 @@ To build without NFC dependencies:
 ```
 
 That's it. The plugin automatically configures both platforms:
-- **Android:** Adds the Didit Maven repository to Gradle
-- **iOS:** Adds the DiditSDK podspec to the Podfile
+- **Android:** Adds the Didit Maven repository to Gradle and writes `diditSdkAndroidVariant`
+- **iOS:** Adds the DiditSDK podspec to the Podfile and sets `$DiditSdkIosVariant`
+
+Supported `iosVariant` / `androidVariant` values are `all`, `core`, `autodetection`, and `nfc`. The legacy booleans (`iosNfcEnabled`, `iosAutoDetectionEnabled`, `androidNfcEnabled`) still work, but `iosVariant` / `androidVariant` are preferred for new integrations.
 
 > **Note:** This SDK uses native modules (camera, NFC) that are not available in Expo Go. You must use a [development build](https://docs.expo.dev/develop/development-builds/introduction/) or run `npx expo prebuild` to generate the native projects.
 
@@ -150,20 +167,29 @@ yarn add @didit-protocol/sdk-react-native
 
 #### iOS
 
-Add the DiditSDK pod to your `Podfile` (it's not on CocoaPods trunk). NFC is enabled by default:
+Add the DiditSDK pod to your `Podfile` (it's not on CocoaPods trunk). The default native variant is `all`:
 
 ```ruby
-didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', 'true').downcase != 'false'
+# Pick one: 'all', 'core', 'autodetection', 'nfc'
+$DiditSdkIosVariant = 'all'
 
 def max_ios_version(*versions)
   versions.map(&:to_s).max_by { |version| Gem::Version.new(version) }
 end
 
-platform :ios, didit_sdk_ios_nfc_enabled ? max_ios_version(min_ios_version_supported, '15.0') : min_ios_version_supported
+didit_sdk_ios_deployment_target = ['all', 'nfc'].include?($DiditSdkIosVariant) ? max_ios_version(min_ios_version_supported, '15.0') : min_ios_version_supported
+platform :ios, didit_sdk_ios_deployment_target
 
 # Inside your app target:
-didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'
-pod didit_sdk_ios_pod, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+didit_sdk_subspec = case $DiditSdkIosVariant
+                    when 'all'           then 'DiditSDK/All'
+                    when 'core'          then 'DiditSDK/Core'
+                    when 'autodetection' then 'DiditSDK/AutoDetection'
+                    when 'nfc'           then 'DiditSDK/NFC'
+                    else
+                      raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
+                    end
+pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
 ```
 
 Then install dependencies:
@@ -173,15 +199,15 @@ cd ios
 bundle exec pod install
 ```
 
-To build without NFC dependencies:
+To switch variants, clean CocoaPods first so the previous variant is not reused:
 
 ```sh
 cd ios
 rm -rf Pods Podfile.lock
-DIDIT_SDK_IOS_NFC_ENABLED=false bundle exec pod install
-```
 
-When switching back to the full NFC SDK, clean CocoaPods again and run `bundle exec pod install` without `DIDIT_SDK_IOS_NFC_ENABLED=false`.
+# Edit $DiditSdkIosVariant in your Podfile, then:
+bundle exec pod install
+```
 
 #### Android
 
@@ -197,13 +223,13 @@ dependencyResolutionManagement {
 }
 ```
 
-By default, the React Native plugin depends on the full Android SDK, including NFC passport reading. To build without Android NFC dependencies, add this to `android/gradle.properties`:
+By default, the React Native plugin depends on the full Android SDK (`all`). To choose another variant, add this to `android/gradle.properties`:
 
 ```properties
-diditSdkAndroidNfcEnabled=false
+diditSdkAndroidVariant=core
 ```
 
-Remove that property, or set it to `true`, to use the full Android SDK with NFC.
+Supported values are `all`, `core`, `autodetection`, and `nfc`. The legacy `diditSdkAndroidNfcEnabled=false` property still maps to `core` for backwards compatibility, but `diditSdkAndroidVariant` is preferred for new integrations.
 
 The native SDK dependencies for both platforms are declared in the library and resolved automatically.
 
@@ -284,6 +310,10 @@ const result = await startVerificationWithWorkflow('your-workflow-id', {
 | `showCloseButton` | `boolean` | `true` | Show close (X) button on verification step screens |
 | `showExitConfirmation` | `boolean` | `true` | Show confirmation dialog when user attempts to exit |
 | `closeOnComplete` | `boolean` | `false` | Automatically dismiss verification UI when complete |
+| `defaultDocumentCamera` | `CameraLens` | Native default (`back`) | Lens used when first entering the document capture screen |
+| `defaultLivenessCamera` | `CameraLens` | Native default (`front`) | Lens used when first entering the liveness (passive face) capture screen |
+| `showDocumentCameraSwitchButton` | `boolean` | `true` | Show the in-capture camera switcher on the document screen |
+| `showLivenessCameraSwitchButton` | `boolean` | `true` | Show the in-capture camera switcher on the liveness screen |
 
 All fields are optional. If no config is provided, the SDK uses sensible defaults.
 
@@ -321,9 +351,26 @@ Enables verbose debug logging from the native SDK. Useful during development to 
 await startVerification(token, { loggingEnabled: true });
 ```
 
+### Camera Settings
+
+Control which camera lens opens by default on the document and liveness capture screens, and whether the in-capture camera switcher is shown to the user.
+
+```tsx
+import { CameraLens, startVerification } from '@didit-protocol/sdk-react-native';
+
+await startVerification(token, {
+  defaultDocumentCamera: CameraLens.Back, // back is the native default
+  defaultLivenessCamera: CameraLens.Front, // front is the native default
+  showDocumentCameraSwitchButton: true, // false to lock to the chosen lens
+  showLivenessCameraSwitchButton: true,
+});
+```
+
+If the requested lens is not present on the device, the native SDK falls back to the first available camera so capture still works. The switcher is also automatically hidden on single-camera devices regardless of the `show…SwitchButton` flag.
+
 ### Language Settings
 
-The SDK supports 53 languages. If no language is specified, the SDK uses the device locale with English as fallback.
+The SDK supports 54 languages. If no language is specified, the SDK uses the device locale with English as fallback.
 
 ```tsx
 // Use device locale (default)
@@ -363,7 +410,7 @@ await startVerification(token, { languageCode: 'fr' });
 | Hungarian | `hu` | Ukrainian | `uk` |
 | Indonesian | `id` | Uzbek | `uz` |
 | Italian | `it` | Vietnamese | `vi` |
-| Japanese | `ja` |  |  |
+| Japanese | `ja` | Mongolian | `mn` |
 
 ## Advanced Session Parameters
 

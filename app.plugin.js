@@ -15,18 +15,52 @@ const MAVEN_LINE = `        maven { url "${MAVEN_REPO}" }`;
 const PODSPEC_URL =
   'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec';
 
+const VALID_VARIANTS = ['all', 'core', 'autodetection', 'nfc'];
+
+function normalizeVariant(value, fallback) {
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+  const normalized = value.toLowerCase();
+  return VALID_VARIANTS.includes(normalized) ? normalized : fallback;
+}
+
+function variantFromBooleans(nfcEnabled, autoDetectionEnabled = true) {
+  if (nfcEnabled && autoDetectionEnabled) return 'all';
+  if (!nfcEnabled && autoDetectionEnabled) return 'autodetection';
+  if (nfcEnabled && !autoDetectionEnabled) return 'nfc';
+  return 'core';
+}
+
 function normalizeOptions(props = {}) {
+  const legacyIosVariant = variantFromBooleans(
+    props.iosNfcEnabled !== false,
+    props.iosAutoDetectionEnabled !== false
+  );
+  const legacyAndroidVariant =
+    props.androidNfcEnabled === false ? 'core' : 'all';
+
   return {
-    androidNfcEnabled: props.androidNfcEnabled !== false,
-    iosNfcEnabled: props.iosNfcEnabled !== false,
+    androidVariant: normalizeVariant(
+      props.androidVariant,
+      legacyAndroidVariant
+    ),
+    iosVariant: normalizeVariant(props.iosVariant, legacyIosVariant),
   };
 }
 
-function diditPodBlock(iosNfcEnabled) {
+function diditPodBlock(iosVariant) {
   return [
-    `  didit_sdk_ios_nfc_enabled = ENV.fetch('DIDIT_SDK_IOS_NFC_ENABLED', '${iosNfcEnabled}').downcase != 'false'`,
-    "  didit_sdk_ios_pod = didit_sdk_ios_nfc_enabled ? 'DiditSDK' : 'DiditSDK/Core'",
-    `  pod didit_sdk_ios_pod, :podspec => '${PODSPEC_URL}'`,
+    `  $DiditSdkIosVariant = '${iosVariant}'`,
+    '  didit_sdk_subspec = case $DiditSdkIosVariant',
+    "                      when 'all'           then 'DiditSDK/All'",
+    "                      when 'core'          then 'DiditSDK/Core'",
+    "                      when 'autodetection' then 'DiditSDK/AutoDetection'",
+    "                      when 'nfc'           then 'DiditSDK/NFC'",
+    '                      else',
+    '                        raise "Invalid $DiditSdkIosVariant \'#{$DiditSdkIosVariant}\'. Supported values: all, core, autodetection, nfc."',
+    '                      end',
+    `  pod didit_sdk_subspec, :podspec => '${PODSPEC_URL}'`,
   ].join('\n');
 }
 
@@ -105,8 +139,8 @@ const DIDIT_ANDROID_BLOCK = `
         }
     }`;
 
-function withDiditPackagingExclusion(config, androidNfcEnabled) {
-  if (!androidNfcEnabled) {
+function withDiditPackagingExclusion(config, androidVariant) {
+  if (!['all', 'nfc'].includes(androidVariant)) {
     return config;
   }
 
@@ -124,15 +158,17 @@ function withDiditPackagingExclusion(config, androidNfcEnabled) {
   });
 }
 
-function withDiditAndroidNfcProperty(config, androidNfcEnabled) {
+function withDiditAndroidVariantProperty(config, androidVariant) {
   return withGradleProperties(config, (mod) => {
     mod.modResults = mod.modResults.filter(
-      (item) => item.key !== 'diditSdkAndroidNfcEnabled'
+      (item) =>
+        item.key !== 'diditSdkAndroidVariant' &&
+        item.key !== 'diditSdkAndroidNfcEnabled'
     );
     mod.modResults.push({
       type: 'property',
-      key: 'diditSdkAndroidNfcEnabled',
-      value: String(androidNfcEnabled),
+      key: 'diditSdkAndroidVariant',
+      value: androidVariant,
     });
     return mod;
   });
@@ -144,8 +180,8 @@ function withDiditAndroidNfcProperty(config, androidNfcEnabled) {
 function withDiditAndroidMaven(config, options) {
   config = withDiditBuildGradle(config);
   config = withDiditSettingsGradle(config);
-  config = withDiditAndroidNfcProperty(config, options.androidNfcEnabled);
-  config = withDiditPackagingExclusion(config, options.androidNfcEnabled);
+  config = withDiditAndroidVariantProperty(config, options.androidVariant);
+  config = withDiditPackagingExclusion(config, options.androidVariant);
   return config;
 }
 
@@ -159,7 +195,10 @@ function withDiditAndroidMaven(config, options) {
  */
 function withDiditIosPodspec(config, options) {
   return withPodfile(config, (mod) => {
-    if (mod.modResults.contents.includes('didit_sdk_ios_pod')) {
+    if (
+      mod.modResults.contents.includes('didit_sdk_subspec') ||
+      mod.modResults.contents.includes('$DiditSdkIosVariant')
+    ) {
       return mod;
     }
 
@@ -167,13 +206,14 @@ function withDiditIosPodspec(config, options) {
       .split('\n')
       .filter((line) => !line.includes(PODSPEC_URL))
       .join('\n');
-    const podBlock = diditPodBlock(options.iosNfcEnabled);
+    const podBlock = diditPodBlock(options.iosVariant);
 
-    // Expo projects: inject after use_expo_modules!
+    // Expo projects: inject before use_expo_modules! so $DiditSdkIosVariant is
+    // already available when CocoaPods evaluates the autolinked RN podspec.
     if (contents.includes('use_expo_modules!')) {
       mod.modResults.contents = contents.replace(
         /use_expo_modules!/,
-        (m) => `${m}\n\n${podBlock}`
+        (m) => `${podBlock}\n\n${m}`
       );
     }
     // RN CLI projects: inject after the target ... do line

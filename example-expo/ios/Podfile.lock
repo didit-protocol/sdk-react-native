@@ -1,5 +1,7 @@
 PODS:
-  - DiditSDK (3.2.11)
+  - DiditSDK (3.5.1):
+    - DiditSDK/Full (= 3.5.1)
+  - DiditSDK/Full (3.5.1)
   - EXConstants (55.0.14):
     - ExpoModulesCore
   - Expo (55.0.15):
@@ -1849,8 +1851,8 @@ PODS:
     - React-utils (= 0.83.0)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.83.0)
-  - SdkReactNative (3.2.9):
-    - DiditSDK (~> 3.2)
+  - SdkReactNative (3.3.0):
+    - DiditSDK (~> 3.5)
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2136,7 +2138,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  DiditSDK: 6788d08d5f7552d34d324bd46c020d2889f08a1d
+  DiditSDK: 27173cbfc13db575640538a978d3ecf983b047ba
   EXConstants: bfe4ae4e5d882e2e0b130e049665d0af4f4cc1b8
   Expo: a43f44ff1e3a1c73fcabba766e13a38dea22236a
   ExpoAsset: dc4f25f84886120f82b23233bba563ea7afa88f5
@@ -2219,9 +2221,9 @@ SPEC CHECKSUMS:
   ReactCodegen: c32ea010ee2565103b86c99f10f2861b0b1b97fe
   ReactCommon: e22f6e537e566de4c61121da2139a1980caff948
   ReactNativeDependencies: 7287b718df1cac7f469898a828014ad21952769d
-  SdkReactNative: e27c005dbd9f9648a377c8abdaddc71b0c7c714e
+  SdkReactNative: 7f000cecbec1a2d6324dc314b228e46b14ac7923
   Yoga: 90687fcd1ebd927341caed917696d692813c0b24
 
-PODFILE CHECKSUM: 6dc3004cc235b73799ada6b33d98e552d564f2c4
+PODFILE CHECKSUM: 858d70e8e5b2e838368aa0ddc1ce503ffd6050ba
 
 COCOAPODS: 1.16.2

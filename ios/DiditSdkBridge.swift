@@ -144,6 +144,10 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         let showCloseButton: Bool
         let showExitConfirmation: Bool
         let closeOnComplete: Bool
+        let defaultDocumentCamera: String?
+        let defaultLivenessCamera: String?
+        let showDocumentCameraSwitchButton: Bool
+        let showLivenessCameraSwitchButton: Bool
         let isEmpty: Bool
 
         init(_ dict: NSDictionary?) {
@@ -154,6 +158,10 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                 self.showCloseButton = true
                 self.showExitConfirmation = true
                 self.closeOnComplete = false
+                self.defaultDocumentCamera = nil
+                self.defaultLivenessCamera = nil
+                self.showDocumentCameraSwitchButton = true
+                self.showLivenessCameraSwitchButton = true
                 self.isEmpty = true
                 return
             }
@@ -163,6 +171,10 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             self.showCloseButton = dict["showCloseButton"] as? Bool ?? true
             self.showExitConfirmation = dict["showExitConfirmation"] as? Bool ?? true
             self.closeOnComplete = dict["closeOnComplete"] as? Bool ?? false
+            self.defaultDocumentCamera = dict["defaultDocumentCamera"] as? String
+            self.defaultLivenessCamera = dict["defaultLivenessCamera"] as? String
+            self.showDocumentCameraSwitchButton = dict["showDocumentCameraSwitchButton"] as? Bool ?? true
+            self.showLivenessCameraSwitchButton = dict["showLivenessCameraSwitchButton"] as? Bool ?? true
             self.isEmpty = false
         }
 
@@ -178,8 +190,20 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                 loggingEnabled: loggingEnabled,
                 showCloseButton: showCloseButton,
                 showExitConfirmation: showExitConfirmation,
-                closeOnComplete: closeOnComplete
+                closeOnComplete: closeOnComplete,
+                defaultDocumentCamera: Self.parseCameraLens(defaultDocumentCamera) ?? .back,
+                defaultLivenessCamera: Self.parseCameraLens(defaultLivenessCamera) ?? .front,
+                showDocumentCameraSwitchButton: showDocumentCameraSwitchButton,
+                showLivenessCameraSwitchButton: showLivenessCameraSwitchButton
             )
+        }
+
+        private static func parseCameraLens(_ value: String?) -> CameraLens? {
+            switch value?.lowercased() {
+            case "front": return .front
+            case "back": return .back
+            default: return nil
+            }
         }
     }
 
