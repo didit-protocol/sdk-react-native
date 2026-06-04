@@ -32,8 +32,6 @@ Add the following keys to your app's `Info.plist`:
 <string>Photo library access is required to upload document images.</string>
 <key>NFCReaderUsageDescription</key>
 <string>NFC is used to read passport chip data for identity verification.</string>
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>Location access is used to detect your country for identity verification.</string>
 ```
 
 Missing required iOS privacy keys will cause iOS to terminate the app as soon as the SDK accesses that protected resource.
@@ -189,7 +187,7 @@ didit_sdk_subspec = case $DiditSdkIosVariant
                     else
                       raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                     end
-pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.0.3/DiditSDK.podspec'
 ```
 
 Then install dependencies:
