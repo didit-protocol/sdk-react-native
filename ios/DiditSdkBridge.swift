@@ -103,8 +103,7 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                 }
 
                 completion(mapped)
-            },
-            startAction: startAction
+            }
         )
 
         let hostingVC = UIHostingController(rootView: bridgeView)
@@ -112,7 +111,11 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         hostingVC.view.backgroundColor = .clear
         self.hostingController = hostingVC
 
-        rootVC.present(hostingVC, animated: false)
+        // Start the native SDK only after the host VC is fully presented,
+        // preventing "Attempt to present ... while a presentation is in progress" races.
+        rootVC.present(hostingVC, animated: false) {
+            startAction()
+        }
     }
 
     // MARK: - View Controller Helpers
@@ -283,16 +286,12 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 /// to host the verification flow. This avoids needing to access internal SDK types.
 private struct DiditBridgeView: View {
     let onResult: @Sendable (VerificationResult) -> Void
-    let startAction: @Sendable () -> Void
 
     var body: some View {
         Color.clear
             .edgesIgnoringSafeArea(.all)
             .diditVerification { result in
                 onResult(result)
-            }
-            .onAppear {
-                startAction()
             }
     }
 }
