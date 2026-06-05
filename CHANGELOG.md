@@ -1,3 +1,10 @@
+## 4.0.4
+
+- Update native iOS SDK to 4.0.4.
+- iOS: improve the post-active-liveness loader — the liveness WebView is dismissed immediately on success and the native processing/success sheet is shown over an opaque background, then cross-fades into the next step, removing the residual blank/flash between active liveness and the next step.
+- Android SDK unchanged at 4.0.3.
+- No breaking changes to the public JS verification result shape.
+
 ## 4.0.2
 
 - Update native Android SDK to 4.0.3.
