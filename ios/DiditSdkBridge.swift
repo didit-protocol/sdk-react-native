@@ -10,6 +10,8 @@ import SwiftUI
 public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
     private var hostingController: UIViewController?
+    private var isVerificationInProgress = false
+    private var hasDeliveredResult = false
 
     // MARK: - Start Verification with Token
 
@@ -83,6 +85,26 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         completion: @escaping @Sendable (NSDictionary) -> Void,
         startAction: @escaping @Sendable () -> Void
     ) {
+        guard hostingController == nil else {
+            let error: NSDictionary = [
+                "type": "failed",
+                "errorType": "retryBlocked",
+                "errorMessage": "Verification UI is already presented."
+            ]
+            completion(error)
+            return
+        }
+
+        guard !isVerificationInProgress else {
+            let error: NSDictionary = [
+                "type": "failed",
+                "errorType": "retryBlocked",
+                "errorMessage": "Verification is already in progress."
+            ]
+            completion(error)
+            return
+        }
+
         guard let rootVC = Self.findRootViewController() else {
             let error: NSDictionary = [
                 "type": "failed",
@@ -93,18 +115,46 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             return
         }
 
+        if rootVC.isBeingPresented || rootVC.isBeingDismissed {
+            let error: NSDictionary = [
+                "type": "failed",
+                "errorType": "retryBlocked",
+                "errorMessage": "Presentation transition in progress. Please retry."
+            ]
+            completion(error)
+            return
+        }
+
+        isVerificationInProgress = true
+        hasDeliveredResult = false
+
         let bridgeView = DiditBridgeView(
             onResult: { [weak self] result in
-                let mapped = Self.mapVerificationResult(result)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self?.hostingController?.dismiss(animated: false) {
-                        self?.hostingController = nil
-                    }
+                guard let self = self else { return }
+
+                if self.hasDeliveredResult {
+                    return
                 }
 
-                completion(mapped)
-            },
-            startAction: startAction
+                self.hasDeliveredResult = true
+                let mapped = Self.mapVerificationResult(result)
+
+                // Only resolve JS completion once native teardown has finished,
+                // avoiding quick retries while UIKit/SDK is still dismissing.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    guard let hostingController = self.hostingController else {
+                        self.isVerificationInProgress = false
+                        completion(mapped)
+                        return
+                    }
+
+                    hostingController.dismiss(animated: false) {
+                        self.hostingController = nil
+                        self.isVerificationInProgress = false
+                        completion(mapped)
+                    }
+                }
+            }
         )
 
         let hostingVC = UIHostingController(rootView: bridgeView)
@@ -112,7 +162,10 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         hostingVC.view.backgroundColor = .clear
         self.hostingController = hostingVC
 
-        rootVC.present(hostingVC, animated: false)
+        // Start SDK flow only after host presentation finishes to avoid UIKit presentation races.
+        rootVC.present(hostingVC, animated: false) {
+            startAction()
+        }
     }
 
     // MARK: - View Controller Helpers
@@ -283,16 +336,12 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 /// to host the verification flow. This avoids needing to access internal SDK types.
 private struct DiditBridgeView: View {
     let onResult: @Sendable (VerificationResult) -> Void
-    let startAction: @Sendable () -> Void
 
     var body: some View {
         Color.clear
             .edgesIgnoringSafeArea(.all)
             .diditVerification { result in
                 onResult(result)
-            }
-            .onAppear {
-                startAction()
             }
     }
 }
