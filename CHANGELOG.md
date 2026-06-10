@@ -1,3 +1,16 @@
+## 4.0.5
+
+- Update native iOS SDK to 4.0.5.
+- Update native Android SDK to 4.0.5 (Android moves directly from 4.0.3 to 4.0.5 to stay in lockstep with iOS).
+- iOS: fix App Store rejection ITMS-90338 — the bundled native libraries (MediaPipe's RE2 / ICU / TensorFlow Lite) are no longer exported in the framework's dyld export trie, so App Store / TestFlight uploads of apps embedding the SDK are no longer flagged for the `re2::*` private-symbol collision. No JS API or runtime change.
+- Align every input and selector to the white-label theme on both platforms (text fields, OTP, dropdowns, country/phone pickers, questionnaire fields); unselected radio buttons now use the selected color at reduced opacity so they stay visible on every theme.
+- Align the KYB screens to the white-label theme on both platforms: documents upload view, key-people cards and editor, the awaiting-users view, and company search/results — including status badges, low-contrast text/icons, and the "enter company data manually" link color.
+- Fix passive liveness on both platforms: Android no longer shows a frozen preview after capture (the camera restarts correctly on retry), iOS no longer occasionally exceeds the backend upload size limit, and face-image compression now matches the web frontend.
+- Android: fix the KYB accepted-countries list disappearing when navigating back to the company search.
+- Add Algeria-specific NFC intro videos (`DZA`) for ID and passport on both platforms; the instructional video is now resolved from the document's detected country.
+- iOS: suppress the camera shutter sound on still capture (iOS 18+, where allowed) and fix a stretched / rotated front-camera preview on newer devices.
+- No breaking changes to the public JS verification result shape.
+
 ## 4.0.4
 
 - Update native iOS SDK to 4.0.4.
