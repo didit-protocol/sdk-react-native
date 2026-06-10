@@ -11,6 +11,11 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
     private var hostingController: UIViewController?
 
+    /// Monotonic stamp for each presentation. Delayed teardown blocks capture
+    /// the stamp of their own run, so a block left over from a previous run
+    /// can never dismiss the host of a newer one.
+    private var presentationGeneration = 0
+
     // MARK: - Start Verification with Token
 
     /// Start verification using an existing session token.
@@ -83,6 +88,21 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         completion: @escaping @Sendable (NSDictionary) -> Void,
         startAction: @escaping @Sendable () -> Void
     ) {
+        // A previous run can leave the transparent hosting controller behind:
+        // the delayed dismiss below may catch the SDK's cover mid-animation
+        // and dismiss that instead of the host. A stale host keeps observing
+        // DiditSdk.shared, so the next start would present the verification
+        // UI twice and re-fire the old completion (double-resolving the RN
+        // promise, which crashes under the New Architecture). Remove any
+        // leftover host before presenting a new one.
+        if let stale = self.hostingController {
+            (stale.presentingViewController ?? stale).dismiss(animated: false)
+            self.hostingController = nil
+        }
+
+        presentationGeneration += 1
+        let generation = presentationGeneration
+
         guard let rootVC = Self.findRootViewController() else {
             let error: NSDictionary = [
                 "type": "failed",
@@ -97,8 +117,19 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             onResult: { [weak self] result in
                 let mapped = Self.mapVerificationResult(result)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self?.hostingController?.dismiss(animated: false) {
-                        self?.hostingController = nil
+                    // The generation check keeps this block scoped to its own
+                    // run: if a new verification started during the delay,
+                    // `hostingController` already points at the new host and
+                    // must not be torn down here.
+                    guard let self = self,
+                          self.presentationGeneration == generation,
+                          let host = self.hostingController else { return }
+                    // Dismiss from the presenter so the host itself is removed
+                    // even if the SDK's cover is still attached to it. Calling
+                    // dismiss on the host while it still has a presented child
+                    // dismisses the child instead, leaking the host.
+                    (host.presentingViewController ?? host).dismiss(animated: false) {
+                        self.hostingController = nil
                     }
                 }
 
@@ -126,9 +157,11 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             return nil
         }
 
-        // Walk the presentation chain to find the topmost presented controller
+        // Walk the presentation chain to find the topmost presented controller.
+        // Skip controllers that are on their way out, so the verification UI is
+        // never presented from a host that is about to leave the hierarchy.
         var topVC = rootVC
-        while let presented = topVC.presentedViewController {
+        while let presented = topVC.presentedViewController, !presented.isBeingDismissed {
             topVC = presented
         }
         return topVC
@@ -285,10 +318,16 @@ private struct DiditBridgeView: View {
     let onResult: @Sendable (VerificationResult) -> Void
     let startAction: @Sendable () -> Void
 
+    // One-shot guard: a host that lingers through a later run would otherwise
+    // re-deliver a result for a promise that has already been settled.
+    @State private var didFinish = false
+
     var body: some View {
         Color.clear
             .edgesIgnoringSafeArea(.all)
             .diditVerification { result in
+                guard !didFinish else { return }
+                didFinish = true
                 onResult(result)
             }
             .onAppear {
