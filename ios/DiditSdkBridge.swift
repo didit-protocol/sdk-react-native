@@ -10,6 +10,8 @@ import SwiftUI
 public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
     private var hostingController: UIViewController?
+    private var presentationGeneration = 0
+    private var hasDeliveredResult = false
 
     // MARK: - Start Verification with Token
 
@@ -76,13 +78,13 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
     // MARK: - Presentation Logic
 
-    /// Presents the verification flow in a UIHostingController.
-    /// Uses the public `.diditVerification(onComplete:)` SwiftUI modifier,
-    /// so no internal SDK types need to be exposed.
     private func presentVerification(
         completion: @escaping @Sendable (NSDictionary) -> Void,
         startAction: @escaping @Sendable () -> Void
     ) {
+        removeStaleHostIfPresent()
+        let generation = beginPresentation()
+
         guard let rootVC = Self.findRootViewController() else {
             let error: NSDictionary = [
                 "type": "failed",
@@ -95,16 +97,13 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
         let bridgeView = DiditBridgeView(
             onResult: { [weak self] result in
-                let mapped = Self.mapVerificationResult(result)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self?.hostingController?.dismiss(animated: false) {
-                        self?.hostingController = nil
-                    }
-                }
-
-                completion(mapped)
-            },
-            startAction: startAction
+                guard let self = self, self.claimResultDelivery(for: generation) else { return }
+                self.tearDownThenResolve(
+                    generation: generation,
+                    result: Self.mapVerificationResult(result),
+                    completion: completion
+                )
+            }
         )
 
         let hostingVC = UIHostingController(rootView: bridgeView)
@@ -112,7 +111,51 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         hostingVC.view.backgroundColor = .clear
         self.hostingController = hostingVC
 
-        rootVC.present(hostingVC, animated: false)
+        presentHostThenStartFlow(hostingVC, from: rootVC, startFlow: startAction)
+    }
+
+    private func removeStaleHostIfPresent() {
+        guard let stale = hostingController else { return }
+        Self.dismissFromPresenter(stale)
+        hostingController = nil
+    }
+
+    private func beginPresentation() -> Int {
+        presentationGeneration += 1
+        hasDeliveredResult = false
+        return presentationGeneration
+    }
+
+    private func claimResultDelivery(for generation: Int) -> Bool {
+        guard !hasDeliveredResult, presentationGeneration == generation else { return false }
+        hasDeliveredResult = true
+        return true
+    }
+
+    private func tearDownThenResolve(
+        generation: Int,
+        result: NSDictionary,
+        completion: @escaping @Sendable (NSDictionary) -> Void
+    ) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            guard self.presentationGeneration == generation,
+                  let host = self.hostingController else {
+                completion(result)
+                return
+            }
+            Self.dismissFromPresenter(host) {
+                self.hostingController = nil
+                completion(result)
+            }
+        }
+    }
+
+    private func presentHostThenStartFlow(
+        _ host: UIViewController,
+        from presenter: UIViewController,
+        startFlow: @escaping @Sendable () -> Void
+    ) {
+        presenter.present(host, animated: false, completion: startFlow)
     }
 
     // MARK: - View Controller Helpers
@@ -126,12 +169,19 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             return nil
         }
 
-        // Walk the presentation chain to find the topmost presented controller
-        var topVC = rootVC
-        while let presented = topVC.presentedViewController {
-            topVC = presented
+        return topmostPresentedController(startingFrom: rootVC)
+    }
+
+    private static func topmostPresentedController(startingFrom root: UIViewController) -> UIViewController {
+        var controller = root
+        while let presented = controller.presentedViewController, !presented.isBeingDismissed {
+            controller = presented
         }
-        return topVC
+        return controller
+    }
+
+    private static func dismissFromPresenter(_ controller: UIViewController, completion: (() -> Void)? = nil) {
+        (controller.presentingViewController ?? controller).dismiss(animated: false, completion: completion)
     }
 
     // MARK: - Configuration Parsing
@@ -283,16 +333,12 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 /// to host the verification flow. This avoids needing to access internal SDK types.
 private struct DiditBridgeView: View {
     let onResult: @Sendable (VerificationResult) -> Void
-    let startAction: @Sendable () -> Void
 
     var body: some View {
         Color.clear
             .edgesIgnoringSafeArea(.all)
             .diditVerification { result in
                 onResult(result)
-            }
-            .onAppear {
-                startAction()
             }
     }
 }
