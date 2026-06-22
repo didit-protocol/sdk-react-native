@@ -17,7 +17,7 @@ const MAVEN_REPO =
 const MAVEN_LINE = `        maven { url "${MAVEN_REPO}" }`;
 
 const PODSPEC_URL =
-  'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.0.5/DiditSDK.podspec';
+  'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.0.6/DiditSDK.podspec';
 
 const VALID_VARIANTS = ['all', 'core', 'autodetection', 'nfc'];
 const PODFILE_PROPS_KEY = 'didit.iosVariant';

@@ -1,3 +1,20 @@
+## 4.0.6
+
+- Update native iOS SDK to 4.0.6.
+- Update native Android SDK to 4.0.6.
+- iOS: fix the App Store privacy-manifest rejection ITMS-91061 (and the sibling signature check ITMS-91065) for `OpenSSL.framework` — the native SDK now resolves OpenSSL-Universal 3.3.3001, which ships its own `PrivacyInfo.xcprivacy` and code signature; the NFC dependency `NFCPassportReader` was bumped 2.1.2 → 2.3.0 and verified end-to-end against a real chip read. No JS API or runtime change.
+- Android: add PACE (Password Authenticated Connection Establishment) support for NFC passport / ID chip reading.
+- KYB on both platforms: new company card, key-people and associated-parties screens, with key-people reuse across steps.
+- KYB on both platforms: a country-style US state selector in company search and confirmation (Android replaces the old state dropdown; iOS adds the selector), white-labeled company country/state search inputs with a region label, and an editable company country in the confirmation view.
+- KYB on both platforms: key-people data is now prefilled/preserved when the preceding step is backend-only, and email is no longer required for a key person when KYC isn't required for them.
+- KYB fixes: company selection failing to advance on partial registry data (both platforms), company-search auto-detection (Android), and accepted-country resolution for alpha-2 codes (Android).
+- Fix the backend-processing loader getting stuck on the AML screening step (both platforms).
+- Fix country/region display issues: some countries showed their alpha-3 code instead of the country name (both platforms); the flag not updating when changing the selected country (iOS); dropdown chevron visibility in KYB and document country inputs (Android).
+- White-label / UI fixes: incorporation date-picker colors and KYB company input caret color (Android); document back-scan preview rotation, country/state picker search-icon visibility, start-screen feature icons aligned with Android & web, phone country picker aligned with the KYB selector, and KYB button spacing/separator cleanup (iOS).
+- Add Russian ID & passport document-override translations, plus a general translations refresh, on both platforms.
+- iOS (React Native): fix the verification UI opening twice and a promise double-resolve crash when reopening verification.
+- No breaking changes to the public JS verification result shape.
+
 ## 4.0.5
 
 - Update native iOS SDK to 4.0.5.
