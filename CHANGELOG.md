@@ -1,3 +1,16 @@
+## 4.0.8
+
+- Update native iOS SDK to 4.0.8.
+- Update native Android SDK to 4.0.8.
+- Add the Document AI verification step — prompts the user to upload the requested document(s) for AI-based data extraction, localized across all supported languages (both platforms).
+- KYB: the document-upload step now lists the fields the uploaded document must clearly show (company name, type, incorporation date, jurisdiction of registration, registered address), and the key-people ownership percentage is now optional unless the session marks it required (both platforms).
+- Fix passive-liveness video recorded horizontally stretched on iPhone 17 / 17 Pro / 17 Pro Max — the new Center Stage front sensor is now pinned to a portrait orientation (iOS).
+- Fix the active-liveness face intro screen briefly appearing behind the processing overlay when the liveness step finishes (iOS).
+- Correct the success and failure status texts shown after a face (liveness) upload (iOS).
+- Hide the document detection corner guides when auto-detection isn't bundled (Core/NFC variants) or fails to load — only the static document frame guide remains (both platforms).
+- Fix a KYB company-select crash when the registry returns accounts/industries as an object/string instead of an array (Android).
+- No breaking changes to the public JS verification result shape.
+
 ## 4.0.6
 
 - Update native iOS SDK to 4.0.6.
