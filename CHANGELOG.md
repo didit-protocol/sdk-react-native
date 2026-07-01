@@ -1,3 +1,13 @@
+## 4.0.9
+
+- Update native iOS SDK to 4.0.9.
+- Update native Android SDK to 4.0.9.
+- Questionnaire: fields are now validated against their expected format before the step can be submitted, with a localized inline error message shown on invalid input (both platforms).
+- Questionnaire: improved the inline validation error UI/UX for text, number, and text-area fields (both platforms).
+- KYB key people: the person/company editor now shows company-appropriate labels and placeholders (company name, country of incorporation), and the key-people field definitions are parsed whether the backend returns them as strings or objects — preventing a deserialization crash (Android).
+- Add internal front-camera orientation diagnostics (LOG telemetry) to investigate the iPhone 17 / Center Stage preview and recorded-video rotation — no user-facing change (iOS).
+- No breaking changes to the public JS verification result shape.
+
 ## 4.0.8
 
 - Update native iOS SDK to 4.0.8.

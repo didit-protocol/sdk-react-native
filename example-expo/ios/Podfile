@@ -30,7 +30,7 @@ target 'DiditExpoExample' do
                       else
                         raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                       end
-  pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.0.8/DiditSDK.podspec'
+  pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.0.9/DiditSDK.podspec'
 
   use_expo_modules!
 
