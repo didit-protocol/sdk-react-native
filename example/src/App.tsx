@@ -14,13 +14,22 @@ import {
   CameraLens,
   startVerification,
   startVerificationWithWorkflow,
+  submitTransaction,
+  DiditTransactionError,
   VerificationStatus,
   type VerificationResult,
+  type DiditTransactionResult,
 } from '@didit-protocol/sdk-react-native';
+
+const DEMO_WALLET_ADDRESS = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
 
 export default function App() {
   const [token, setToken] = useState('e5xD6RVXV19Q');
   const [workflowId, setWorkflowId] = useState('');
+  const [transactionToken, setTransactionToken] = useState('');
+  const [transactionResult, setTransactionResult] = useState<string | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
 
@@ -80,6 +89,78 @@ export default function App() {
       setLoading(false);
     }
   }, [workflowId]);
+
+  const handleSubmitTransaction = useCallback(async () => {
+    if (!transactionToken.trim()) {
+      Alert.alert('Error', 'Please enter a transaction SDK token.');
+      return;
+    }
+
+    setLoading(true);
+    setTransactionResult(null);
+
+    try {
+      const txn = await submitTransaction(
+        transactionToken.trim(),
+        {
+          txnId: `rn-demo-${Date.now()}`,
+          txnDate: new Date().toISOString(),
+          type: 'crypto',
+          info: {
+            direction: 'outbound',
+            amount: 0.25,
+            currency: 'ETH',
+            currencyType: 'crypto',
+            cryptoParams: { address: DEMO_WALLET_ADDRESS, chain: 'ethereum' },
+          },
+          subject: {
+            type: 'individual',
+            externalUserId: 'rn-demo-user',
+            fullName: 'Ada Lovelace',
+          },
+          counterparty: {
+            type: 'individual',
+            fullName: 'Charles Babbage',
+            paymentMethod: {
+              type: 'crypto',
+              accountId: DEMO_WALLET_ADDRESS,
+              issuingCountry: 'GB',
+            },
+          },
+          travelRule: {
+            required: true,
+            originatorData: { full_name: 'Ada Lovelace' },
+            beneficiaryData: {
+              full_name: 'Charles Babbage',
+              wallet_address: DEMO_WALLET_ADDRESS,
+            },
+          },
+          includeCryptoScreening: true,
+        },
+        {
+          onTransactionUpdated: (updated: DiditTransactionResult) => {
+            setTransactionResult(
+              `Updated after action:\n${JSON.stringify(updated, null, 2)}`
+            );
+          },
+        }
+      );
+      setTransactionResult(JSON.stringify(txn, null, 2));
+    } catch (error) {
+      if (error instanceof DiditTransactionError) {
+        setTransactionResult(
+          `Error (${error.code}): ${error.message}` +
+            (error.fieldErrors
+              ? `\n${JSON.stringify(error.fieldErrors, null, 2)}`
+              : '')
+        );
+      } else {
+        setTransactionResult(`Unexpected error: ${error}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [transactionToken]);
 
   const showResultAlert = (res: VerificationResult) => {
     switch (res.type) {
@@ -162,6 +243,44 @@ export default function App() {
               <Text style={styles.buttonText}>Start with Workflow</Text>
             )}
           </TouchableOpacity>
+        </View>
+
+        {/* Transaction submission */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Submit Sample Transaction</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter transaction SDK token..."
+            placeholderTextColor="#999"
+            value={transactionToken}
+            onChangeText={setTransactionToken}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.buttonSecondary,
+              loading && styles.buttonDisabled,
+            ]}
+            onPress={handleSubmitTransaction}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>
+                Submit Travel-Rule Transaction
+              </Text>
+            )}
+          </TouchableOpacity>
+          {transactionResult && (
+            <View style={[styles.resultCard, styles.transactionResultCard]}>
+              <Text style={styles.transactionResultText}>
+                {transactionResult}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Result display */}
@@ -295,5 +414,13 @@ const styles = StyleSheet.create({
   },
   statusDeclined: {
     color: '#dc2626',
+  },
+  transactionResultCard: {
+    marginTop: 12,
+  },
+  transactionResultText: {
+    fontSize: 12,
+    color: '#1a1a1a',
+    fontFamily: 'Courier',
   },
 });

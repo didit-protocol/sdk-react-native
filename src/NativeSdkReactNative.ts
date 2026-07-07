@@ -1,4 +1,8 @@
-import { TurboModuleRegistry, type TurboModule } from 'react-native';
+import {
+  TurboModuleRegistry,
+  type CodegenTypes,
+  type TurboModule,
+} from 'react-native';
 
 /**
  * Configuration for the Didit verification SDK.
@@ -96,6 +100,33 @@ export interface Spec extends TurboModule {
     expectedDetails: ExpectedDetails | null,
     config: VerificationConfig | null
   ): Promise<VerificationResultJS>;
+
+  /**
+   * Submit a transaction from the device using a transaction SDK token.
+   * The transaction payload and options cross the bridge as JSON strings;
+   * the resolved value is the transaction result as a JSON string.
+   */
+  submitTransaction(
+    transactionToken: string,
+    transactionJson: string,
+    optionsJson: string
+  ): Promise<string>;
+
+  /**
+   * Fetch a transaction previously submitted with the same token.
+   * The resolved value is the transaction result as a JSON string.
+   */
+  getTransaction(
+    transactionToken: string,
+    transactionId: string,
+    optionsJson: string
+  ): Promise<string>;
+
+  /**
+   * Fired after an auto-launched action completes and the transaction has
+   * been refreshed. Payload is a JSON string: { callId, result }.
+   */
+  readonly onTransactionUpdated: CodegenTypes.EventEmitter<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('SdkReactNative');

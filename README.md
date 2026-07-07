@@ -649,6 +649,52 @@ Returns: `Promise<VerificationResult>`
 
 > **Note:** For advanced session parameters (`contactDetails`, `expectedDetails`, `metadata`), use the Backend Session method (`startVerification` with a token created via POST /v3/session/).
 
+### `submitTransaction(transactionToken, transaction, options?)`
+
+Submit a transaction directly from the device. Requires a transaction SDK token minted by your backend via `POST /v3/transactions/sdk-token/`. Device intelligence is attached automatically. If the response contains a required user action (verification session or wallet-ownership widget), the SDK auto-launches it natively and invokes `options.onTransactionUpdated` with the refreshed transaction once the action completes.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `transactionToken` | `string` | Yes | Transaction SDK token (sent as `X-Transaction-Token`) |
+| `transaction` | `DiditTransaction` | Yes | Transaction payload (`txnId` required; `info`, `subject`, `counterparty`, `travelRule`, ...) |
+| `options` | `DiditTransactionOptions` | No | `baseUrl`, `autoLaunchAction` (default `true`), `onTransactionUpdated` callback |
+
+Returns: `Promise<DiditTransactionResult>` with `transactionId`, `status`, `travelRuleStatus?`, and `actionRequired?`.
+
+Throws: `DiditTransactionError` with `code` set to `invalid_token`, `expired_token`, `validation` (see `fieldErrors`), or `network`.
+
+```tsx
+import { submitTransaction, DiditTransactionError } from '@didit-protocol/sdk-react-native';
+
+try {
+  const result = await submitTransaction(sdkToken, {
+    txnId: 'order-123',
+    type: 'crypto',
+    info: { direction: 'outbound', amount: 0.25, currency: 'ETH' },
+    travelRule: { required: true },
+  }, {
+    onTransactionUpdated: (updated) => console.log('Refreshed:', updated.status),
+  });
+  console.log(result.transactionId, result.actionRequired?.type);
+} catch (error) {
+  if (error instanceof DiditTransactionError) {
+    console.log(error.code, error.fieldErrors);
+  }
+}
+```
+
+### `getTransaction(transactionToken, transactionId, options?)`
+
+Fetch the current state of a transaction previously submitted with the same token.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `transactionToken` | `string` | Yes | Transaction SDK token |
+| `transactionId` | `string` | Yes | `transactionId` returned by `submitTransaction` |
+| `options` | `DiditTransactionOptions` | No | `baseUrl` override |
+
+Returns: `Promise<DiditTransactionResult>`
+
 ## Exported Types
 
 ```tsx
@@ -656,9 +702,14 @@ import {
   // Functions
   startVerification,
   startVerificationWithWorkflow,
+  submitTransaction,
+  getTransaction,
 
   // Enum
   VerificationStatus,
+
+  // Classes
+  DiditTransactionError,
 
   // Types
   type VerificationResult,
@@ -672,6 +723,15 @@ import {
   type ContactDetails,
   type ExpectedDetails,
   type WorkflowOptions,
+  type DiditTransaction,
+  type DiditTransactionInfo,
+  type DiditTransactionParticipant,
+  type DiditTransactionPaymentMethod,
+  type DiditTravelRule,
+  type DiditTransactionActionRequired,
+  type DiditTransactionResult,
+  type DiditTransactionOptions,
+  type DiditTransactionErrorCode,
 } from '@didit-protocol/sdk-react-native';
 ```
 

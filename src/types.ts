@@ -224,3 +224,162 @@ export interface WorkflowOptions {
   /** SDK configuration options. */
   config?: DiditConfig;
 }
+
+// ─── Transactions ────────────────────────────────────────────────────────────
+
+/**
+ * Monetary or crypto details of a transaction.
+ */
+export interface DiditTransactionInfo {
+  /** Transaction direction, e.g. "inbound" or "outbound". */
+  direction?: string;
+  amount?: number;
+  /** Currency code, e.g. "USD" or "ETH". */
+  currency?: string;
+  /** Currency type, e.g. "fiat" or "crypto". */
+  currencyType?: string;
+  amountInDefaultCurrency?: number;
+  defaultCurrencyCode?: string;
+  paymentDetails?: string;
+  paymentTxnId?: string;
+  type?: string;
+  /** Crypto transfer parameters, e.g. { address, chain }. */
+  cryptoParams?: Record<string, unknown>;
+}
+
+/**
+ * Payment method of a transaction participant.
+ */
+export interface DiditTransactionPaymentMethod {
+  type?: string;
+  /** Account identifier, e.g. an IBAN, card fingerprint, or wallet address. */
+  accountId?: string;
+  /** ISO 3166-1 alpha-2 issuing country. */
+  issuingCountry?: string;
+}
+
+/**
+ * A transaction participant (subject or counterparty).
+ */
+export interface DiditTransactionParticipant {
+  /** Participant type, e.g. "individual" or "company". */
+  type?: string;
+  externalUserId?: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  /** Date of birth (ISO 8601 date). */
+  dob?: string;
+  address?: Record<string, unknown>;
+  institutionInfo?: Record<string, unknown>;
+  device?: Record<string, unknown>;
+  paymentMethod?: DiditTransactionPaymentMethod;
+}
+
+/**
+ * Travel rule information attached to a transaction.
+ */
+export interface DiditTravelRule {
+  status?: string;
+  protocol?: string;
+  required?: boolean;
+  obligationsCount?: number;
+  originatorData?: Record<string, unknown>;
+  beneficiaryData?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * A transaction to submit from the device.
+ * Mirrors the Didit transaction wire contract (camelCase aliases).
+ */
+export interface DiditTransaction {
+  /** Your unique transaction identifier. */
+  txnId: string;
+  /** Transaction timestamp (ISO 8601). */
+  txnDate?: string;
+  /** Time zone identifier, e.g. "Europe/Madrid". */
+  zoneId?: string;
+  /** Transaction category, e.g. "crypto". */
+  type?: string;
+  info?: DiditTransactionInfo;
+  subject?: DiditTransactionParticipant;
+  counterparty?: DiditTransactionParticipant;
+  /** Custom properties attached to the transaction. */
+  props?: Record<string, unknown>;
+  travelRule?: DiditTravelRule;
+  includeCryptoScreening?: boolean;
+}
+
+/**
+ * A user action required to complete the transaction.
+ */
+export interface DiditTransactionActionRequired {
+  /** Action type: "verification_session" or "wallet_ownership". */
+  type: string;
+  /** Hosted URL to complete the action. */
+  url?: string;
+  sessionId?: string;
+  sessionToken?: string;
+  status?: string;
+  widgetSessionId?: string;
+  /** Expiry timestamp of the wallet-ownership widget session. */
+  expiresAt?: string;
+}
+
+/**
+ * The result of a submitted or fetched transaction.
+ */
+export interface DiditTransactionResult {
+  transactionId: string;
+  status?: string;
+  travelRuleStatus?: string;
+  actionRequired?: DiditTransactionActionRequired;
+}
+
+/**
+ * Options for submitting or fetching a transaction.
+ */
+export interface DiditTransactionOptions {
+  /** Override the verification API base URL. */
+  baseUrl?: string;
+  /**
+   * Automatically launch any required user action (verification session
+   * or wallet-ownership widget). Default: `true`.
+   */
+  autoLaunchAction?: boolean;
+  /**
+   * Called with the refreshed transaction after an auto-launched action
+   * completes and the transaction status has been re-fetched.
+   */
+  onTransactionUpdated?: (result: DiditTransactionResult) => void;
+}
+
+/**
+ * Error categories thrown by {@link submitTransaction} and {@link getTransaction}.
+ */
+export type DiditTransactionErrorCode =
+  | 'invalid_token'
+  | 'expired_token'
+  | 'validation'
+  | 'network';
+
+/**
+ * Typed error thrown by the transaction methods. Use the `code` field to
+ * discriminate; `fieldErrors` carries per-field details for `validation`.
+ */
+export class DiditTransactionError extends Error {
+  readonly code: DiditTransactionErrorCode;
+  readonly fieldErrors?: Record<string, unknown>;
+
+  constructor(
+    code: DiditTransactionErrorCode,
+    message: string,
+    fieldErrors?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = 'DiditTransactionError';
+    this.code = code;
+    this.fieldErrors = fieldErrors;
+  }
+}
