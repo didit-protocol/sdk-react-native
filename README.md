@@ -651,7 +651,7 @@ Returns: `Promise<VerificationResult>`
 
 ### `submitTransaction(transactionToken, transaction, options?)`
 
-Submit a transaction directly from the device. Requires a transaction SDK token minted by your backend via `POST /v3/transactions/sdk-token/`. Device intelligence is attached automatically. If the response contains a required user action (verification session or wallet-ownership widget), the SDK auto-launches it natively and invokes `options.onTransactionUpdated` with the refreshed transaction once the action completes.
+Submit a transaction directly from the device. Requires a transaction SDK token minted by your backend via `POST /v3/transactions/sdk-token/`. Device intelligence is attached automatically. `autoLaunchAction` (default `true`) auto-launches only a `wallet_ownership` action natively, invoking `options.onTransactionUpdated` once it completes; a `verification_session` action is never auto-launched and is always returned on `result.actionRequired` for your app to launch with its own Didit verification integration.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -680,6 +680,20 @@ try {
   if (error instanceof DiditTransactionError) {
     console.log(error.code, error.fieldErrors);
   }
+}
+```
+
+A `verification_session` action is returned, not auto-launched - launch it yourself with `startVerification`:
+
+```tsx
+import { submitTransaction, startVerification } from '@didit-protocol/sdk-react-native';
+
+const result = await submitTransaction(sdkToken, transaction);
+
+if (result.actionRequired?.type === 'verification_session') {
+  const { sessionToken } = result.actionRequired;
+  const verification = await startVerification(sessionToken!);
+  console.log('Verification result:', verification.type);
 }
 ```
 
