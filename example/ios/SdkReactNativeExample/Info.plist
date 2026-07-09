@@ -41,8 +41,6 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required for identity verification to capture documents and facial photos.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location access is used to detect your country for identity verification.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

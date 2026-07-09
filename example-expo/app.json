@@ -22,7 +22,6 @@
         "NSMicrophoneUsageDescription": "Microphone access is required to record video for liveness verification.",
         "NSPhotoLibraryUsageDescription": "Photo library access is required to upload document images.",
         "NFCReaderUsageDescription": "NFC is used to read passport chip data for identity verification.",
-        "NSLocationWhenInUseUsageDescription": "Location access is used to detect your country for identity verification.",
         "com.apple.developer.nfc.readersession.iso7816.select-identifiers": [
           "D23300000045737445494420763335",
           "A0000002471001",
