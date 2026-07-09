@@ -651,7 +651,7 @@ Returns: `Promise<VerificationResult>`
 
 ### `submitTransaction(transactionToken, transaction, options?)`
 
-Submit a transaction directly from the device. Requires a transaction SDK token minted by your backend via `POST /v3/transactions/sdk-token/`. Device intelligence is attached automatically. `autoLaunchAction` (default `true`) auto-launches only a `wallet_ownership` action natively, invoking `options.onTransactionUpdated` once it completes; a `verification_session` action is never auto-launched and is always returned on `result.actionRequired` for your app to launch with its own Didit verification integration.
+Submit a transaction directly from the device. Requires a transaction SDK token minted by your backend via `POST /v3/transactions/sdk-token/`. Device intelligence is attached automatically. `autoLaunchAction` (default `true`) auto-launches only a `wallet_ownership` action natively, invoking `options.onTransactionUpdated` once it completes; a `verification_session` action is never auto-launched and is always returned on `result.actionRequired` for your app to launch with its own Didit verification integration. Full guide: [SDK Transaction Submission](https://docs.didit.me/transaction-monitoring/sdk-transaction-submission).
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
