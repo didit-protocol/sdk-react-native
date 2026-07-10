@@ -132,6 +132,58 @@
     }];
 }
 
+// MARK: - Transactions
+
+static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInfoFields)
+{
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    if (message) {
+        userInfo[NSLocalizedDescriptionKey] = message;
+    }
+    if (userInfoFields) {
+        [userInfo addEntriesFromDictionary:userInfoFields];
+    }
+    return [NSError errorWithDomain:@"me.didit.sdk.transactions" code:0 userInfo:userInfo];
+}
+
+- (void)submitTransaction:(NSString *)transactionToken
+          transactionJson:(NSString *)transactionJson
+              optionsJson:(NSString *)optionsJson
+                  resolve:(RCTPromiseResolveBlock)resolve
+                   reject:(RCTPromiseRejectBlock)reject
+{
+    __weak SdkReactNative *weakSelf = self;
+    [_bridge submitTransactionWithTransactionToken:transactionToken
+                                   transactionJson:transactionJson
+                                       optionsJson:optionsJson
+                                          onUpdate:^(NSString *eventJson) {
+        [weakSelf emitOnTransactionUpdated:eventJson];
+    }
+                                           resolve:^(NSString *resultJson) {
+        resolve(resultJson);
+    }
+                                            reject:^(NSString *code, NSString *message, NSDictionary *userInfoFields) {
+        reject(code, message, DiditTransactionNSError(message, userInfoFields));
+    }];
+}
+
+- (void)getTransaction:(NSString *)transactionToken
+         transactionId:(NSString *)transactionId
+           optionsJson:(NSString *)optionsJson
+               resolve:(RCTPromiseResolveBlock)resolve
+                reject:(RCTPromiseRejectBlock)reject
+{
+    [_bridge getTransactionWithTransactionToken:transactionToken
+                                  transactionId:transactionId
+                                    optionsJson:optionsJson
+                                        resolve:^(NSString *resultJson) {
+        resolve(resultJson);
+    }
+                                         reject:^(NSString *code, NSString *message, NSDictionary *userInfoFields) {
+        reject(code, message, DiditTransactionNSError(message, userInfoFields));
+    }];
+}
+
 // MARK: - TurboModule Registration
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:

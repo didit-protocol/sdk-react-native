@@ -1,10 +1,19 @@
+import type { EventSubscription } from 'react-native';
 import NativeSdkReactNative from './NativeSdkReactNative';
 import type { VerificationResultJS } from './NativeSdkReactNative';
-import { VerificationStatus } from './types';
-import type { VerificationResult, DiditConfig, WorkflowOptions } from './types';
+import { VerificationStatus, DiditTransactionError } from './types';
+import type {
+  VerificationResult,
+  DiditConfig,
+  WorkflowOptions,
+  DiditTransaction,
+  DiditTransactionErrorCode,
+  DiditTransactionOptions,
+  DiditTransactionResult,
+} from './types';
 
 // Re-export all public types
-export { VerificationStatus, CameraLens } from './types';
+export { VerificationStatus, CameraLens, DiditTransactionError } from './types';
 export type {
   VerificationResult,
   VerificationCompleted,
@@ -17,6 +26,15 @@ export type {
   ContactDetails,
   ExpectedDetails,
   WorkflowOptions,
+  DiditTransaction,
+  DiditTransactionInfo,
+  DiditTransactionParticipant,
+  DiditTransactionPaymentMethod,
+  DiditTravelRule,
+  DiditTransactionActionRequired,
+  DiditTransactionResult,
+  DiditTransactionOptions,
+  DiditTransactionErrorCode,
 } from './types';
 
 // ─── Internal Helpers ────────────────────────────────────────────────────────
@@ -222,4 +240,176 @@ export async function startVerificationWithWorkflow(
   );
 
   return mapNativeResult(raw);
+}
+
+// ─── Transactions ────────────────────────────────────────────────────────────
+
+const TRANSACTION_ERROR_CODES: DiditTransactionErrorCode[] = [
+  'invalid_token',
+  'expired_token',
+  'validation',
+  'network',
+];
+
+let transactionCallCounter = 0;
+let transactionUpdateSubscription: EventSubscription | null = null;
+const pendingTransactionUpdates = new Map<
+  string,
+  (result: DiditTransactionResult) => void
+>();
+
+/**
+ * Dispatches native transaction-updated events to the callback registered
+ * for the originating call. A single module-level subscription is shared
+ * by all in-flight calls and events are matched by `callId`.
+ */
+function registerTransactionUpdate(
+  callId: string,
+  callback: (result: DiditTransactionResult) => void
+): void {
+  if (!transactionUpdateSubscription) {
+    transactionUpdateSubscription = NativeSdkReactNative.onTransactionUpdated(
+      (payload: string) => {
+        let event: { callId?: string; result?: DiditTransactionResult };
+        try {
+          event = JSON.parse(payload);
+        } catch {
+          return;
+        }
+        if (!event.callId || !event.result) {
+          return;
+        }
+        const pending = pendingTransactionUpdates.get(event.callId);
+        if (pending) {
+          pendingTransactionUpdates.delete(event.callId);
+          pending(event.result);
+        }
+      }
+    );
+  }
+  pendingTransactionUpdates.set(callId, callback);
+}
+
+/**
+ * Normalizes a native module rejection into a DiditTransactionError with a
+ * stable `code` field and parsed `fieldErrors` for validation failures.
+ */
+function toTransactionError(error: unknown): DiditTransactionError {
+  if (error instanceof DiditTransactionError) {
+    return error;
+  }
+  const raw = error as {
+    code?: string;
+    message?: string;
+    userInfo?: { fieldErrors?: string };
+  } | null;
+  const code = TRANSACTION_ERROR_CODES.includes(
+    raw?.code as DiditTransactionErrorCode
+  )
+    ? (raw?.code as DiditTransactionErrorCode)
+    : 'network';
+  let fieldErrors: Record<string, unknown> | undefined;
+  if (raw?.userInfo?.fieldErrors) {
+    try {
+      fieldErrors = JSON.parse(raw.userInfo.fieldErrors);
+    } catch {
+      fieldErrors = undefined;
+    }
+  }
+  return new DiditTransactionError(
+    code,
+    raw?.message ?? 'Transaction request failed.',
+    fieldErrors
+  );
+}
+
+/**
+ * Submit a transaction directly from the device.
+ *
+ * Requires a transaction SDK token minted by your backend via
+ * `POST /v3/transactions/sdk-token/`. Device intelligence is attached
+ * automatically. If the response contains a required user action
+ * (verification session or wallet-ownership widget) and
+ * `options.autoLaunchAction` is not disabled, the SDK launches it natively
+ * and later invokes `options.onTransactionUpdated` with the refreshed
+ * transaction.
+ *
+ * @param transactionToken - Transaction SDK token (X-Transaction-Token).
+ * @param transaction - The transaction payload (camelCase wire contract).
+ * @param options - Optional base URL override, auto-launch flag, and update callback.
+ * @returns A promise that resolves with the created transaction.
+ * @throws {DiditTransactionError} With `code` set to `invalid_token`,
+ *   `expired_token`, `validation` (see `fieldErrors`), or `network`.
+ *
+ * @example
+ * ```ts
+ * import { submitTransaction } from '@didit-protocol/sdk-react-native';
+ *
+ * const result = await submitTransaction(sdkToken, {
+ *   txnId: 'order-123',
+ *   type: 'crypto',
+ *   info: { direction: 'outbound', amount: 0.25, currency: 'ETH' },
+ *   travelRule: { required: true },
+ * }, {
+ *   onTransactionUpdated: (updated) => console.log(updated.status),
+ * });
+ * console.log(result.transactionId, result.actionRequired?.type);
+ * ```
+ */
+export async function submitTransaction(
+  transactionToken: string,
+  transaction: DiditTransaction,
+  options?: DiditTransactionOptions
+): Promise<DiditTransactionResult> {
+  const callId = `txn-${Date.now()}-${++transactionCallCounter}`;
+  const autoLaunchAction = options?.autoLaunchAction ?? true;
+  if (autoLaunchAction && options?.onTransactionUpdated) {
+    registerTransactionUpdate(callId, options.onTransactionUpdated);
+  }
+  try {
+    const resultJson = await NativeSdkReactNative.submitTransaction(
+      transactionToken,
+      JSON.stringify(transaction),
+      JSON.stringify({
+        callId,
+        autoLaunchAction,
+        baseUrl: options?.baseUrl,
+      })
+    );
+    const result = JSON.parse(resultJson) as DiditTransactionResult;
+    if (!result.actionRequired) {
+      pendingTransactionUpdates.delete(callId);
+    }
+    return result;
+  } catch (error) {
+    pendingTransactionUpdates.delete(callId);
+    throw toTransactionError(error);
+  }
+}
+
+/**
+ * Fetch a transaction previously submitted with the same transaction token.
+ *
+ * @param transactionToken - Transaction SDK token (X-Transaction-Token).
+ * @param transactionId - The `transactionId` returned by {@link submitTransaction}.
+ * @param options - Optional base URL override.
+ * @returns A promise that resolves with the current transaction state.
+ * @throws {DiditTransactionError} With `code` set to `invalid_token`,
+ *   `expired_token`, `validation`, or `network`.
+ */
+export async function getTransaction(
+  transactionToken: string,
+  transactionId: string,
+  options?: DiditTransactionOptions
+): Promise<DiditTransactionResult> {
+  try {
+    const resultJson = await NativeSdkReactNative.getTransaction(
+      transactionToken,
+      transactionId,
+      JSON.stringify({ baseUrl: options?.baseUrl })
+    );
+    return JSON.parse(resultJson) as DiditTransactionResult;
+  } catch (error) {
+    throw toTransactionError(error);
+  }
 }

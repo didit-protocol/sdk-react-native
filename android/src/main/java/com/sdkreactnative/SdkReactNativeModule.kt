@@ -21,6 +21,10 @@ import me.didit.sdk.VerificationError
 import me.didit.sdk.VerificationResult
 import me.didit.sdk.VerificationStatus
 import me.didit.sdk.core.localization.SupportedLanguage
+import me.didit.sdk.transactions.DiditTransactionException
+import me.didit.sdk.transactions.DiditTransactionOptions
+import org.json.JSONException
+import org.json.JSONObject
 
 class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     NativeSdkReactNativeSpec(reactContext) {
@@ -242,6 +246,82 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         result.putString("errorType", "unknown")
         result.putString("errorMessage", e.message ?: "An unexpected error occurred.")
         promise.resolve(result)
+    }
+
+    // ─── Transactions ────────────────────────────────────────────────────────
+
+    override fun submitTransaction(
+        transactionToken: String,
+        transactionJson: String,
+        optionsJson: String,
+        promise: Promise
+    ) {
+        scope.launch {
+            try {
+                val payload = TransactionJson.parsePayload(transactionJson)
+                val options = JSONObject(optionsJson)
+                val callId = options.optString("callId")
+                val result = DiditSdk.submitTransaction(
+                    transactionToken = transactionToken,
+                    transaction = payload,
+                    options = DiditTransactionOptions(
+                        baseUrl = options.optString("baseUrl").takeIf { it.isNotEmpty() },
+                        autoLaunchAction = options.optBoolean("autoLaunchAction", true),
+                        onTransactionUpdated = { refreshed ->
+                            emitOnTransactionUpdated(TransactionJson.eventJson(callId, refreshed))
+                        }
+                    )
+                )
+                promise.resolve(TransactionJson.resultJson(result))
+            } catch (e: Exception) {
+                Log.e(TAG, "submitTransaction: exception", e)
+                rejectTransactionError(promise, e)
+            }
+        }
+    }
+
+    override fun getTransaction(
+        transactionToken: String,
+        transactionId: String,
+        optionsJson: String,
+        promise: Promise
+    ) {
+        scope.launch {
+            try {
+                val options = JSONObject(optionsJson)
+                val result = DiditSdk.getTransaction(
+                    transactionToken = transactionToken,
+                    transactionId = transactionId,
+                    options = DiditTransactionOptions(
+                        baseUrl = options.optString("baseUrl").takeIf { it.isNotEmpty() }
+                    )
+                )
+                promise.resolve(TransactionJson.resultJson(result))
+            } catch (e: Exception) {
+                Log.e(TAG, "getTransaction: exception", e)
+                rejectTransactionError(promise, e)
+            }
+        }
+    }
+
+    private fun rejectTransactionError(promise: Promise, e: Exception) {
+        when (e) {
+            is DiditTransactionException.InvalidToken ->
+                promise.reject("invalid_token", e.message, e)
+            is DiditTransactionException.ExpiredToken ->
+                promise.reject("expired_token", e.message, e)
+            is DiditTransactionException.Validation -> {
+                val userInfo = Arguments.createMap()
+                userInfo.putString("fieldErrors", JSONObject(e.fieldErrors).toString())
+                promise.reject("validation", e.message, e, userInfo)
+            }
+            is DiditTransactionException.Network ->
+                promise.reject("network", e.message, e)
+            is JSONException ->
+                promise.reject("validation", e.message ?: "Invalid transaction payload.", e)
+            else ->
+                promise.reject("network", e.message ?: "Transaction request failed.", e)
+        }
     }
 
     companion object {

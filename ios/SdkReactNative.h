@@ -1,5 +1,5 @@
 #import <SdkReactNativeSpec/SdkReactNativeSpec.h>
 
-@interface SdkReactNative : NSObject <NativeSdkReactNativeSpec>
+@interface SdkReactNative : NativeSdkReactNativeSpecBase <NativeSdkReactNativeSpec>
 
 @end
