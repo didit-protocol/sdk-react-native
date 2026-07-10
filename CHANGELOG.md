@@ -1,3 +1,14 @@
+## 4.1.0
+
+- Update native iOS SDK to 4.1.0.
+- Update native Android SDK to 4.1.0.
+- Native wallet-ownership verification flow and native transaction submission (`submitTransaction` / `getTransaction`) with required-action auto-launch (both platforms); Android also includes WalletConnect message signing.
+- New document quality-check screen before upload, and the full-color Didit logo with SVG white-label support (both platforms).
+- KYB company search now uses two separate fields — company name and registration number — instead of a single unified query (both platforms).
+- Requests now send an `X-Didit-Device-Model` header used for backend IP-analysis / device identification (both platforms).
+- Fixes: passive liveness no longer gets stuck after tapping Continue and records correctly on iPhone 17 (iOS); front-camera document images are no longer mirrored on upload; the backend loader no longer flickers on passive-liveness success; the KYB processing screen could stall and the colored logo rendered incorrectly on some devices (Android).
+- No breaking changes to the public JS verification result shape.
+
 ## 4.0.9
 
 - Update native iOS SDK to 4.0.9.
