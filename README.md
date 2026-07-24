@@ -187,7 +187,7 @@ didit_sdk_subspec = case $DiditSdkIosVariant
                     else
                       raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                     end
-pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.1.0/DiditSDK.podspec'
+pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.0/DiditSDK.podspec'
 ```
 
 Then install dependencies:
@@ -217,6 +217,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository" }
+        maven { url "https://jitpack.io" }
     }
 }
 ```

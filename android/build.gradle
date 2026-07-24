@@ -113,13 +113,17 @@ repositories {
   maven {
     url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
   }
+  // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum)
+  maven {
+    url "https://jitpack.io"
+  }
 }
 
 dependencies {
   implementation "com.facebook.react:react-android"
 
   // Didit native Android SDK
-  implementation "me.didit:$diditSdkAndroidArtifact:4.2.0"
+  implementation "me.didit:$diditSdkAndroidArtifact:4.3.0"
 
   // Coroutines (required for state flow observation)
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
