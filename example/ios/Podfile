@@ -36,7 +36,7 @@ target 'SdkReactNativeExample' do
                       end
   didit_sdk_ios_path = ENV['DIDIT_SDK_IOS_PATH']
   if didit_sdk_ios_path.nil? || didit_sdk_ios_path.empty?
-    pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec'
+    pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.1/DiditSDK.podspec'
   else
     pod didit_sdk_subspec, :path => didit_sdk_ios_path
   end

@@ -11,13 +11,34 @@ const {
   mergeContents,
 } = require('@expo/config-plugins/build/utils/generateCode');
 
+const pkg = require('./package.json');
+
 const MAVEN_REPO =
   'https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository';
 
 const MAVEN_LINE = `        maven { url "${MAVEN_REPO}" }`;
 
-const PODSPEC_URL =
-  'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.1.0/DiditSDK.podspec';
+/**
+ * The native iOS SDK is not published to the CocoaPods trunk, so its podspec is
+ * fetched straight from the sdk-ios repo at a tagged version.
+ *
+ * That version MUST be the one `SdkReactNative.podspec` depends on, otherwise
+ * CocoaPods sees two incompatible requirements for `DiditSDK` and every
+ * `pod install` fails. Both read `diditNativeSdkVersions.ios` from package.json
+ * for exactly that reason - a URL hardcoded here silently drifts out of sync on
+ * the next release (issues #19 and #28).
+ */
+const IOS_SDK_VERSION =
+  pkg.diditNativeSdkVersions && pkg.diditNativeSdkVersions.ios;
+
+if (!IOS_SDK_VERSION) {
+  throw new Error(
+    '@didit-protocol/sdk-react-native: missing "diditNativeSdkVersions.ios" in package.json - ' +
+      'the Didit iOS SDK podspec URL cannot be resolved.'
+  );
+}
+
+const DEFAULT_PODSPEC_URL = `https://raw.githubusercontent.com/didit-protocol/sdk-ios/${IOS_SDK_VERSION}/DiditSDK.podspec`;
 
 const VALID_VARIANTS = ['all', 'core', 'autodetection', 'nfc'];
 const PODFILE_PROPS_KEY = 'didit.iosVariant';
@@ -52,10 +73,22 @@ function normalizeOptions(props = {}) {
       legacyAndroidVariant
     ),
     iosVariant: normalizeVariant(props.iosVariant, legacyIosVariant),
+    iosPodspecUrl: normalizePodspecUrl(props.iosPodspecUrl),
   };
 }
 
-function diditPodBlock(iosVariant, isRubyExpression = false) {
+/**
+ * Escape hatch for consumers who need to point CocoaPods at a different
+ * DiditSDK podspec (a fork, a mirror, or a prerelease tag).
+ */
+function normalizePodspecUrl(value) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return DEFAULT_PODSPEC_URL;
+  }
+  return value.trim();
+}
+
+function diditPodBlock(iosVariant, podspecUrl, isRubyExpression = false) {
   const variantAssignment = isRubyExpression
     ? `  $DiditSdkIosVariant = ${iosVariant}`
     : `  $DiditSdkIosVariant = '${iosVariant}'`;
@@ -69,7 +102,7 @@ function diditPodBlock(iosVariant, isRubyExpression = false) {
     '                      else',
     '                        raise "Invalid $DiditSdkIosVariant \'#{$DiditSdkIosVariant}\'. Supported values: all, core, autodetection, nfc."',
     '                      end',
-    `  pod didit_sdk_subspec, :podspec => '${PODSPEC_URL}'`,
+    `  pod didit_sdk_subspec, :podspec => '${podspecUrl}'`,
   ].join('\n');
 }
 
@@ -219,9 +252,10 @@ function withDiditIosPodspec(config, options) {
     const newSrc = isExpoPodfile
       ? diditPodBlock(
           `podfile_properties.fetch('${PODFILE_PROPS_KEY}', '${options.iosVariant}')`,
+          options.iosPodspecUrl,
           true
         )
-      : diditPodBlock(options.iosVariant);
+      : diditPodBlock(options.iosVariant, options.iosPodspecUrl);
 
     const result = mergeContents({
       tag: POD_BLOCK_TAG,
@@ -258,7 +292,5 @@ function withDiditSdk(config, props) {
   config = withDiditIosPodspec(config, options);
   return config;
 }
-
-const pkg = require('./package.json');
 
 module.exports = createRunOncePlugin(withDiditSdk, pkg.name, pkg.version);

@@ -153,6 +153,17 @@ That's it. The plugin automatically configures both platforms:
 
 Supported `iosVariant` / `androidVariant` values are `all`, `core`, `autodetection`, and `nfc`. The legacy booleans (`iosNfcEnabled`, `iosAutoDetectionEnabled`, `androidNfcEnabled`) still work, but `iosVariant` / `androidVariant` are preferred for new integrations.
 
+The iOS podspec URL is derived from the native SDK version this package pins (`diditNativeSdkVersions.ios` in its `package.json`), so it always matches the `DiditSDK` version the podspec depends on. To point CocoaPods at a fork, mirror, or prerelease tag instead, pass `iosPodspecUrl`:
+
+```json
+[
+  "@didit-protocol/sdk-react-native",
+  {
+    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.1/DiditSDK.podspec"
+  }
+]
+```
+
 > **Note:** This SDK uses native modules (camera, NFC) that are not available in Expo Go. You must use a [development build](https://docs.expo.dev/develop/development-builds/introduction/) or run `npx expo prebuild` to generate the native projects.
 
 ### React Native CLI
