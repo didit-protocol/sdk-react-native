@@ -84,6 +84,15 @@ describe('expo config plugin podspec pin', () => {
     expect(contents).toContain(`:podspec => '${iosPodspecUrl}'`);
   });
 
+  it('rejects an override that would break the generated Podfile', async () => {
+    await expect(
+      runPodfileMod(
+        { iosPodspecUrl: "https://example.com/'.podspec" },
+        EXPO_PODFILE
+      )
+    ).rejects.toThrow(/iosPodspecUrl/);
+  });
+
   it('does not hardcode a version literal in the plugin source', () => {
     const hardcoded = podspecUrlRefs(read('app.plugin.js')).filter((version) =>
       SEMVER.test(version)

@@ -85,7 +85,17 @@ function normalizePodspecUrl(value) {
   if (typeof value !== 'string' || value.trim() === '') {
     return DEFAULT_PODSPEC_URL;
   }
-  return value.trim();
+
+  const url = value.trim();
+  if (url.includes("'")) {
+    // The URL is emitted inside a single-quoted Ruby string; a stray quote
+    // would produce a Podfile that fails to parse rather than a clear error.
+    throw new Error(
+      `@didit-protocol/sdk-react-native: invalid "iosPodspecUrl" (${url}) - it must not contain a single quote.`
+    );
+  }
+
+  return url;
 }
 
 function diditPodBlock(iosVariant, podspecUrl, isRubyExpression = false) {
