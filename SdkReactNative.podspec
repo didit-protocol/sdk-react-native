@@ -60,7 +60,7 @@ Pod::Spec.new do |s|
     ].join(" ")
   }
 
-  s.dependency didit_sdk_subspec, "4.3.0"
+  s.dependency didit_sdk_subspec, "4.3.1"
 
   install_modules_dependencies(s)
 end
