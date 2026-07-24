@@ -9,6 +9,8 @@ dependencyResolutionManagement {
         mavenCentral()
         // Didit SDK Maven repository
         maven { url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository" }
+        // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum)
+        maven { url "https://jitpack.io" }
     }
 }
 
