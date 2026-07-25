@@ -40,6 +40,36 @@ didit_sdk_subspec = case didit_sdk_ios_variant
                       raise "Invalid DiditSdk iOS variant '#{didit_sdk_ios_variant}'. Set $DiditSdkIosVariant or DIDIT_SDK_IOS_VARIANT to one of: all, core, autodetection, nfc."
                     end
 
+# The sdk-ios SwiftPM products, one per variant. Same binaries as the
+# CocoaPods subspecs above, resolved from the git tag instead of a raw podspec
+# URL - see issue #27.
+didit_sdk_spm_product = case didit_sdk_ios_variant
+                        when "all"           then "DiditSDK"
+                        when "core"          then "DiditSDKCore"
+                        when "autodetection" then "DiditSDKAutoDetection"
+                        when "nfc"           then "DiditSDKNFC"
+                        end
+
+# How the native SDK is resolved: "spm" pulls it straight from the sdk-ios
+# repo via SwiftPM, so consumers need no `pod 'DiditSDK', :podspec => ...` line
+# at all. "cocoapods" (default) keeps the existing raw-podspec flow.
+didit_sdk_ios_linkage = (
+  defined?($DiditSdkIosLinkage) && $DiditSdkIosLinkage ?
+    $DiditSdkIosLinkage.to_s :
+    ENV.fetch("DIDIT_SDK_IOS_LINKAGE", "cocoapods")
+).downcase
+
+unless ["spm", "cocoapods"].include?(didit_sdk_ios_linkage)
+  raise "Invalid DiditSdk iOS linkage '#{didit_sdk_ios_linkage}'. Set $DiditSdkIosLinkage or DIDIT_SDK_IOS_LINKAGE to one of: spm, cocoapods."
+end
+
+# `spm_dependency` ships with React Native 0.75+. Falling back silently would
+# leave the consumer with no DiditSDK at all (they removed the pod line), so
+# fail loudly instead.
+if didit_sdk_ios_linkage == "spm" && !defined?(spm_dependency)
+  raise "DiditSdk iOS linkage 'spm' requires React Native 0.75 or newer (spm_dependency is unavailable). Use the 'cocoapods' linkage instead."
+end
+
 Pod::Spec.new do |s|
   s.name         = "SdkReactNative"
   s.version      = package["version"]
@@ -69,7 +99,15 @@ Pod::Spec.new do |s|
     ].join(" ")
   }
 
-  s.dependency didit_sdk_subspec, didit_sdk_ios_version
+  if didit_sdk_ios_linkage == "spm"
+    spm_dependency(s,
+      url: "https://github.com/didit-protocol/sdk-ios.git",
+      requirement: { kind: "exactVersion", version: didit_sdk_ios_version },
+      products: [didit_sdk_spm_product]
+    )
+  else
+    s.dependency didit_sdk_subspec, didit_sdk_ios_version
+  end
 
   install_modules_dependencies(s)
 end

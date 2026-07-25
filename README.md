@@ -153,6 +153,8 @@ That's it. The plugin automatically configures both platforms:
 
 Supported `iosVariant` / `androidVariant` values are `all`, `core`, `autodetection`, and `nfc`. The legacy booleans (`iosNfcEnabled`, `iosAutoDetectionEnabled`, `androidNfcEnabled`) still work, but `iosVariant` / `androidVariant` are preferred for new integrations.
 
+Pass `"iosLinkage": "spm"` to resolve the native iOS SDK through Swift Package Manager instead of CocoaPods - the plugin then writes no `pod 'DiditSDK'` line at all. See [Swift Package Manager](#swift-package-manager-optional) for the caveats. The default is `cocoapods`.
+
 The iOS podspec URL is derived from the native SDK version this package pins (`diditNativeSdkVersions.ios` in its `package.json`), so it always matches the `DiditSDK` version the podspec depends on. To point CocoaPods at a fork, mirror, or prerelease tag instead, pass `iosPodspecUrl`:
 
 ```json
@@ -200,6 +202,30 @@ didit_sdk_subspec = case $DiditSdkIosVariant
                     end
 pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.1/DiditSDK.podspec'
 ```
+
+##### Swift Package Manager (optional)
+
+On React Native 0.75+ you can skip the `pod` declaration entirely and let SwiftPM resolve the native SDK straight from the `sdk-ios` repo. Set the linkage instead of declaring the pod:
+
+```ruby
+# Pick one: 'all', 'core', 'autodetection', 'nfc'
+$DiditSdkIosVariant = 'all'
+$DiditSdkIosLinkage = 'spm'
+
+def max_ios_version(*versions)
+  versions.map(&:to_s).max_by { |version| Gem::Version.new(version) }
+end
+
+didit_sdk_ios_deployment_target = ['all', 'nfc'].include?($DiditSdkIosVariant) ? max_ios_version(min_ios_version_supported, '15.0') : min_ios_version_supported
+platform :ios, didit_sdk_ios_deployment_target
+
+# No `pod 'DiditSDK'` line needed - SdkReactNative.podspec declares it as a
+# SwiftPM dependency on the matching sdk-ios tag.
+```
+
+`DIDIT_SDK_IOS_LINKAGE=spm` works too, and Expo users can pass `"iosLinkage": "spm"` to the config plugin. `cocoapods` remains the default.
+
+If you switch an existing project to `spm`, **remove the `pod didit_sdk_subspec, :podspec => ...` line** - leaving both in place links the same framework twice. React Native warns that SwiftPM packages combined with statically linked pods can produce linker errors; if you hit those, build with `USE_FRAMEWORKS=dynamic` ([details](https://github.com/facebook/react-native/pull/44627#issuecomment-2123119711)).
 
 Then install dependencies:
 

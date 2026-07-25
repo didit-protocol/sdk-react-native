@@ -26,18 +26,22 @@ end
 target 'SdkReactNativeExample' do
   config = use_native_modules!
 
-  didit_sdk_subspec = case $DiditSdkIosVariant
-                      when 'all'           then 'DiditSDK/All'
-                      when 'core'          then 'DiditSDK/Core'
-                      when 'autodetection' then 'DiditSDK/AutoDetection'
-                      when 'nfc'           then 'DiditSDK/NFC'
-                      else
-                        raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
-                      end
   didit_sdk_ios_path = ENV['DIDIT_SDK_IOS_PATH']
   if didit_sdk_ios_path.nil? || didit_sdk_ios_path.empty?
-    pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.1/DiditSDK.podspec'
+    # DiditSDK is resolved from the sdk-ios git tag through SwiftPM by
+    # SdkReactNative.podspec, so no pod declaration is needed here.
+    $DiditSdkIosLinkage = 'spm'
   else
+    # Developing against a local sdk-ios checkout still goes through CocoaPods.
+    $DiditSdkIosLinkage = 'cocoapods'
+    didit_sdk_subspec = case $DiditSdkIosVariant
+                        when 'all'           then 'DiditSDK/All'
+                        when 'core'          then 'DiditSDK/Core'
+                        when 'autodetection' then 'DiditSDK/AutoDetection'
+                        when 'nfc'           then 'DiditSDK/NFC'
+                        else
+                          raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
+                        end
     pod didit_sdk_subspec, :path => didit_sdk_ios_path
   end
 
