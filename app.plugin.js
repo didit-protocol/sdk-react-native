@@ -41,6 +41,7 @@ if (!IOS_SDK_VERSION) {
 const DEFAULT_PODSPEC_URL = `https://raw.githubusercontent.com/didit-protocol/sdk-ios/${IOS_SDK_VERSION}/DiditSDK.podspec`;
 
 const VALID_VARIANTS = ['all', 'core', 'autodetection', 'nfc'];
+const VALID_LINKAGES = ['cocoapods', 'spm'];
 const PODFILE_PROPS_KEY = 'didit.iosVariant';
 const POD_BLOCK_TAG = 'didit-sdk-react-native-pod';
 
@@ -73,8 +74,31 @@ function normalizeOptions(props = {}) {
       legacyAndroidVariant
     ),
     iosVariant: normalizeVariant(props.iosVariant, legacyIosVariant),
+    iosLinkage: normalizeLinkage(props.iosLinkage),
     iosPodspecUrl: normalizePodspecUrl(props.iosPodspecUrl),
   };
+}
+
+/**
+ * How CocoaPods gets the native iOS SDK: `spm` resolves it from the sdk-ios
+ * repo through SwiftPM (no `pod 'DiditSDK'` line in the Podfile at all),
+ * `cocoapods` keeps the raw-podspec flow. See issue #27.
+ */
+function normalizeLinkage(value) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    return 'cocoapods';
+  }
+
+  const linkage = value.trim().toLowerCase();
+  if (!VALID_LINKAGES.includes(linkage)) {
+    throw new Error(
+      `@didit-protocol/sdk-react-native: invalid "iosLinkage" (${value}) - supported values are ${VALID_LINKAGES.join(
+        ', '
+      )}.`
+    );
+  }
+
+  return linkage;
 }
 
 /**
@@ -98,12 +122,22 @@ function normalizePodspecUrl(value) {
   return url;
 }
 
-function diditPodBlock(iosVariant, podspecUrl, isRubyExpression = false) {
+function diditPodBlock(iosVariant, options, isRubyExpression = false) {
   const variantAssignment = isRubyExpression
     ? `  $DiditSdkIosVariant = ${iosVariant}`
     : `  $DiditSdkIosVariant = '${iosVariant}'`;
-  return [
+  const lines = [
     variantAssignment,
+    `  $DiditSdkIosLinkage = '${options.iosLinkage}'`,
+  ];
+
+  if (options.iosLinkage === 'spm') {
+    // SdkReactNative.podspec declares DiditSDK as a SwiftPM dependency, so the
+    // Podfile needs no pod declaration - only the globals it reads.
+    return lines.join('\n');
+  }
+
+  lines.push(
     '  didit_sdk_subspec = case $DiditSdkIosVariant',
     "                      when 'all'           then 'DiditSDK/All'",
     "                      when 'core'          then 'DiditSDK/Core'",
@@ -112,8 +146,10 @@ function diditPodBlock(iosVariant, podspecUrl, isRubyExpression = false) {
     '                      else',
     '                        raise "Invalid $DiditSdkIosVariant \'#{$DiditSdkIosVariant}\'. Supported values: all, core, autodetection, nfc."',
     '                      end',
-    `  pod didit_sdk_subspec, :podspec => '${podspecUrl}'`,
-  ].join('\n');
+    `  pod didit_sdk_subspec, :podspec => '${options.iosPodspecUrl}'`
+  );
+
+  return lines.join('\n');
 }
 
 // ── Android ──────────────────────────────────────────────────────────────────
@@ -262,10 +298,10 @@ function withDiditIosPodspec(config, options) {
     const newSrc = isExpoPodfile
       ? diditPodBlock(
           `podfile_properties.fetch('${PODFILE_PROPS_KEY}', '${options.iosVariant}')`,
-          options.iosPodspecUrl,
+          options,
           true
         )
-      : diditPodBlock(options.iosVariant, options.iosPodspecUrl);
+      : diditPodBlock(options.iosVariant, options);
 
     const result = mergeContents({
       tag: POD_BLOCK_TAG,

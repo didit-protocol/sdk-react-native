@@ -118,8 +118,45 @@ describe('SdkReactNative.podspec dependency pin', () => {
   });
 });
 
+describe('swift package manager linkage', () => {
+  const podspec = read('SdkReactNative.podspec');
+
+  it('resolves DiditSDK from the sdk-ios git repo', () => {
+    expect(podspec).toContain(
+      'url: "https://github.com/didit-protocol/sdk-ios.git"'
+    );
+  });
+
+  it('pins the SPM requirement to the declared iOS version', () => {
+    expect(podspec).toMatch(
+      /requirement:\s*\{\s*kind:\s*"exactVersion",\s*version:\s*didit_sdk_ios_version\s*\}/
+    );
+  });
+
+  it('omits the pod declaration entirely when linkage is spm', async () => {
+    const contents = await runPodfileMod({ iosLinkage: 'spm' }, EXPO_PODFILE);
+
+    expect(contents).toContain("$DiditSdkIosLinkage = 'spm'");
+    expect(contents).not.toContain('pod didit_sdk_subspec');
+    expect(podspecUrlRefs(contents)).toEqual([]);
+  });
+
+  it('keeps the pod declaration on the default cocoapods linkage', async () => {
+    const contents = await runPodfileMod({}, EXPO_PODFILE);
+
+    expect(contents).toContain("$DiditSdkIosLinkage = 'cocoapods'");
+    expect(contents).toContain('pod didit_sdk_subspec');
+  });
+
+  it('rejects an unknown linkage', async () => {
+    await expect(
+      runPodfileMod({ iosLinkage: 'carthage' }, EXPO_PODFILE)
+    ).rejects.toThrow(/iosLinkage/);
+  });
+});
+
 describe('hand-maintained pins stay in lockstep', () => {
-  it.each(['README.md', 'example/ios/Podfile', 'example-expo/ios/Podfile'])(
+  it.each(['README.md', 'example-expo/ios/Podfile'])(
     '%s references only the declared iOS version',
     (relativePath) => {
       const refs = podspecUrlRefs(read(relativePath));
@@ -128,6 +165,13 @@ describe('hand-maintained pins stay in lockstep', () => {
       refs.forEach((version) => expect(version).toBe(declaredIosVersion));
     }
   );
+
+  it('example/ios/Podfile resolves DiditSDK through SwiftPM', () => {
+    const podfile = read('example/ios/Podfile');
+
+    expect(podfile).toContain("$DiditSdkIosLinkage = 'spm'");
+    expect(podspecUrlRefs(podfile)).toEqual([]);
+  });
 
   it('android/build.gradle pins the declared Android version', () => {
     const match = read('android/build.gradle').match(

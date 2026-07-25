@@ -117,6 +117,8 @@ The wrapper version (`version` in `package.json`) and the native Didit SDK versi
 }
 ```
 
+This one field drives both iOS resolution paths: the CocoaPods raw-podspec URL and the SwiftPM `exactVersion` requirement (`$DiditSdkIosLinkage = 'spm'`). A bump must therefore have both a matching git tag **and** the SPM release assets (`DiditSDK*.xcframework.zip`) published on that `sdk-ios` release, or SwiftPM consumers fail to resolve.
+
 `SdkReactNative.podspec` and `app.plugin.js` both derive the iOS pin from `diditNativeSdkVersions.ios`, so bumping it there is enough to move the podspec dependency and the sdk-ios podspec URL together. The remaining hand-maintained pins - `android/build.gradle`, the README podspec URL, and the example Podfiles - are asserted against these values by `src/__tests__/native-sdk-pins.test.ts`, so `yarn test` fails if any of them drift (see issues #19 and #28). Only bump `diditNativeSdkVersions.ios` once the matching tag exists in `didit-protocol/sdk-ios`.
 
 
