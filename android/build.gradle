@@ -46,6 +46,13 @@ def diditSdkAndroidVariant = (
     ? diditSdkAndroidVariantProperty
     : (diditSdkAndroidLegacyNfcEnabled ? "all" : "core")
 ).toString().toLowerCase()
+def diditSdkAndroidVersion = new groovy.json.JsonSlurper()
+  .parseText(file("$projectDir/../package.json").text)
+  .diditNativeSdkVersions
+  .android
+if (diditSdkAndroidVersion == null || diditSdkAndroidVersion.toString().isEmpty()) {
+  throw new GradleException("diditNativeSdkVersions.android missing from package.json")
+}
 def diditSdkAndroidArtifact
 switch (diditSdkAndroidVariant) {
   case "all":
@@ -123,7 +130,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // Didit native Android SDK
-  implementation "me.didit:$diditSdkAndroidArtifact:4.3.1"
+  implementation "me.didit:$diditSdkAndroidArtifact:$diditSdkAndroidVersion"
 
   // Coroutines (required for state flow observation)
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
