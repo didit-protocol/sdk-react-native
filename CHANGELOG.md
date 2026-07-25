@@ -1,3 +1,13 @@
+## 4.4.0
+
+- iOS: the native SDK can now be resolved through Swift Package Manager instead of CocoaPods. Set `$DiditSdkIosLinkage = 'spm'` in your Podfile (or `DIDIT_SDK_IOS_LINKAGE=spm`, or `"iosLinkage": "spm"` in the Expo config plugin) and DiditSDK is fetched straight from the sdk-ios repository through SwiftPM - no `pod 'DiditSDK', :podspec => ...` line is needed at all. Requires React Native 0.75 or newer; CocoaPods remains the default, so existing projects are unaffected. When switching an existing project over, remove the old pod line or the framework is linked twice.
+- Native SDKs unchanged: iOS and Android remain 4.3.1.
+
+## 4.3.2
+
+- Fix the Expo config plugin pinning the iOS podspec URL to 4.1.0 while the package required a matching newer DiditSDK, so `pod install` failed with a CocoaPods version conflict on every release from 4.2.0 onward. The native SDK version is now declared once, in `diditNativeSdkVersions` in `package.json`, and drives both the plugin's podspec URL and the podspec dependency - the two can no longer drift apart.
+- New `iosPodspecUrl` plugin property for pointing CocoaPods at a fork, mirror, or prerelease podspec.
+
 ## 4.3.1
 
 - Update native SDKs to 4.3.1 on both platforms: the face flow no longer resets to its intro screen when the upload response advances within the face family (FACE_MATCH / AGE_ESTIMATION); the flow now waits for the backend to settle and navigates once.
