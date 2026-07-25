@@ -1,6 +1,6 @@
 {
   "name": "@didit-protocol/sdk-react-native",
-  "version": "4.3.2",
+  "version": "4.4.0",
   "diditNativeSdkVersions": {
     "ios": "4.3.1",
     "android": "4.3.1"
