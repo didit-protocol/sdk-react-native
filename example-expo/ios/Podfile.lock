@@ -1,7 +1,5 @@
 PODS:
-  - DiditSDK (3.5.1):
-    - DiditSDK/Full (= 3.5.1)
-  - DiditSDK/Full (3.5.1)
+  - DiditSDK/All (4.3.1)
   - EXConstants (55.0.14):
     - ExpoModulesCore
   - Expo (55.0.15):
@@ -1851,8 +1849,8 @@ PODS:
     - React-utils (= 0.83.0)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.83.0)
-  - SdkReactNative (3.3.0):
-    - DiditSDK (~> 3.5)
+  - SdkReactNative (4.3.1):
+    - DiditSDK/All (= 4.3.1)
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1877,7 +1875,7 @@ PODS:
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - DiditSDK (from `https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec`)
+  - DiditSDK/All (from `https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.1/DiditSDK.podspec`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
@@ -1966,7 +1964,7 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   DiditSDK:
-    :podspec: https://raw.githubusercontent.com/didit-protocol/sdk-ios/main/DiditSDK.podspec
+    :podspec: https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.3.1/DiditSDK.podspec
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
   Expo:
@@ -2138,7 +2136,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  DiditSDK: 27173cbfc13db575640538a978d3ecf983b047ba
+  DiditSDK: 915df5557629af1796d99cfb05ca6732d80b08b9
   EXConstants: bfe4ae4e5d882e2e0b130e049665d0af4f4cc1b8
   Expo: a43f44ff1e3a1c73fcabba766e13a38dea22236a
   ExpoAsset: dc4f25f84886120f82b23233bba563ea7afa88f5
@@ -2150,7 +2148,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: 04cfca35843acea9499480d2c6fa7369831c66ab
   ExpoModulesJSI: 4f9a951679fdfbfca1e4feb5c1e10df045333a5a
   FBLazyVector: 7c1d69992204c5ec452eeefa4a24b0ff311709c8
-  hermes-engine: ec92932e1fe5813453ea3cafb32551a68d95854f
+  hermes-engine: b743399f8ce585a1d9eefac985305ab575defeb0
   RCTDeprecation: dbbb85eae640e3b43cc16462d0476b00ca5959ae
   RCTRequired: 7047b18af29a76069818fd3fa0f4df423483abab
   RCTSwiftUI: 5928f7ca7e9e2f1a82d85d4c79ea3065137ad81c
@@ -2159,7 +2157,7 @@ SPEC CHECKSUMS:
   React: f6f8fc5c01e77349cdfaf49102bcb928ac31d8ed
   React-callinvoker: 3e62a849bda1522c6422309c02f5dc3210bc5359
   React-Core: 107092273c9178bb015aee2af302ed1340e59da3
-  React-Core-prebuilt: 09ce8e726c5136533196880286dea2a78bb86649
+  React-Core-prebuilt: 0e4660365d383fdf8e1a6efa76d4b5c4b7136c68
   React-CoreModules: 0b3b55b0b3954812ee0d67d85960bd7b42268336
   React-cxxreact: a76c6a3b36b20e777542946c20bebf67acbb631c
   React-debug: f9dda2791d3ebe2078bc6102641edab77917efb7
@@ -2220,10 +2218,10 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: ebcf3a78dc1bcdf054c9e8d309244bade6b31568
   ReactCodegen: c32ea010ee2565103b86c99f10f2861b0b1b97fe
   ReactCommon: e22f6e537e566de4c61121da2139a1980caff948
-  ReactNativeDependencies: 7287b718df1cac7f469898a828014ad21952769d
-  SdkReactNative: 7f000cecbec1a2d6324dc314b228e46b14ac7923
+  ReactNativeDependencies: cf54df6d13f5ce7007dacd6a14eefb7b9b78bb5a
+  SdkReactNative: 69a3870f1e71b52fb92379e9d7ca5bdffbe03fed
   Yoga: 90687fcd1ebd927341caed917696d692813c0b24
 
-PODFILE CHECKSUM: 858d70e8e5b2e838368aa0ddc1ce503ffd6050ba
+PODFILE CHECKSUM: 8a233d01a863787478346e8c9dba44afa0b99106
 
 COCOAPODS: 1.16.2

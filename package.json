@@ -1,6 +1,10 @@
 {
   "name": "@didit-protocol/sdk-react-native",
   "version": "4.3.1",
+  "diditNativeSdkVersions": {
+    "ios": "4.3.1",
+    "android": "4.3.1"
+  },
   "description": "React Native wrapper for Didit Identity Verification SDK",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",

@@ -2,6 +2,15 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
+# Single source of truth for the native iOS SDK version, shared with
+# app.plugin.js (which builds the sdk-ios podspec URL from it). Hardcoding it
+# here lets the two drift apart, which makes `pod install` unresolvable for
+# every consumer - see issues #19 and #28.
+didit_sdk_ios_version = package.dig("diditNativeSdkVersions", "ios").to_s
+if didit_sdk_ios_version.empty?
+  raise "Missing 'diditNativeSdkVersions.ios' in package.json - cannot pin the Didit iOS SDK."
+end
+
 legacy_nfc_enabled            = ENV.fetch("DIDIT_SDK_IOS_NFC_ENABLED",            "true").downcase != "false"
 legacy_auto_detection_enabled = ENV.fetch("DIDIT_SDK_IOS_AUTO_DETECTION_ENABLED", "true").downcase != "false"
 legacy_variant = case [legacy_nfc_enabled, legacy_auto_detection_enabled]
@@ -60,7 +69,7 @@ Pod::Spec.new do |s|
     ].join(" ")
   }
 
-  s.dependency didit_sdk_subspec, "4.3.1"
+  s.dependency didit_sdk_subspec, didit_sdk_ios_version
 
   install_modules_dependencies(s)
 end

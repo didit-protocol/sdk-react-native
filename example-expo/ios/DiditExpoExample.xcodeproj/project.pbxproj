@@ -275,8 +275,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-DiditExpoExample/Pods-DiditExpoExample-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Full/DiditSDK.framework/DiditSDK",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Full/OpenSSL.framework/OpenSSL",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/All/DiditSDK.framework/DiditSDK",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/All/OpenSSL.framework/OpenSSL",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermesvm.framework/hermesvm",
