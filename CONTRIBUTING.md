@@ -112,8 +112,8 @@ The wrapper version (`version` in `package.json`) and the native Didit SDK versi
 
 ```json
 "diditNativeSdkVersions": {
-  "ios": "4.3.1",
-  "android": "4.3.1"
+  "ios": "4.5.0",
+  "android": "4.5.0"
 }
 ```
 

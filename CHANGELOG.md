@@ -1,3 +1,13 @@
+## 4.5.0
+
+- Native SDKs 4.5.0 on both platforms
+- The image-capture review screen now defaults to off, matching the backend, so a capture is no longer stranded behind a confirm step the workflow never enabled
+- iOS: the front-camera document preview no longer shows mirrored when the camera session finishes configuring after the view is built
+- Android: SMS OTP one-tap autofill, plus device and runtime integrity signals for injection-attack detection
+- Both platforms: RTL layout and Arabic support
+- Android: the native SDK now declares minSdk 23 on every module. That was always the real floor, set by Reown AppKit inside the native core
+- All Didit SDKs now share the same version number
+
 ## 4.4.0
 
 - iOS: the native SDK can now be resolved through Swift Package Manager instead of CocoaPods. Set `$DiditSdkIosLinkage = 'spm'` in your Podfile (or `DIDIT_SDK_IOS_LINKAGE=spm`, or `"iosLinkage": "spm"` in the Expo config plugin) and DiditSDK is fetched straight from the sdk-ios repository through SwiftPM - no `pod 'DiditSDK', :podspec => ...` line is needed at all. Requires React Native 0.75 or newer; CocoaPods remains the default, so existing projects are unaffected. When switching an existing project over, remove the old pod line or the framework is linked twice.
