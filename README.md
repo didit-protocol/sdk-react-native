@@ -161,7 +161,7 @@ The iOS podspec URL is derived from the native SDK version this package pins (`d
 [
   "@didit-protocol/sdk-react-native",
   {
-    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.5.0/DiditSDK.podspec"
+    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.5.1/DiditSDK.podspec"
   }
 ]
 ```
@@ -200,7 +200,7 @@ didit_sdk_subspec = case $DiditSdkIosVariant
                     else
                       raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                     end
-pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.5.0/DiditSDK.podspec'
+pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.5.1/DiditSDK.podspec'
 ```
 
 ##### Swift Package Manager (optional)
