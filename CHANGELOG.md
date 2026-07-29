@@ -1,3 +1,8 @@
+## 4.5.2
+
+- Android: fixed a fatal `NoSuchMethodError` crash (`FlowLayoutKt.FlowRow`) in host apps that resolve Jetpack Compose 1.8+/1.9 - e.g. React Native 0.74+ projects - hit at the selfie upload sheet and in KYB screens (fixes #33). The SDK no longer uses experimental Compose layout APIs, so it is binary-compatible with any host Compose version from its 1.7 floor upward.
+- iOS: no changes (rebuilt at 4.5.2 for version lockstep).
+
 ## 4.5.1
 
 - Native SDKs 4.5.1 on both platforms: the white-label page background now fills the top and bottom safe areas on iOS (no more white letterboxing on custom dark themes, fixes #32), and the status bar / system bar icon style follows the theme background on both platforms, with a camera-screen override so icons stay readable over camera previews.
