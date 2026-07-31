@@ -1,3 +1,10 @@
+## 4.5.3
+
+- Android: fixed a hard crash of the host app right after passive-liveness selfie capture on high-megapixel cameras (reported on Samsung Galaxy S25 Ultra): captured face images are now capped at 4096px before processing and upload, and video segment recorder finalization is hardened so a codec failure can no longer take the process down.
+- Android: if a capture ever does kill the app process, the SDK now detects it on the next launch and reports a `CAPTURE_PROCESS_DEATH` diagnostic event, making these crashes visible server-side instead of silent.
+- Android: Hebrew localization now loads the complete translation set - previously large parts of the flow fell back to English.
+- iOS: no source changes (rebuilt at 4.5.3 for version lockstep).
+
 ## 4.5.2
 
 - Android: fixed a fatal `NoSuchMethodError` crash (`FlowLayoutKt.FlowRow`) in host apps that resolve Jetpack Compose 1.8+/1.9 - e.g. React Native 0.74+ projects - hit at the selfie upload sheet and in KYB screens (fixes #33). The SDK no longer uses experimental Compose layout APIs, so it is binary-compatible with any host Compose version from its 1.7 floor upward.
