@@ -39,6 +39,37 @@ const BARE_PODFILE = ["target 'App' do", '  use_native_modules!', 'end'].join(
   '\n'
 );
 
+const APP_BUILD_GRADLE = [
+  "plugins { id 'com.android.application' }",
+  '',
+  'android {',
+  "    namespace 'com.example'",
+  '}',
+].join('\n');
+
+async function runAppBuildGradleMod(props: object, appBuildGradle: string) {
+  const withDiditSdk = require('../../app.plugin.js');
+  const config = withDiditSdk({ name: 'test', slug: 'test' }, props);
+  const appBuildGradleMod = config.mods.android.appBuildGradle;
+
+  if (!appBuildGradleMod) {
+    return appBuildGradle;
+  }
+
+  const result = await appBuildGradleMod({
+    ...config,
+    modResults: { contents: appBuildGradle, language: 'groovy' },
+    modRequest: {
+      projectRoot: repoRoot,
+      platformProjectRoot: repoRoot,
+      modName: 'appBuildGradle',
+      platform: 'android',
+      introspect: true,
+    },
+  });
+  return result.modResults.contents as string;
+}
+
 async function runPodfileMod(props: object, podfile: string) {
   const withDiditSdk = require('../../app.plugin.js');
   const config = withDiditSdk({ name: 'test', slug: 'test' }, props);
@@ -99,6 +130,43 @@ describe('expo config plugin podspec pin', () => {
     );
 
     expect(hardcoded).toEqual([]);
+  });
+});
+
+describe('expo config plugin Android packaging exclusions', () => {
+  it.each(['all', 'autodetection', 'nfc'])(
+    'injects Bouncy Castle exclusions for the %s variant',
+    async (androidVariant) => {
+      const contents = await runAppBuildGradleMod(
+        { androidVariant },
+        APP_BUILD_GRADLE
+      );
+
+      expect(contents).toContain("exclude group: 'org.bouncycastle'");
+      expect(contents).toContain("module: 'bcprov-jdk15to18'");
+    }
+  );
+
+  it('does not add exclusions to the core variant', async () => {
+    const contents = await runAppBuildGradleMod(
+      { androidVariant: 'core' },
+      APP_BUILD_GRADLE
+    );
+
+    expect(contents).toBe(APP_BUILD_GRADLE);
+  });
+
+  it('is idempotent across repeated prebuilds', async () => {
+    const once = await runAppBuildGradleMod(
+      { androidVariant: 'autodetection' },
+      APP_BUILD_GRADLE
+    );
+    const twice = await runAppBuildGradleMod(
+      { androidVariant: 'autodetection' },
+      once
+    );
+
+    expect(twice).toBe(once);
   });
 });
 
