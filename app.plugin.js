@@ -227,8 +227,17 @@ const DIDIT_ANDROID_BLOCK = `
         }
     }`;
 
+/**
+ * These variants pull Bouncy Castle jdk18on transitively (didit-sdk-core via
+ * Reown/Web3j, didit-sdk-nfc via jmrtd), which collides with the jdk15to18
+ * family that host apps commonly bring in through expo-updates. `autodetection`
+ * was missing from this list, so its release builds failed with duplicate
+ * classes (issue #34).
+ */
+const BOUNCY_CASTLE_VARIANTS = ['all', 'autodetection', 'nfc'];
+
 function withDiditPackagingExclusion(config, androidVariant) {
-  if (!['all', 'nfc'].includes(androidVariant)) {
+  if (!BOUNCY_CASTLE_VARIANTS.includes(androidVariant)) {
     return config;
   }
 
