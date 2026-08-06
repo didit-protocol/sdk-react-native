@@ -228,7 +228,7 @@ const DIDIT_ANDROID_BLOCK = `
     }`;
 
 function withDiditPackagingExclusion(config, androidVariant) {
-  if (!['all', 'nfc'].includes(androidVariant)) {
+  if (!['all', 'autodetection', 'nfc'].includes(androidVariant)) {
     return config;
   }
 
