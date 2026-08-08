@@ -228,19 +228,25 @@ const DIDIT_ANDROID_BLOCK = `
     }`;
 
 /**
- * These variants pull Bouncy Castle jdk18on transitively (didit-sdk-core via
- * Reown/Web3j, didit-sdk-nfc via jmrtd), which collides with the jdk15to18
- * family that host apps commonly bring in through expo-updates. `autodetection`
- * was missing from this list, so its release builds failed with duplicate
- * classes (issue #34).
+ * Applies to EVERY Android variant, because every variant ships
+ * `didit-sdk-core`, and `didit-sdk-core` alone already pulls Bouncy Castle
+ * jdk18on through two independent chains:
+ *
+ *   didit-sdk-core -> com.reown:android-core -> com.reown:foundation
+ *                       -> org.bouncycastle:bcprov-jdk18on
+ *   didit-sdk-core -> com.reown:android-core -> org.web3j:crypto
+ *                       -> org.web3j:utils -> org.bouncycastle:bcprov-jdk18on
+ *
+ * (`didit-sdk-nfc` adds two more via a direct declaration and jmrtd.)
+ * That collides with the jdk15to18 family host apps commonly bring in through
+ * expo-updates, so release builds fail with duplicate classes. The variant
+ * allowlist this replaces covered only `all` and `nfc`, which broke
+ * `autodetection` (issue #34) and left `core` exposed to the same failure.
+ *
+ * Verified by resolving `me.didit:didit-sdk-core:4.5.3` on its own with Gradle:
+ * 291 modules resolved, including org.bouncycastle:bcprov-jdk18on:1.78.1.
  */
-const BOUNCY_CASTLE_VARIANTS = ['all', 'autodetection', 'nfc'];
-
-function withDiditPackagingExclusion(config, androidVariant) {
-  if (!BOUNCY_CASTLE_VARIANTS.includes(androidVariant)) {
-    return config;
-  }
-
+function withDiditPackagingExclusion(config) {
   return withAppBuildGradle(config, (mod) => {
     if (mod.modResults.contents.includes('bcprov-jdk15to18')) {
       return mod;
@@ -278,7 +284,7 @@ function withDiditAndroidMaven(config, options) {
   config = withDiditBuildGradle(config);
   config = withDiditSettingsGradle(config);
   config = withDiditAndroidVariantProperty(config, options.androidVariant);
-  config = withDiditPackagingExclusion(config, options.androidVariant);
+  config = withDiditPackagingExclusion(config);
   return config;
 }
 

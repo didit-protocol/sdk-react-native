@@ -1,11 +1,14 @@
 import { join } from 'path';
 
 /**
- * The DiditSDK Android variants that bundle didit-sdk-core (all, autodetection,
- * nfc) pull Bouncy Castle jdk18on through Reown/Web3j, while host apps commonly
- * pull the jdk15to18 family (e.g. via expo-updates). Without the plugin's
- * exclusion block in app/build.gradle the release build fails with duplicate
- * classes. Issue #34: the block was skipped for `autodetection`.
+ * EVERY DiditSDK Android variant ships didit-sdk-core, and didit-sdk-core pulls
+ * Bouncy Castle jdk18on transitively (via reown/foundation and via
+ * web3j/utils), while host apps commonly pull the jdk15to18 family (e.g. via
+ * expo-updates). Without the plugin's exclusion block in app/build.gradle the
+ * release build fails with duplicate classes.
+ *
+ * Issue #34 reported the block being skipped for `autodetection`; `core` was
+ * skipped for the same reason and is covered here too.
  */
 
 const repoRoot = join(__dirname, '..', '..');
@@ -64,7 +67,7 @@ const expectExclusionBlock = (contents: string) => {
 };
 
 describe('Bouncy Castle packaging exclusion (app/build.gradle)', () => {
-  it.each(['all', 'autodetection', 'nfc'])(
+  it.each(['all', 'core', 'autodetection', 'nfc'])(
     'injects the exclusion block for the %s variant',
     async (androidVariant) => {
       const contents = await runAppBuildGradleMod(
@@ -82,13 +85,16 @@ describe('Bouncy Castle packaging exclusion (app/build.gradle)', () => {
     expectExclusionBlock(contents);
   });
 
-  it('leaves the core variant untouched', async () => {
+  // No variant may skip the exclusion, so an unrecognized value must not become
+  // an accidental opt-out either -- normalizeVariant folds it back to a
+  // supported variant, which still ships didit-sdk-core.
+  it('injects the exclusion block for an unrecognized variant', async () => {
     const contents = await runAppBuildGradleMod(
-      { androidVariant: 'core' },
+      { androidVariant: 'not-a-real-variant' },
       MINIMAL_APP_BUILD_GRADLE
     );
 
-    expect(contents).toBe(MINIMAL_APP_BUILD_GRADLE);
+    expectExclusionBlock(contents);
   });
 
   it('stays idempotent across repeated prebuilds', async () => {
