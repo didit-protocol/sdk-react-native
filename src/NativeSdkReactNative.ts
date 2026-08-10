@@ -4,6 +4,8 @@ import {
   type TurboModule,
 } from 'react-native';
 
+type EventEmitter<T> = CodegenTypes.EventEmitter<T>;
+
 /**
  * Configuration for the Didit verification SDK.
  * All types must be plain objects for React Native Codegen compatibility.
@@ -126,7 +128,7 @@ export interface Spec extends TurboModule {
    * Fired after an auto-launched action completes and the transaction has
    * been refreshed. Payload is a JSON string: { callId, result }.
    */
-  readonly onTransactionUpdated: CodegenTypes.EventEmitter<string>;
+  readonly onTransactionUpdated: EventEmitter<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('SdkReactNative');
