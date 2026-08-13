@@ -1,3 +1,17 @@
+## 4.6.0
+
+- Native SDKs 4.6.0 on both platforms.
+- Smaller SDK: every iOS variant is 7 to 8 MB smaller on device - build metadata and unused media are no longer embedded in the shipped frameworks.
+- Android: WalletConnect wallet-signing now ships as the optional `me.didit:didit-sdk-wallet` artifact instead of being bundled in `didit-sdk-core`, shrinking every integration that does not use it. The full `didit-sdk` bundle (the `all` variant) is unchanged; without the new artifact, wallet-ownership flows complete in the browser instead.
+- iOS: NFC chip-read failures now surface as localized errors in the scan sheet and are reported as session events for server-side visibility.
+- Both platforms: support for application-scoped copy overrides.
+- iOS: improved camera diagnostics during liveness capture.
+
+## 4.5.4
+
+- Native SDKs 4.5.4 on both platforms.
+- Support for React Native 0.77 codegen.
+
 ## 4.5.3
 
 - Android: fixed a hard crash of the host app right after passive-liveness selfie capture on high-megapixel cameras (reported on Samsung Galaxy S25 Ultra): captured face images are now capped at 4096px before processing and upload, and video segment recorder finalization is hardened so a codec failure can no longer take the process down.
