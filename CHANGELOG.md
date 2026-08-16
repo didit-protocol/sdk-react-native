@@ -1,3 +1,11 @@
+## 4.7.0
+
+- Native SDKs 4.7.0 on both platforms.
+- iOS: document and face auto-capture now run on a leaner TFLite engine instead of MediaPipe. The `autodetection` and `all` variants are about 12 MB smaller to download and roughly 8.5 MB smaller inside the app, detection behavior was verified frame-for-frame identical on a physical-device matrix before release, and document inference is about 40% faster.
+- iOS: auto-capture inference degrades gracefully through a runtime retry ladder; total engine failure still falls back to manual capture, never a crash.
+- Android: the native SDK gained an optional `didit-sdk-autodetection-play` artifact that runs auto-capture on the Google Play services ML runtime (~43 MB smaller universal APK). This plugin's `androidVariant` options are unchanged in this release; wrapper-level opt-in support is planned as a follow-up.
+- Both platforms: new session diagnostics (engine selection and inference latency) help support teams pinpoint device-specific capture issues.
+
 ## 4.6.0
 
 - Native SDKs 4.6.0 on both platforms.
