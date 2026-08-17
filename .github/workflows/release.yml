@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # A pushed tag IS the release: this job makes the GitHub Releases page
       # incapable of drifting from the tags (it sat at v4.5.2 while npm
@@ -60,10 +60,13 @@ jobs:
     needs: github-release
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # A job-level permissions block REPLACES the workflow-level one, so
+    # contents: read must be restated or checkout loses repository access.
     permissions:
+      contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -79,8 +82,9 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${GITHUB_REF_NAME#v}"
-          PUBLISHED=$(npm view @didit-protocol/sdk-react-native version 2>/dev/null || echo none)
-          if [ "$PUBLISHED" = "$VERSION" ]; then
+          # Query the exact version, not `latest` - a rerun of an OLDER tag's
+          # workflow must also detect its version as published.
+          if [ -n "$(npm view "@didit-protocol/sdk-react-native@$VERSION" version 2>/dev/null)" ]; then
             echo "@didit-protocol/sdk-react-native $VERSION is already on npm - skipping."
             exit 0
           fi
