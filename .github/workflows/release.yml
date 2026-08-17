@@ -60,9 +60,13 @@ jobs:
               FLAGS="--prerelease --latest=false"
               ;;
             *)
-              HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+              # Stable = x.y.z with optional +build metadata (legal in Dart
+              # versions); build metadata is ignored for precedence per
+              # SemVer, so the comparison runs on the numeric core.
+              CORE="${VERSION%%+*}"
+              HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(\+[0-9A-Za-z.-]+)?$' | sed 's/^v//; s/+.*//' | sort -uV | tail -1)
               LATEST=false
-              if [ "$TAG" = "$HIGHEST" ]; then LATEST=true; fi
+              if [ "$CORE" = "$HIGHEST" ]; then LATEST=true; fi
               FLAGS="--latest=$LATEST"
               ;;
           esac
