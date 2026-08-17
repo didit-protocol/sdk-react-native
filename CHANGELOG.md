@@ -1,3 +1,10 @@
+## 4.7.1
+
+- Native SDKs 4.7.1 on both platforms.
+- iOS: fixes consumer builds failing with `no such module 'TensorFlowLite'` - the 4.7.0 `all` and `autodetection` binaries leaked an internal import into their Swift interface (didit-protocol/sdk-ios#9). The dependency is implementation-only again and the release pipeline now gates on the emitted interface.
+- Android: process-death capture recovery no longer resurrects a dead flow, and its diagnostics are attributable.
+- Both platforms: `welcome.title` copy overrides now apply on whitelabel apps.
+
 ## 4.7.0
 
 - Native SDKs 4.7.0 on both platforms.
