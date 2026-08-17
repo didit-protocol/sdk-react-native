@@ -253,7 +253,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository" }
+        maven {
+            url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
+            // Scope to Didit's group: unfiltered, Gradle probes this host for
+            // every dependency and a 429 disables the repo mid-build (issue #40).
+            content { includeGroup "me.didit" }
+        }
         maven { url "https://jitpack.io" }
     }
 }
