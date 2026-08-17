@@ -16,7 +16,22 @@ const pkg = require('./package.json');
 const MAVEN_REPO =
   'https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository';
 
-const MAVEN_LINE = `        maven { url "${MAVEN_REPO}" }`;
+/**
+ * The repository must be scoped to Didit's own group. Unfiltered, Gradle
+ * probes raw.githubusercontent.com for EVERY dependency in the consumer's
+ * build; the host rate-limits (429), and Gradle then disables the repository
+ * for the rest of the run - failing unrelated dependencies like
+ * androidx.autofill or hermes-android (issue #40). With the content filter,
+ * only me.didit artifacts are ever requested here, which also makes the
+ * injection position relative to google()/mavenCentral() irrelevant: Gradle
+ * skips this repository entirely for every other group.
+ */
+const MAVEN_LINE = [
+  '        maven {',
+  `            url "${MAVEN_REPO}"`,
+  '            content { includeGroup "me.didit" }',
+  '        }',
+].join('\n');
 
 /**
  * The native iOS SDK is not published to the CocoaPods trunk, so its podspec is

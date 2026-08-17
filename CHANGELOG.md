@@ -1,3 +1,8 @@
+## 4.7.2
+
+- Expo plugin: the injected Didit Maven repository is now scoped with `content { includeGroup "me.didit" }`. Unfiltered, Gradle probed raw.githubusercontent.com for every dependency in the consumer build; a 429 rate limit then disabled the repository for the rest of the run and hard-failed unrelated dependencies (#40). Existing apps with a previously generated android/ directory should re-run `npx expo prebuild --clean` to pick up the filtered declaration.
+- README: the manual Gradle snippet carries the same content filter.
+
 ## 4.7.1
 
 - Native SDKs 4.7.1 on both platforms.
