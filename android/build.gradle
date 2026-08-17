@@ -109,9 +109,12 @@ android {
 }
 
 repositories {
-  // Didit SDK Maven repository
+  // Didit SDK Maven repository. Scoped to Didit's group: unfiltered, Gradle
+  // probes this host for this project's every dependency (React, coroutines),
+  // and a 429 disables the repository mid-build (issue #40).
   maven {
     url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
+    content { includeGroup "me.didit" }
   }
   // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum)
   maven {
