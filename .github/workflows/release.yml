@@ -100,9 +100,11 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      # Trusted publishing needs a recent npm CLI (OIDC support).
+      # Trusted publishing needs npm >= 11.5.1 (OIDC support). Pinned to the
+      # npm 11 line: `npm@latest` is npm 12+, which requires a newer node
+      # than the repo's pinned toolchain and fails with EBADENGINE.
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@^11.5.1
 
       # Idempotent: a re-run after a partial failure skips an already
       # published version. `npm publish` runs the prepare script (bob build)
