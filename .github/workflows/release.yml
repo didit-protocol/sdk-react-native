@@ -55,7 +55,9 @@ jobs:
           # enough (the API defaults make_latest to true). The stable-only
           # filter is what makes sort -V exact: SemVer prerelease precedence
           # is the one thing version-sort gets wrong.
-          case "$VERSION" in
+          # Classify prerelease on the part BEFORE any +build metadata:
+          # hyphens are legal inside build metadata (4.8.0+ios-fix is stable).
+          case "${VERSION%%+*}" in
             *-*)
               FLAGS="--prerelease --latest=false"
               ;;
@@ -115,4 +117,19 @@ jobs:
             echo "@didit-protocol/sdk-react-native $VERSION is already on npm - skipping."
             exit 0
           fi
-          npm publish
+          # Pick the dist-tag explicitly: npm requires --tag for prereleases,
+          # and publishing an older stable version without one would repoint
+          # `latest` at it. Only the highest stable v* tag publishes as
+          # latest; the tag namespace is fetched so the comparison sees it.
+          git fetch --quiet origin '+refs/tags/*:refs/tags/*'
+          case "${VERSION%%+*}" in
+            *-*)
+              TAG_FLAG="--tag next"
+              ;;
+            *)
+              CORE="${VERSION%%+*}"
+              HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(\+[0-9A-Za-z.-]+)?$' | sed 's/^v//; s/+.*//' | sort -uV | tail -1)
+              if [ "$CORE" = "$HIGHEST" ]; then TAG_FLAG=""; else TAG_FLAG="--tag previous"; fi
+              ;;
+          esac
+          npm publish $TAG_FLAG
