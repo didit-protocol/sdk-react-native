@@ -14,9 +14,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          # Tags are needed to decide whether this one is the highest semver.
-          fetch-tags: true
 
       # A pushed tag IS the release: this job makes the GitHub Releases page
       # incapable of drifting from the tags (it sat at v4.5.2 while npm
@@ -32,6 +29,11 @@ jobs:
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#v}"
+          # The shallow tag-triggered checkout only guarantees the triggering
+          # tag; fetch the full tag namespace explicitly so the Latest
+          # comparison below sees every tag (checkout's fetch-tags does not
+          # guarantee this at fetch-depth 1).
+          git fetch --quiet origin '+refs/tags/*:refs/tags/*'
           PKG_VERSION=$(python3 -c 'import json; print(json.load(open("package.json"))["version"])')
           if [ "$PKG_VERSION" != "$VERSION" ]; then
             echo "package.json has version $PKG_VERSION but the tag says $VERSION" >&2
@@ -46,13 +48,25 @@ jobs:
             echo "Release $TAG already exists - nothing to do."
             exit 0
           fi
-          # Mark Latest only when this tag is the highest v* semver: a rerun
-          # of an OLDER tag's workflow must never steal the Latest badge, and
-          # omitting the flag is not enough (the API defaults make_latest to
-          # true).
-          LATEST=false
-          if [ "$TAG" = "$(git tag -l 'v*' | sort -V | tail -1)" ]; then LATEST=true; fi
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag --latest=$LATEST \
+          # Prerelease versions (any -suffix) are published as prereleases and
+          # never take the Latest badge. Stable versions take Latest only when
+          # they are the highest STABLE v* tag - a rerun of an older tag's
+          # workflow must never steal the badge, and omitting the flag is not
+          # enough (the API defaults make_latest to true). The stable-only
+          # filter is what makes sort -V exact: SemVer prerelease precedence
+          # is the one thing version-sort gets wrong.
+          case "$VERSION" in
+            *-*)
+              FLAGS="--prerelease --latest=false"
+              ;;
+            *)
+              HIGHEST=$(git tag -l 'v*' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+              LATEST=false
+              if [ "$TAG" = "$HIGHEST" ]; then LATEST=true; fi
+              FLAGS="--latest=$LATEST"
+              ;;
+          esac
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --verify-tag $FLAGS \
             --title "$TAG" --notes-file /tmp/notes.md
 
   publish-npm:
