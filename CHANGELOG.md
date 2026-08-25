@@ -1,3 +1,10 @@
+## 4.7.3
+
+- Native SDKs 4.7.2 on both platforms.
+- Both platforms: a document or proof-of-address upload that never reached the server no longer leaves the flow spinning. An upload proven not to have been delivered is now reported as a failure with a retry, and the recovery poll that follows a genuinely ambiguous upload is bounded instead of running forever against a server the device cannot reach.
+- Both platforms: per-step welcome copy overrides (`welcome.step.document`, `welcome.step.selfie`, `welcome.step.questionnaire`) now resolve against their own workflow step instead of always the first one.
+- Android: fixes a crash on the completion screen as the result icon's animation settled (observed on Android 16).
+
 ## 4.7.2
 
 - Expo plugin: the injected Didit Maven repository is now scoped with `content { includeGroup "me.didit" }`. Unfiltered, Gradle probed raw.githubusercontent.com for every dependency in the consumer build; a 429 rate limit then disabled the repository for the rest of the run and hard-failed unrelated dependencies (#40). Existing apps with a previously generated android/ directory should re-run `npx expo prebuild --clean` to pick up the filtered declaration.
