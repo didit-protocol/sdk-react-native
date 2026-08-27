@@ -1,3 +1,11 @@
+## 4.7.4
+
+- Android: native active liveness now uses Didit Android SDK 4.7.3, which keeps
+  the camera WebView visible while the web camera pipeline starts and avoids
+  Android 16/API 36 preview starvation where `cameraReady` fired but no camera
+  preview appeared.
+- iOS: native SDK remains 4.7.2.
+
 ## 4.7.3
 
 - Native SDKs 4.7.2 on both platforms.
