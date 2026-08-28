@@ -4,6 +4,15 @@ Contributions are always welcome, no matter how large or small!
 
 We want this community to be friendly and respectful to each other. Please follow it in all your interactions with the project. Before contributing, please read the [code of conduct](./CODE_OF_CONDUCT.md).
 
+## Protect private information
+
+This repository is public. Do not include customer, prospect, organization, or
+contact names; email addresses; account/session identifiers; private support
+details; private tracker keys; or links to private repositories and internal
+tools in issues, pull requests, comments, commits, screenshots, logs, fixtures,
+or release notes. Describe a report anonymously and share identifying context
+with maintainers only through an approved private channel.
+
 ## Development workflow
 
 This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/features/workspaces). It contains the following packages:
