@@ -47,7 +47,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         promise: Promise
     ) {
         Log.d(TAG, "startVerification: token=${token.take(8)}..., config=$config")
-        val activity = currentActivity
+        val activity = reactApplicationContext.currentActivity
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
@@ -82,7 +82,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     ) {
         Log.d(TAG, "startVerificationWithWorkflow: workflowId=$workflowId, vendorData=$vendorData, metadata=$metadata")
         Log.d(TAG, "startVerificationWithWorkflow: contactDetails=$contactDetails, expectedDetails=$expectedDetails, config=$config")
-        val activity = currentActivity
+        val activity = reactApplicationContext.currentActivity
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
