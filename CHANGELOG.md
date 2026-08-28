@@ -4,7 +4,8 @@
   the camera WebView visible while the web camera pipeline starts and avoids
   Android 16/API 36 preview starvation where `cameraReady` fired but no camera
   preview appeared.
-- iOS: native SDK remains 4.7.2.
+- Android native SDK 4.7.2 -> 4.7.3. Fixes the "Try Again", "Scan the front" and "Scan Back" buttons doing nothing on the upload status sheets on physical Android devices (didit-protocol/sdk-android#8). The sheets' full-screen touch-blocking overlay consumed every pointer event, and Compose cancels a button's in-progress tap when an ancestor consumes a MOVE event - which a real finger tap always produces between DOWN and UP. Emulator mouse clicks have no MOVE in between, so the flow only broke on real hardware.
+- iOS is unchanged and still pins native SDK 4.7.2.
 
 ## 4.7.3
 
