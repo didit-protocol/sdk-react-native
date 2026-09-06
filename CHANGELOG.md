@@ -1,7 +1,13 @@
 ## 4.7.6
 
+- Native SDKs 4.7.5 on both platforms. iOS moves from 4.7.2 and Android from 4.7.4.
 - Android: the module no longer applies `kotlin-android` when the `kotlin` Gradle extension is already registered. Android Gradle Plugin 9 ships built-in Kotlin support and registers that extension itself, so the unconditional apply failed configuration with `Cannot add extension with name 'kotlin'` and made the library unbuildable on AGP 9 projects; AGP 8 projects are unchanged (#47, thanks @gabrieldonadel).
-- Native SDK pins are unchanged: Android 4.7.4, iOS 4.7.2.
+- Android: passive liveness no longer fails with `UNEXPECTED_CAMERA_ERROR` on devices that expose usable cameras but no front lens. The camera options are now built from the cameras CameraX will actually bind, so a device left with no selected option no longer falls back to requesting a front camera that cannot bind.
+- Android: the front-camera selfie taken during document-front capture is now bounded and retried. A transient camera failure used to drop the selfie for the whole session, and a camera that never called back left the capture suspended forever, so the back-camera preview never appeared and the screen stayed blank with no error. Transient failures now retry up to three attempts within an eight second budget, permanent device facts such as a missing front lens or a revoked camera permission fail fast, and the failure reason is reported instead of an opaque null.
+- Android: document capture no longer reports `CAMERA_TIMEOUT` while it is still waiting for the camera permission dialog or for the front-camera selfie pre-capture. The stall timer is armed only once the preview can actually exist, so it no longer spends its restart attempts on phases where there is nothing to recover.
+- Both platforms: KYB company search falls back to manual company entry when the registry reports that it has no coverage for the selected country, not only when the registry provider is unavailable. That response previously left the user on the search screen with a search that could never succeed.
+- Both platforms: the KYB country pickers on the company search, confirmation and manual-entry screens list only the registry-enabled countries resolved for the session instead of every ISO country. Sessions from a backend that does not send the resolved list keep the previous behaviour.
+- Both platforms: questionnaire questions defined on a workflow graph node now render and submit using the input type from the graph node rather than the stale type on the static section item, so an upload question renders the upload control and is submitted through the multipart file path.
 
 ## 4.7.5
 
