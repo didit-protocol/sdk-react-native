@@ -1,3 +1,8 @@
+## 4.7.6
+
+- Android: the module no longer applies `kotlin-android` when the `kotlin` Gradle extension is already registered. Android Gradle Plugin 9 ships built-in Kotlin support and registers that extension itself, so the unconditional apply failed configuration with `Cannot add extension with name 'kotlin'` and made the library unbuildable on AGP 9 projects; AGP 8 projects are unchanged (#47, thanks @gabrieldonadel).
+- Native SDK pins are unchanged: Android 4.7.4, iOS 4.7.2.
+
 ## 4.7.5
 
 - Android: native active liveness now uses Didit Android SDK 4.7.4, which keeps
