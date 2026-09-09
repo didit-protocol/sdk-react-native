@@ -1,21 +1,27 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [".nvmrc", ".yarnrc.yml"],
-  "globalEnv": ["NODE_ENV"],
+  "globalDependencies": [
+    ".nvmrc",
+    ".yarnrc.yml"
+  ],
+  "globalEnv": [
+    "NODE_ENV"
+  ],
   "tasks": {
     "build:android": {
-      "env": ["ANDROID_HOME", "ORG_GRADLE_PROJECT_newArchEnabled"],
+      "env": [
+        "ANDROID_HOME",
+        "ORG_GRADLE_PROJECT_newArchEnabled"
+      ],
       "inputs": [
-        "package.json",
-        "android",
-        "!android/build",
-        "src/*.ts",
-        "src/*.tsx",
-        "example/package.json",
-        "example/android",
-        "!example/android/.gradle",
-        "!example/android/build",
-        "!example/android/app/build"
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/src/**",
+        "$TURBO_ROOT$/cpp/**",
+        "$TURBO_ROOT$/app.plugin.js",
+        "$TURBO_ROOT$/react-native.config.js",
+        "$TURBO_ROOT$/android/build.gradle",
+        "$TURBO_ROOT$/android/src/**"
       ],
       "outputs": []
     },
@@ -27,15 +33,15 @@
         "RCT_USE_PREBUILT_RNCORE"
       ],
       "inputs": [
-        "package.json",
-        "*.podspec",
-        "ios",
-        "src/*.ts",
-        "src/*.tsx",
-        "example/package.json",
-        "example/ios",
-        "!example/ios/build",
-        "!example/ios/Pods"
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/src/**",
+        "$TURBO_ROOT$/cpp/**",
+        "$TURBO_ROOT$/app.plugin.js",
+        "$TURBO_ROOT$/react-native.config.js",
+        "$TURBO_ROOT$/*.podspec",
+        "$TURBO_ROOT$/ios/**",
+        "!$TURBO_ROOT$/ios/build/**"
       ],
       "outputs": []
     }
