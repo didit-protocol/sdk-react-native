@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   github-release:
-    name: Create the GitHub Release from the CHANGELOG
+    name: Create the GitHub Release from release notes
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -19,10 +19,10 @@ jobs:
       # incapable of drifting from the tags (it sat at v4.5.2 while npm
       # served 4.7.0, because creating the Release object was a separate
       # manual step). It fails when the tag does not match package.json or
-      # the CHANGELOG has no section for the version - the release runbook
+      # release notes are missing for the version - the release runbook
       # requires both, and a red run on the tag is the tripwire that they
       # were skipped.
-      - name: Verify tag matches package.json and CHANGELOG, create release
+      - name: Verify tag matches package.json and release notes, create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -39,9 +39,13 @@ jobs:
             echo "package.json has version $PKG_VERSION but the tag says $VERSION" >&2
             exit 1
           fi
-          awk -v ver="$VERSION" '$0 == "## " ver {f=1; next} /^## /{f=0} f' CHANGELOG.md > /tmp/notes.md
+          if [ -f "release-notes/$VERSION.md" ]; then
+            cp "release-notes/$VERSION.md" /tmp/notes.md
+          else
+            awk -v ver="$VERSION" '$0 == "## " ver {f=1; next} /^## /{f=0} f' CHANGELOG.md > /tmp/notes.md
+          fi
           if ! grep -q '[^[:space:]]' /tmp/notes.md; then
-            echo "CHANGELOG.md has no section '## $VERSION' - add it and re-tag." >&2
+            echo "Missing release-notes/$VERSION.md or CHANGELOG.md section for $VERSION." >&2
             exit 1
           fi
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
