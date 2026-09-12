@@ -259,6 +259,17 @@ const pendingTransactionUpdates = new Map<
 >();
 
 /**
+ * The only required action either native SDK launches itself, and therefore
+ * the only one that can still emit a transaction update once
+ * `submitTransaction` has resolved. A `verification_session` action is handed
+ * back on `result.actionRequired` for the host app to launch with its own
+ * Didit verification integration, and that launch has no route back to this
+ * map, so holding its callback would retain it - and everything it closes
+ * over - for the life of the JavaScript runtime.
+ */
+const AUTO_LAUNCHED_ACTION_TYPE = 'wallet_ownership';
+
+/**
  * Dispatches native transaction-updated events to the callback registered
  * for the originating call. A single module-level subscription is shared
  * by all in-flight calls and events are matched by `callId`.
@@ -377,7 +388,7 @@ export async function submitTransaction(
       })
     );
     const result = JSON.parse(resultJson) as DiditTransactionResult;
-    if (!result.actionRequired) {
+    if (result.actionRequired?.type !== AUTO_LAUNCHED_ACTION_TYPE) {
       pendingTransactionUpdates.delete(callId);
     }
     return result;
