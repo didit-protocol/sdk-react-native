@@ -251,6 +251,15 @@ const TRANSACTION_ERROR_CODES: DiditTransactionErrorCode[] = [
   'network',
 ];
 
+/**
+ * The only action type either native SDK auto-launches, and therefore the
+ * only one that can still emit an `onTransactionUpdated` event after
+ * `submitTransaction` resolves. A `verification_session` action is returned
+ * for the host app to launch with its own verification integration, so no
+ * update event can ever follow it.
+ */
+const WALLET_OWNERSHIP_ACTION_TYPE = 'wallet_ownership';
+
 let transactionCallCounter = 0;
 let transactionUpdateSubscription: EventSubscription | null = null;
 const pendingTransactionUpdates = new Map<
@@ -377,7 +386,11 @@ export async function submitTransaction(
       })
     );
     const result = JSON.parse(resultJson) as DiditTransactionResult;
-    if (!result.actionRequired) {
+    // Keep the callback registered only while a native update can still
+    // arrive for this call. Every other outcome - no action at all, or an
+    // action the host launches itself - is terminal here, so releasing the
+    // entry keeps the callback and everything it closes over collectable.
+    if (result.actionRequired?.type !== WALLET_OWNERSHIP_ACTION_TYPE) {
       pendingTransactionUpdates.delete(callId);
     }
     return result;
