@@ -179,6 +179,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
 
         return Configuration(
             languageLocale = language,
+            showLanguageSelector = if (map.hasKey("showLanguageSelector")) map.getBoolean("showLanguageSelector") else false,
             fontFamily = if (map.hasKey("fontFamily")) map.getString("fontFamily") else null,
             loggingEnabled = if (map.hasKey("loggingEnabled")) map.getBoolean("loggingEnabled") else false,
             showCloseButton = if (map.hasKey("showCloseButton")) map.getBoolean("showCloseButton") else true,

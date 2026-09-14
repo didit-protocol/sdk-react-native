@@ -121,6 +121,12 @@ export interface DiditConfig {
   languageCode?: string;
 
   /**
+   * Show the language selector on the verification welcome screen.
+   * Default: `false`.
+   */
+  showLanguageSelector?: boolean;
+
+  /**
    * Custom font family name to use throughout the SDK UI.
    * The font must be registered in your app's native configuration.
    * If not set, falls back to the system font.

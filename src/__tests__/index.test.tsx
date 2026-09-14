@@ -3,6 +3,7 @@ import type { DiditTransactionResult } from '../types';
 jest.mock('../NativeSdkReactNative', () => ({
   __esModule: true,
   default: {
+    startVerification: jest.fn(),
     submitTransaction: jest.fn(),
     getTransaction: jest.fn(),
     onTransactionUpdated: jest.fn(() => ({ remove: jest.fn() })),
@@ -10,8 +11,10 @@ jest.mock('../NativeSdkReactNative', () => ({
 }));
 
 import NativeSdkReactNative from '../NativeSdkReactNative';
-import { submitTransaction, getTransaction } from '../index';
+import { startVerification, submitTransaction, getTransaction } from '../index';
 
+const mockStartVerification =
+  NativeSdkReactNative.startVerification as jest.Mock;
 const mockSubmit = NativeSdkReactNative.submitTransaction as jest.Mock;
 const mockGet = NativeSdkReactNative.getTransaction as jest.Mock;
 const mockOnUpdated = NativeSdkReactNative.onTransactionUpdated as jest.Mock;
@@ -49,6 +52,35 @@ function pendingResult(
       : {}),
   };
 }
+
+describe('verification configuration marshalling', () => {
+  beforeEach(() => {
+    mockStartVerification.mockReset();
+    mockStartVerification.mockResolvedValue({
+      type: 'completed',
+      sessionId: 'test-session',
+      status: 'Approved',
+    });
+  });
+
+  it('forwards an enabled language selector to native', async () => {
+    await startVerification('test-token', { showLanguageSelector: true });
+
+    expect(mockStartVerification).toHaveBeenCalledWith(
+      'test-token',
+      expect.objectContaining({ showLanguageSelector: true })
+    );
+  });
+
+  it('leaves the selector disabled when the option is omitted', async () => {
+    await startVerification('test-token', {});
+
+    expect(mockStartVerification).toHaveBeenCalledWith(
+      'test-token',
+      expect.objectContaining({ showLanguageSelector: undefined })
+    );
+  });
+});
 
 describe('transaction result marshalling', () => {
   beforeEach(() => {

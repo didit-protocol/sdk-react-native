@@ -148,6 +148,7 @@ export async function startVerification(
   const nativeConfig = config
     ? {
         languageCode: config.languageCode,
+        showLanguageSelector: config.showLanguageSelector,
         fontFamily: config.fontFamily,
         loggingEnabled: config.loggingEnabled,
         showCloseButton: config.showCloseButton,
@@ -192,6 +193,7 @@ export async function startVerificationWithWorkflow(
   const nativeConfig = options?.config
     ? {
         languageCode: options.config.languageCode,
+        showLanguageSelector: options.config.showLanguageSelector,
         fontFamily: options.config.fontFamily,
         loggingEnabled: options.config.loggingEnabled,
         showCloseButton: options.config.showCloseButton,
