@@ -239,7 +239,6 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             }
             return DiditSdk.Configuration(
                 languageLocale: language,
-                showLanguageSelector: showLanguageSelector,
                 fontFamily: fontFamily,
                 loggingEnabled: loggingEnabled,
                 showCloseButton: showCloseButton,
@@ -248,7 +247,8 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                 defaultDocumentCamera: Self.parseCameraLens(defaultDocumentCamera) ?? .back,
                 defaultLivenessCamera: Self.parseCameraLens(defaultLivenessCamera) ?? .front,
                 showDocumentCameraSwitchButton: showDocumentCameraSwitchButton,
-                showLivenessCameraSwitchButton: showLivenessCameraSwitchButton
+                showLivenessCameraSwitchButton: showLivenessCameraSwitchButton,
+                showLanguageSelector: showLanguageSelector
             )
         }
 
