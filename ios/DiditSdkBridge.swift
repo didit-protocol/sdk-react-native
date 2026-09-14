@@ -189,6 +189,7 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
     /// Sendable value type that captures config primitives before crossing concurrency boundaries.
     private struct ParsedConfig: Sendable {
         let languageCode: String?
+        let showLanguageSelector: Bool
         let fontFamily: String?
         let loggingEnabled: Bool
         let showCloseButton: Bool
@@ -203,6 +204,7 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         init(_ dict: NSDictionary?) {
             guard let dict = dict, dict.count > 0 else {
                 self.languageCode = nil
+                self.showLanguageSelector = false
                 self.fontFamily = nil
                 self.loggingEnabled = false
                 self.showCloseButton = true
@@ -216,6 +218,7 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                 return
             }
             self.languageCode = dict["languageCode"] as? String
+            self.showLanguageSelector = dict["showLanguageSelector"] as? Bool ?? false
             self.fontFamily = dict["fontFamily"] as? String
             self.loggingEnabled = dict["loggingEnabled"] as? Bool ?? false
             self.showCloseButton = dict["showCloseButton"] as? Bool ?? true
@@ -244,7 +247,8 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                 defaultDocumentCamera: Self.parseCameraLens(defaultDocumentCamera) ?? .back,
                 defaultLivenessCamera: Self.parseCameraLens(defaultLivenessCamera) ?? .front,
                 showDocumentCameraSwitchButton: showDocumentCameraSwitchButton,
-                showLivenessCameraSwitchButton: showLivenessCameraSwitchButton
+                showLivenessCameraSwitchButton: showLivenessCameraSwitchButton,
+                showLanguageSelector: showLanguageSelector
             )
         }
 

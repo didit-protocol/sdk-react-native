@@ -13,6 +13,8 @@ type EventEmitter<T> = CodegenTypes.EventEmitter<T>;
 export type VerificationConfig = {
   /** ISO 639-1 language code (e.g. "en", "fr", "ar"). Maps to SupportedLanguage on native. */
   languageCode?: string;
+  /** Show the language selector on the welcome screen. Default: false. */
+  showLanguageSelector?: boolean;
   /** Custom font family name. Must be registered by the host app. */
   fontFamily?: string;
   /** Enable SDK logging for debugging. Default: false. */
