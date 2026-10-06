@@ -60,17 +60,13 @@ describe('location purpose string', () => {
   });
 
   it('is the one the README tells integrators to add', () => {
-    expect(plistString(read('README.md'), LOCATION_KEY)).toBe(
-      LOCATION_PURPOSE
-    );
+    expect(plistString(read('README.md'), LOCATION_KEY)).toBe(LOCATION_PURPOSE);
   });
 
   it('is documented with the same Spanish translation for bare and Expo apps', () => {
     const readme = read('README.md');
 
-    expect(readme).toContain(
-      `"${LOCATION_KEY}" = "${LOCATION_PURPOSE_ES}";`
-    );
+    expect(readme).toContain(`"${LOCATION_KEY}" = "${LOCATION_PURPOSE_ES}";`);
     expect(readme).toContain(`"${LOCATION_KEY}": "${LOCATION_PURPOSE_ES}"`);
   });
 });
