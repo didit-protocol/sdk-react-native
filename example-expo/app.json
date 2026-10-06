@@ -19,6 +19,7 @@
       "bundleIdentifier": "me.didit.sdk.reactnative.expo-example",
       "infoPlist": {
         "NSCameraUsageDescription": "Camera access is required for identity verification to capture documents and facial photos.",
+        "NSLocationWhenInUseUsageDescription": "Your location is used to confirm where you are for this verification.",
         "NSMicrophoneUsageDescription": "Microphone access is required to record video for liveness verification.",
         "NSPhotoLibraryUsageDescription": "Photo library access is required to upload document images.",
         "NFCReaderUsageDescription": "NFC is used to read passport chip data for identity verification.",
