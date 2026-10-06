@@ -4,6 +4,7 @@ jest.mock('../NativeSdkReactNative', () => ({
   __esModule: true,
   default: {
     startVerification: jest.fn(),
+    startVerificationWithWorkflow: jest.fn(),
     submitTransaction: jest.fn(),
     getTransaction: jest.fn(),
     onTransactionUpdated: jest.fn(() => ({ remove: jest.fn() })),
@@ -11,10 +12,18 @@ jest.mock('../NativeSdkReactNative', () => ({
 }));
 
 import NativeSdkReactNative from '../NativeSdkReactNative';
-import { startVerification, submitTransaction, getTransaction } from '../index';
+import {
+  startVerification,
+  startVerificationWithWorkflow,
+  submitTransaction,
+  getTransaction,
+  VerificationStatus,
+} from '../index';
 
 const mockStartVerification =
   NativeSdkReactNative.startVerification as jest.Mock;
+const mockStartWithWorkflow =
+  NativeSdkReactNative.startVerificationWithWorkflow as jest.Mock;
 const mockSubmit = NativeSdkReactNative.submitTransaction as jest.Mock;
 const mockGet = NativeSdkReactNative.getTransaction as jest.Mock;
 const mockOnUpdated = NativeSdkReactNative.onTransactionUpdated as jest.Mock;
@@ -79,6 +88,88 @@ describe('verification configuration marshalling', () => {
       'test-token',
       expect.objectContaining({ showLanguageSelector: undefined })
     );
+  });
+});
+
+/**
+ * The Bank and Location steps are drawn by the native SDKs and decided by the
+ * server, so the bridge adds nothing for them: the language reaches native on
+ * both entry points and the decided session comes back as an ordinary result.
+ */
+describe('Bank and Location steps pass-through', () => {
+  beforeEach(() => {
+    mockStartVerification.mockReset();
+    mockStartWithWorkflow.mockReset();
+  });
+
+  it('forwards the language to native when starting with a session token', async () => {
+    mockStartVerification.mockResolvedValue({ type: 'cancelled' });
+
+    await startVerification('test-token', { languageCode: 'es' });
+
+    expect(mockStartVerification).toHaveBeenCalledWith(
+      'test-token',
+      expect.objectContaining({ languageCode: 'es' })
+    );
+  });
+
+  it('forwards the language to native when starting with a workflow', async () => {
+    mockStartWithWorkflow.mockResolvedValue({ type: 'cancelled' });
+
+    await startVerificationWithWorkflow('workflow-id', {
+      config: { languageCode: 'es' },
+    });
+
+    const [workflowId, , , , , nativeConfig] =
+      mockStartWithWorkflow.mock.calls[0];
+    expect(workflowId).toBe('workflow-id');
+    expect(nativeConfig).toMatchObject({ languageCode: 'es' });
+  });
+
+  it.each([
+    ['Approved', VerificationStatus.Approved],
+    ['Pending', VerificationStatus.Pending],
+    ['Declined', VerificationStatus.Declined],
+  ])(
+    'returns a session the server decided as %s as a completed result',
+    async (nativeStatus, expected) => {
+      mockStartWithWorkflow.mockResolvedValue({
+        type: 'completed',
+        sessionId: 'session-step',
+        status: nativeStatus,
+      });
+
+      const result = await startVerificationWithWorkflow('workflow-id');
+
+      expect(result).toEqual({
+        type: 'completed',
+        session: { sessionId: 'session-step', status: expected },
+      });
+    }
+  );
+
+  it('keeps the native message when a newer native step reports an error type the bridge does not know', async () => {
+    mockStartVerification.mockResolvedValue({
+      type: 'failed',
+      errorType: 'locationUnavailable',
+      errorMessage: 'Location could not be determined.',
+      sessionId: 'session-step',
+      status: 'Pending',
+    });
+
+    const result = await startVerification('test-token');
+
+    expect(result).toEqual({
+      type: 'failed',
+      error: {
+        type: 'unknown',
+        message: 'Location could not be determined.',
+      },
+      session: {
+        sessionId: 'session-step',
+        status: VerificationStatus.Pending,
+      },
+    });
   });
 });
 
