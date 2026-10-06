@@ -1,0 +1,140 @@
+buildscript {
+  ext.SdkReactNative = [
+    kotlinVersion: "2.0.21",
+    minSdkVersion: 24,
+    compileSdkVersion: 36,
+    targetSdkVersion: 36
+  ]
+
+  ext.getExtOrDefault = { prop ->
+    if (rootProject.ext.has(prop)) {
+      return rootProject.ext.get(prop)
+    }
+
+    return SdkReactNative[prop]
+  }
+
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:8.7.2"
+    // noinspection DifferentKotlinGradleVersion
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${getExtOrDefault('kotlinVersion')}"
+  }
+}
+
+
+apply plugin: "com.android.library"
+// AGP 9 ships built-in Kotlin support and registers the `kotlin` extension
+// itself. Applying the Kotlin plugin on top of it fails configuration with
+// "Cannot add extension with name 'kotlin'". Only apply it when nothing has
+// registered that extension yet.
+if (project.extensions.findByName('kotlin') == null) {
+  apply plugin: "kotlin-android"
+}
+
+apply plugin: "com.facebook.react"
+
+def diditSdkAndroidVariantProperty = (
+  rootProject.findProperty("diditSdkAndroidVariant")
+    ?: findProperty("diditSdkAndroidVariant")
+)
+def diditSdkAndroidLegacyNfcEnabled = (
+  rootProject.findProperty("diditSdkAndroidNfcEnabled")
+    ?: findProperty("diditSdkAndroidNfcEnabled")
+    ?: "true"
+).toString().toBoolean()
+def diditSdkAndroidVariant = (
+  diditSdkAndroidVariantProperty != null
+    ? diditSdkAndroidVariantProperty
+    : (diditSdkAndroidLegacyNfcEnabled ? "all" : "core")
+).toString().toLowerCase()
+def diditSdkAndroidArtifact
+switch (diditSdkAndroidVariant) {
+  case "all":
+    diditSdkAndroidArtifact = "didit-sdk"
+    break
+  case "core":
+    diditSdkAndroidArtifact = "didit-sdk-core"
+    break
+  case "autodetection":
+    diditSdkAndroidArtifact = "didit-sdk-autodetection"
+    break
+  case "nfc":
+    diditSdkAndroidArtifact = "didit-sdk-nfc"
+    break
+  default:
+    throw new GradleException("Invalid diditSdkAndroidVariant '${diditSdkAndroidVariant}'. Supported values: all, core, autodetection, nfc.")
+}
+def diditSdkAndroidUsesNfc = diditSdkAndroidVariant == "all" || diditSdkAndroidVariant == "nfc"
+
+android {
+  namespace "com.sdkreactnative"
+
+  compileSdkVersion getExtOrDefault("compileSdkVersion")
+
+  defaultConfig {
+    minSdkVersion getExtOrDefault("minSdkVersion")
+    targetSdkVersion getExtOrDefault("targetSdkVersion")
+  }
+
+  buildFeatures {
+    buildConfig true
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+  }
+
+  lint {
+    disable "GradleCompatible"
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+
+  if (diditSdkAndroidUsesNfc) {
+    configurations.configureEach {
+      exclude group: 'org.bouncycastle', module: 'bcprov-jdk15to18'
+      exclude group: 'org.bouncycastle', module: 'bcutil-jdk15to18'
+      exclude group: 'org.bouncycastle', module: 'bcpkix-jdk15to18'
+      exclude group: 'org.bouncycastle', module: 'bcprov-jdk15on'
+    }
+  }
+}
+
+repositories {
+  // Didit SDK Maven repository. Scoped to Didit's group: unfiltered, Gradle
+  // probes this host for this project's every dependency (React, coroutines),
+  // and a 429 disables the repository mid-build (issue #40).
+  maven {
+    url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
+    content { includeGroup "me.didit" }
+  }
+  // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum)
+  maven {
+    url "https://jitpack.io"
+  }
+}
+
+dependencies {
+  implementation "com.facebook.react:react-android"
+
+  // Didit native Android SDK
+  implementation "me.didit:$diditSdkAndroidArtifact:4.9.0"
+
+  // Coroutines (required for state flow observation)
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+}
