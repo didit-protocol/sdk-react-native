@@ -4,6 +4,7 @@ jest.mock('../NativeSdkReactNative', () => ({
   __esModule: true,
   default: {
     startVerification: jest.fn(),
+    startVerificationWithWorkflow: jest.fn(),
     submitTransaction: jest.fn(),
     getTransaction: jest.fn(),
     onTransactionUpdated: jest.fn(() => ({ remove: jest.fn() })),
