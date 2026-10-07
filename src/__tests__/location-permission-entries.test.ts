@@ -93,7 +93,7 @@ describe.each(IOS_EXAMPLE_SPANISH_STRINGS)(
     it('bundles the translation with the app', () => {
       const project = read(pbxproj);
 
-      expect(project).toContain('path = es.lproj/InfoPlist.strings;');
+      expect(project).toMatch(/path = "?es\.lproj\/InfoPlist\.strings"?;/);
       expect(project).toMatch(
         /files = \([^)]*\/\* InfoPlist\.strings in Resources \*\//
       );
