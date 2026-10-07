@@ -85,6 +85,77 @@ The SDK handles Android runtime permission requests automatically. When the user
 
 You do not need to request camera permission in your app code before calling `startVerification()` — the SDK manages this internally.
 
+## Bank and Location verification steps
+
+Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
+
+> **Availability:** the native SDK version this package pins (`diditNativeSdkVersions` in `package.json`, currently 4.9.1) does not include these steps yet. Keep them out of the workflows your app runs until a release of this package pins a native SDK that has them.
+
+### Bank
+
+No setup. The SDK opens the bank's approval page in the system browser (a Custom Tab on Android, Safari in a sheet on iOS) and checks the result itself when the person comes back, so there is no permission, URL scheme or deep link to register.
+
+### Location on iOS
+
+Location lives in the native SDK's optional `DiditSDK/Location` module, so apps that never run the step never link Core Location. The released iOS binaries do not include that module yet; without it, or without `NSLocationWhenInUseUsageDescription`, the step shows no prompt, reports that the device cannot place the person, and the workflow's own rules decide.
+
+Add the purpose strings to `Info.plist`. `NSLocationTemporaryUsageDescriptionDictionary` is optional: it lets the step ask once for precise location when the person granted only an approximate one (iOS 14+), and its key must be exactly `DiditLocationVerification`.
+
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Your location is used to confirm where you are for this verification.</string>
+<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+<dict>
+    <key>DiditLocationVerification</key>
+    <string>This verification needs your precise location once.</string>
+</dict>
+```
+
+iOS shows these strings in the device language, not in the SDK's `languageCode`, so translate them in each `<lang>.lproj/InfoPlist.strings`, for example `es.lproj/InfoPlist.strings`:
+
+```
+"NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa para confirmar dónde estás en esta verificación.";
+```
+
+With Expo, set the same keys in `app.json` and translate them with [`locales`](https://docs.expo.dev/guides/localization/#translating-app-metadata):
+
+```json
+{
+  "expo": {
+    "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your location is used to confirm where you are for this verification.",
+        "NSLocationTemporaryUsageDescriptionDictionary": {
+          "DiditLocationVerification": "This verification needs your precise location once."
+        }
+      }
+    },
+    "locales": {
+      "es": "./locales/es.json"
+    }
+  }
+}
+```
+
+where `locales/es.json` is `{ "ios": { "NSLocationWhenInUseUsageDescription": "Tu ubicación se usa para confirmar dónde estás en esta verificación." } }`.
+
+In App Store Connect, declare **Precise Location** and **Coarse Location** under **App Functionality**, linked to the user and not used for tracking. The SDK reads one position per attempt, only while the step is on screen, and never in the background.
+
+### Location on Android
+
+The native SDK declares `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`, plus the location hardware features as optional (`android:required="false"`), and they merge into your app automatically. It asks for them at runtime only when a workflow reaches the step, after a screen that explains why, and the person can grant precise or approximate location. If your app never runs the step, you can remove them from the merged manifest:
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="remove" />
+```
+
+A session that still reaches the step then reports the location as unavailable, without a prompt. If you keep them, declare **Approximate location** and **Precise location** as collected data in your Google Play Data safety form.
+
+### Older app versions
+
+A native SDK that does not know a step ends the flow with a `failed` result whose `error.type` is `unknown` and which still carries the `session` when one exists, so your app can fall back (for example, ask the person to update the app or continue on the web).
+
 ## Native SDK Variants
 
 NFC and auto-detection are enabled by default on both platforms.
