@@ -89,7 +89,7 @@ You do not need to request camera permission in your app code before calling `st
 
 Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
 
-> **Availability:** the native SDK version this package pins (`diditNativeSdkVersions` in `package.json`, currently 4.9.1) does not include these steps yet. Keep them out of the workflows your app runs until a release of this package pins a native SDK that has them.
+> **Availability:** native SDK releases up to and including 4.9.1 do not include these steps. Check the native versions this package pins (`diditNativeSdkVersions` in `package.json`) and keep the steps out of the workflows your app runs until it pins a native SDK release that has them.
 
 ### Bank
 
@@ -111,10 +111,11 @@ Add the purpose strings to `Info.plist`. `NSLocationTemporaryUsageDescriptionDic
 </dict>
 ```
 
-iOS picks these strings by the device language, not by the SDK's `languageCode`, so translate them in each `<lang>.lproj/InfoPlist.strings`, for example `es.lproj/InfoPlist.strings`:
+iOS picks these strings by the device language, not by the SDK's `languageCode`, so translate them in each `<lang>.lproj/InfoPlist.strings`. The precise-location string is translated under its purpose key. For example `es.lproj/InfoPlist.strings`:
 
 ```
 "NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa para confirmar dónde estás en esta verificación.";
+"DiditLocationVerification" = "Esta verificación necesita tu ubicación precisa una vez.";
 ```
 
 With Expo, set the same keys in `app.json` and translate them with [`locales`](https://docs.expo.dev/guides/localization/#translating-app-metadata):
@@ -137,7 +138,18 @@ With Expo, set the same keys in `app.json` and translate them with [`locales`](h
 }
 ```
 
-where `locales/es.json` is `{ "ios": { "NSLocationWhenInUseUsageDescription": "Tu ubicación se usa para confirmar dónde estás en esta verificación." } }`.
+where `locales/es.json` is:
+
+```json
+{
+  "ios": {
+    "NSLocationWhenInUseUsageDescription": "Tu ubicación se usa para confirmar dónde estás en esta verificación.",
+    "DiditLocationVerification": "Esta verificación necesita tu ubicación precisa una vez."
+  }
+}
+```
+
+Both example apps in this repository declare these strings in English and Spanish.
 
 Once your app links the module, declare **Precise Location** and **Coarse Location** in App Store Connect under **App Functionality**, linked to the user and not used for tracking. The SDK reads one position per attempt, only while the step is on screen, and never in the background.
 
