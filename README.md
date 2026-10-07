@@ -17,7 +17,7 @@ A React Native wrapper for the Didit Identity Verification SDK. Supports both iO
 
 ## Permissions
 
-The SDK uses the camera, location, and optionally NFC on both platforms. Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
+The SDK uses the camera and, optionally, NFC on both platforms, plus the device location in workflows with a Location step (see [Location and Bank verification steps](#location-and-bank-verification-steps)). Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
 
 ### iOS
 
@@ -32,6 +32,8 @@ Add the following keys to your app's `Info.plist`:
 <string>Photo library access is required to upload document images.</string>
 <key>NFCReaderUsageDescription</key>
 <string>NFC is used to read passport chip data for identity verification.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Your location is used to confirm where you are for this verification.</string>
 ```
 
 Missing required iOS privacy keys will cause iOS to terminate the app as soon as the SDK accesses that protected resource.
@@ -84,6 +86,68 @@ The SDK handles Android runtime permission requests automatically. When the user
 3. If the user **grants** the permission, the verification flow continues
 
 You do not need to request camera permission in your app code before calling `startVerification()` — the SDK manages this internally.
+
+### Location and Bank verification steps
+
+Workflows can include a Location step, which confirms where the user is from the device position, and a Bank step, which connects a bank account. The native SDKs draw both steps inside the verification flow, so the React Native API does not change: there is no new function, configuration option, result type or error type.
+
+> **Availability:** the native SDK versions this package pins do not include these two steps yet. Keep them out of workflows you start from the mobile app until this package's release notes announce them. Adding the location purpose string now means the upgrade needs no further app change.
+
+#### Location
+
+The SDK asks for location access only when the session reaches a Location step, and only while the app is in use, never in the background. A Location step set to use the IP address only never asks.
+
+- **iOS:** add `NSLocationWhenInUseUsageDescription` (shown in the `Info.plist` example above). Add it even if your workflows never use the Location step: once the native SDK contains the step, App Store Connect rejects builds whose code references location APIs without a purpose string (ITMS-90683). To show the prompt in other languages, add an `InfoPlist.strings` file to the app target in Xcode, localize it, and set the key for each language, for example in `es.lproj/InfoPlist.strings`:
+
+  ```
+  "NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa para confirmar dónde estás en esta verificación.";
+  ```
+
+  With Expo, set the key in `ios.infoPlist` and its translations through `locales`:
+
+  ```json
+  {
+    "expo": {
+      "ios": {
+        "infoPlist": {
+          "CFBundleAllowMixedLocalizations": true,
+          "NSLocationWhenInUseUsageDescription": "Your location is used to confirm where you are for this verification."
+        }
+      },
+      "locales": { "es": "./locales/es.json" }
+    }
+  }
+  ```
+
+  `locales/es.json`:
+
+  ```json
+  {
+    "ios": {
+      "NSLocationWhenInUseUsageDescription": "Tu ubicación se usa para confirmar dónde estás en esta verificación."
+    }
+  }
+  ```
+
+- **Android:** the native SDK declares `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`, which merge into your app, and requests them at runtime the same way as the camera permission. On Android 12 and later the user can grant approximate location only; the SDK sends whichever location the user allows and Didit's servers decide whether its accuracy meets the workflow's settings. If none of your workflows use the Location step, you can remove both permissions from the merged manifest:
+
+  ```xml
+  <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools">
+      <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
+      <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="remove" />
+  </manifest>
+  ```
+
+- **Store disclosures:** a workflow with a Location step sends the device location to Didit. Declare location data in your App Store privacy details and in your Google Play Data safety form.
+
+#### Bank
+
+The Bank step needs no permission, no `Info.plist` key, and no URL scheme or intent filter. The SDK opens the bank's own consent page in an in-app browser and continues the flow once the connection finishes.
+
+#### Results
+
+Didit's servers decide both steps. Their outcome reaches your app in the same `VerificationResult` as every other step: `completed` with the session status (`Approved`, `Pending` or `Declined`) when the flow ends, `cancelled` if the user closes it, or `failed` on an error.
 
 ## Native SDK Variants
 
