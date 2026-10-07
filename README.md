@@ -17,7 +17,7 @@ A React Native wrapper for the Didit Identity Verification SDK. Supports both iO
 
 ## Permissions
 
-The SDK uses the camera, location, and optionally NFC on both platforms. Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
+The SDK uses the camera, optionally NFC, and location only for the Location verification step (see [Bank and Location verification steps](#bank-and-location-verification-steps)). Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
 
 ### iOS
 
