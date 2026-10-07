@@ -323,6 +323,8 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             return "networkError"
         case .cameraAccessDenied:
             return "cameraAccessDenied"
+        case .retryBlocked:
+            return "retryBlocked"
         case .unknown:
             return "unknown"
         @unknown default:

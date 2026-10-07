@@ -605,6 +605,7 @@ Both `startVerification` and `startVerificationWithWorkflow` return a `Promise<V
 | `cameraAccessDenied` | Camera permission not granted |
 | `notInitialized` | SDK not initialized (Android only) |
 | `apiError` | API request failed |
+| `retryBlocked` | A previous verification was not approved and the maximum number of retries was reached |
 | `unknown` | Other error with message |
 
 ### Handling Results
