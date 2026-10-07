@@ -84,7 +84,7 @@ describe('native error type mapping', () => {
     expect(android.get('retryBlocked')).toBe('retryBlocked');
   });
 
-  it('sends the same string from both bridges for every shared native error', () => {
+  it('sends the same string from Android for every error the iOS bridge maps', () => {
     for (const [nativeCase, errorType] of ios) {
       expect([nativeCase, android.get(nativeCase)]).toEqual([
         nativeCase,
