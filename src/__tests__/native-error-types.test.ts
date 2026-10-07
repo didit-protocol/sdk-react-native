@@ -70,8 +70,13 @@ describe('native error type mapping', () => {
   const android = androidErrorTypes();
 
   it('reads both bridge switches', () => {
-    expect(ios.size).toBeGreaterThanOrEqual(5);
-    expect(android.size).toBeGreaterThanOrEqual(7);
+    const shared = ['sessionExpired', 'networkError', 'cameraAccessDenied'];
+    expect([...ios.keys()]).toEqual(
+      expect.arrayContaining([...shared, 'unknown'])
+    );
+    expect([...android.keys()]).toEqual(
+      expect.arrayContaining([...shared, 'notInitialized', 'apiError'])
+    );
   });
 
   it('sends retryBlocked from both bridges', () => {
