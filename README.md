@@ -139,11 +139,11 @@ With Expo, set the same keys in `app.json` and translate them with [`locales`](h
 
 where `locales/es.json` is `{ "ios": { "NSLocationWhenInUseUsageDescription": "Tu ubicación se usa para confirmar dónde estás en esta verificación." } }`.
 
-In App Store Connect, declare **Precise Location** and **Coarse Location** under **App Functionality**, linked to the user and not used for tracking. The SDK reads one position per attempt, only while the step is on screen, and never in the background.
+Once your app links the module, declare **Precise Location** and **Coarse Location** in App Store Connect under **App Functionality**, linked to the user and not used for tracking. The SDK reads one position per attempt, only while the step is on screen, and never in the background.
 
 ### Location on Android
 
-The native SDK declares `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`, plus the location hardware features as optional (`android:required="false"`), and they merge into your app automatically. It asks for them at runtime only when a workflow reaches the step, after a screen that explains why, and the person can grant precise or approximate location. If your app never runs the step, you can remove them from the merged manifest:
+The native SDK declares `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`, plus the location hardware features as optional (`android:required="false"`), and they merge into your app automatically. It asks for them at runtime only when a workflow reaches the step, after a screen that explains why, and the person can grant precise or approximate location. If your app never runs the step, you can remove them from the merged manifest (the `<manifest>` element needs `xmlns:tools="http://schemas.android.com/tools"`):
 
 ```xml
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
