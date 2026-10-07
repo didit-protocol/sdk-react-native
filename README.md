@@ -111,7 +111,7 @@ Add the purpose strings to `Info.plist`. `NSLocationTemporaryUsageDescriptionDic
 </dict>
 ```
 
-iOS shows these strings in the device language, not in the SDK's `languageCode`, so translate them in each `<lang>.lproj/InfoPlist.strings`, for example `es.lproj/InfoPlist.strings`:
+iOS picks these strings by the device language, not by the SDK's `languageCode`, so translate them in each `<lang>.lproj/InfoPlist.strings`, for example `es.lproj/InfoPlist.strings`:
 
 ```
 "NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa para confirmar dónde estás en esta verificación.";
@@ -151,10 +151,6 @@ The native SDK declares `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`, plu
 ```
 
 A session that still reaches the step then reports the location as unavailable, without a prompt. If you keep them, declare **Approximate location** and **Precise location** as collected data in your Google Play Data safety form.
-
-### Older app versions
-
-A native SDK that does not know a step ends the flow with a `failed` result whose `error.type` is `unknown` and which still carries the `session` when one exists, so your app can fall back (for example, ask the person to update the app or continue on the web).
 
 ## Native SDK Variants
 
