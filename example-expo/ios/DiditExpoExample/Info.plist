@@ -48,6 +48,13 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required for identity verification to capture documents and facial photos.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>DiditLocationVerification</key>
+		<string>This verification needs your precise location once.</string>
+	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Your location is used to confirm where you are for this verification.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is required to record video for liveness verification.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

@@ -4,6 +4,7 @@ jest.mock('../NativeSdkReactNative', () => ({
   __esModule: true,
   default: {
     startVerification: jest.fn(),
+    startVerificationWithWorkflow: jest.fn(),
     submitTransaction: jest.fn(),
     getTransaction: jest.fn(),
     onTransactionUpdated: jest.fn(() => ({ remove: jest.fn() })),
@@ -11,10 +12,18 @@ jest.mock('../NativeSdkReactNative', () => ({
 }));
 
 import NativeSdkReactNative from '../NativeSdkReactNative';
-import { startVerification, submitTransaction, getTransaction } from '../index';
+import {
+  startVerification,
+  startVerificationWithWorkflow,
+  submitTransaction,
+  getTransaction,
+  VerificationStatus,
+} from '../index';
 
 const mockStartVerification =
   NativeSdkReactNative.startVerification as jest.Mock;
+const mockStartWithWorkflow =
+  NativeSdkReactNative.startVerificationWithWorkflow as jest.Mock;
 const mockSubmit = NativeSdkReactNative.submitTransaction as jest.Mock;
 const mockGet = NativeSdkReactNative.getTransaction as jest.Mock;
 const mockOnUpdated = NativeSdkReactNative.onTransactionUpdated as jest.Mock;
@@ -79,6 +88,61 @@ describe('verification configuration marshalling', () => {
       'test-token',
       expect.objectContaining({ showLanguageSelector: undefined })
     );
+  });
+});
+
+/**
+ * Bank and Location are drawn by the native SDKs, so the wrapper adds no API
+ * for them: their screens follow the configured language, and a native SDK
+ * that cannot show a step ends the flow with a failure the host app can act on.
+ */
+describe('native-only verification steps', () => {
+  beforeEach(() => {
+    mockStartVerification.mockReset();
+    mockStartWithWorkflow.mockReset();
+  });
+
+  it('forwards the configured language to native from both entry points', async () => {
+    const completed = {
+      type: 'completed',
+      sessionId: 'test-session',
+      status: 'Pending',
+    };
+    mockStartVerification.mockResolvedValue(completed);
+    mockStartWithWorkflow.mockResolvedValue(completed);
+
+    await startVerification('test-token', { languageCode: 'es' });
+    await startVerificationWithWorkflow('test-workflow', {
+      config: { languageCode: 'es' },
+    });
+
+    expect(mockStartVerification).toHaveBeenCalledWith(
+      'test-token',
+      expect.objectContaining({ languageCode: 'es' })
+    );
+    const [, , , , , workflowConfig] = mockStartWithWorkflow.mock.calls[0];
+    expect(workflowConfig).toMatchObject({ languageCode: 'es' });
+  });
+
+  it('returns an unsupported-step exit as an unknown failure that keeps the session', async () => {
+    mockStartVerification.mockResolvedValue({
+      type: 'failed',
+      errorType: 'unknown',
+      errorMessage: 'Unsupported verification step',
+      sessionId: 'test-session',
+      status: 'Pending',
+    });
+
+    const result = await startVerification('test-token');
+
+    expect(result).toEqual({
+      type: 'failed',
+      error: { type: 'unknown', message: 'Unsupported verification step' },
+      session: {
+        sessionId: 'test-session',
+        status: VerificationStatus.Pending,
+      },
+    });
   });
 });
 
