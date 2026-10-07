@@ -94,7 +94,10 @@ The iOS bridge has XCTests in `example/ios/SdkReactNativeExampleTests`, hosted b
 
 ```sh
 cd example/ios
-xcodebuild test -workspace SdkReactNativeExample.xcworkspace -scheme SdkReactNativeExample -destination 'platform=iOS Simulator,name=<any iPhone simulator>'
+xcodebuild test \
+  -workspace SdkReactNativeExample.xcworkspace \
+  -scheme SdkReactNativeExample \
+  -destination 'platform=iOS Simulator,name=<any iPhone simulator>'
 ```
 
 
