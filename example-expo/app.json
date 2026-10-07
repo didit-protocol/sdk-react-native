@@ -34,6 +34,9 @@
         ]
       }
     },
+    "locales": {
+      "es": "./locales/es.json"
+    },
     "android": {
       "package": "me.didit.sdk.reactnative.expoexample",
       "adaptiveIcon": {
