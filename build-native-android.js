@@ -7,6 +7,9 @@ const {
 } = require('./native-sdk-source');
 const { diditNativeSdkVersions } = require('./package.json');
 const nativePath = resolveNativeSdkSource('android');
+
+if (!nativePath) throw new Error('No native source pin is configured.');
+
 const repository = androidRepositoryPath();
 const marker = join(repository, 'source.json');
 const modules = [
