@@ -12,10 +12,14 @@ function git(sourcePath, args) {
 
 function verifySource(sourcePath, pin) {
   if (git(sourcePath, ['rev-parse', 'HEAD']) !== pin.revision) {
-    throw new Error(`Didit native source must match ${pin.branch} at ${pin.revision}.`);
+    throw new Error(
+      `Didit native source must match ${pin.branch} at ${pin.revision}.`
+    );
   }
   if (git(sourcePath, ['status', '--porcelain', '--untracked-files=no'])) {
-    throw new Error('Didit native source has tracked changes; use the pinned checkout.');
+    throw new Error(
+      'Didit native source has tracked changes; use the pinned checkout.'
+    );
   }
 }
 
@@ -25,11 +29,15 @@ function resolveNativeSdkSource(platform) {
 
   if (!pin) return '';
   if (!sourcePath) {
-    throw new Error('Set DIDIT_SDK_SOURCE_PATH to the pinned native source checkout. Released binaries cannot provide these steps.');
+    throw new Error(
+      'Set DIDIT_SDK_SOURCE_PATH to the pinned native source checkout. Released binaries cannot provide these steps.'
+    );
   }
   verifySource(sourcePath, pin);
 
-  return realpathSync(join(sourcePath, platform === 'ios' ? 'ios/sdk' : 'android'));
+  return realpathSync(
+    join(sourcePath, platform === 'ios' ? 'ios/sdk' : 'android')
+  );
 }
 
 module.exports = { resolveNativeSdkSource };

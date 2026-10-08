@@ -43,13 +43,22 @@ it('rejects tracked edits to the pinned source', () => {
   expect(() => resolveNativeSdkSource('ios')).toThrow('tracked changes');
 });
 
-it.each([['ios', '/native/ios/sdk'], ['android', '/native/android']])(
-  'resolves the %s project from the same verified checkout', (platform, path) => {
+it.each([
+  ['ios', '/native/ios/sdk'],
+  ['android', '/native/android'],
+])(
+  'resolves the %s project from the same verified checkout',
+  (platform, path) => {
     process.env.DIDIT_SDK_SOURCE_PATH = '/native';
     git.mockReturnValueOnce(diditNativeSdkVersions.source.revision);
     git.mockReturnValueOnce('');
 
     expect(resolveNativeSdkSource(platform)).toBe(path);
-    expect(git.mock.calls[0][1]).toEqual(['-C', '/native', 'rev-parse', 'HEAD']);
+    expect(git.mock.calls[0][1]).toEqual([
+      '-C',
+      '/native',
+      'rev-parse',
+      'HEAD',
+    ]);
   }
 );

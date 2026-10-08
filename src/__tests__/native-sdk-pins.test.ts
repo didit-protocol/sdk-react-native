@@ -43,7 +43,10 @@ async function runPodfileMod(props: object, podfile: string) {
   jest.resetModules();
   jest.doMock('../../package.json', () => ({
     ...pkg,
-    diditNativeSdkVersions: { ...pkg.diditNativeSdkVersions, source: undefined },
+    diditNativeSdkVersions: {
+      ...pkg.diditNativeSdkVersions,
+      source: undefined,
+    },
   }));
   const withDiditSdk = require('../../app.plugin.js');
   const config = withDiditSdk({ name: 'test', slug: 'test' }, props);
@@ -72,13 +75,17 @@ describe('expo config plugin podspec pin', () => {
   it('injects the declared iOS version into an Expo Podfile', async () => {
     const contents = await runPodfileMod({}, EXPO_PODFILE);
 
-    expect(new Set(podspecUrlRefs(contents))).toEqual(new Set([declaredIosVersion]));
+    expect(new Set(podspecUrlRefs(contents))).toEqual(
+      new Set([declaredIosVersion])
+    );
   });
 
   it('injects the declared iOS version into a bare React Native Podfile', async () => {
     const contents = await runPodfileMod({}, BARE_PODFILE);
 
-    expect(new Set(podspecUrlRefs(contents))).toEqual(new Set([declaredIosVersion]));
+    expect(new Set(podspecUrlRefs(contents))).toEqual(
+      new Set([declaredIosVersion])
+    );
   });
 
   it('lets a consumer override the podspec URL as an escape hatch', async () => {
@@ -182,6 +189,8 @@ describe('hand-maintained pins stay in lockstep', () => {
     const gradle = read('android/build.gradle');
 
     expect(gradle).toContain('diditNativeSdkVersions');
-    expect(gradle).toContain('me.didit:$diditSdkAndroidArtifact:${nativePins.android}');
+    expect(gradle).toContain(
+      'me.didit:$diditSdkAndroidArtifact:${nativePins.android}'
+    );
   });
 });

@@ -152,7 +152,9 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
     options.iosLinkage === 'spm' &&
     (options.iosLocationEnabled || pkg.diditNativeSdkVersions.source)
   ) {
-    throw new Error('Location and native source builds require cocoapods iosLinkage.');
+    throw new Error(
+      'Location and native source builds require cocoapods iosLinkage.'
+    );
   }
 
   if (options.iosLinkage === 'spm') {
