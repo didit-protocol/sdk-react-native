@@ -8,6 +8,22 @@ import DiditSDK
 /// Android bridge sends for the same native error.
 final class DiditSdkBridgeResultTests: XCTestCase {
 
+    func testHostBundlesEnglishAndSpanishLocationPurposes() throws {
+        let english = Bundle.main.infoDictionary
+        let temporary = english?["NSLocationTemporaryUsageDescriptionDictionary"] as? [String: String]
+        let spanishPath = try XCTUnwrap(Bundle.main.path(forResource: "es", ofType: "lproj"))
+        let spanish = try XCTUnwrap(Bundle(path: spanishPath))
+
+        XCTAssertEqual(english?["NSLocationWhenInUseUsageDescription"] as? String,
+                       "Your location is used to confirm where you are for this verification.")
+        XCTAssertEqual(temporary?["DiditLocationVerification"],
+                       "This verification needs your precise location once.")
+        XCTAssertEqual(spanish.localizedString(forKey: "NSLocationWhenInUseUsageDescription", value: nil, table: "InfoPlist"),
+                       "Tu ubicación se usa para confirmar dónde estás en esta verificación.")
+        XCTAssertEqual(spanish.localizedString(forKey: "DiditLocationVerification", value: nil, table: "InfoPlist"),
+                       "Esta verificación necesita tu ubicación precisa una vez.")
+    }
+
     func testRetryBlockedReachesJavaScriptAsRetryBlocked() {
         let result = deliver(
             .failed(

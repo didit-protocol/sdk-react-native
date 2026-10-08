@@ -89,7 +89,9 @@ You do not need to request camera permission in your app code before calling `st
 
 Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
 
-> **Availability:** native SDK releases up to and including 4.9.1 do not include these steps. Check the native versions this package pins (`diditNativeSdkVersions` in `package.json`) and keep the steps out of the workflows your app runs until it pins a native SDK release that has them.
+> **Development preview:** these steps currently use the native integration source pinned in `diditNativeSdkVersions.source` in `package.json`. Set `DIDIT_SDK_SOURCE_PATH` to a clean checkout at that revision before building either example. A missing or different checkout fails the build instead of substituting the 4.9.1 release, which does not contain these steps. The temporary source pin must move to the released native version before the stacked push and package release.
+
+For Android source builds, apply this package's `android/native-source.gradle` from the host's `settings.gradle`. It substitutes the Didit Maven dependencies with projects from the verified source checkout. Both examples already do this; Expo prebuild adds it automatically.
 
 ### Bank
 
@@ -97,7 +99,7 @@ No setup. The SDK opens the bank's approval page in the system browser (a Custom
 
 ### Location on iOS
 
-Location lives in the native SDK's optional `DiditSDK/Location` module, so apps that never run the step never link Core Location. The released iOS binaries do not include that module yet; without it, or without `NSLocationWhenInUseUsageDescription`, the step shows no prompt, reports that the device cannot place the person, and the workflow's own rules decide.
+Location lives in the native SDK's optional `DiditSDK/Location` module, which is not included in the `all` variant. Use CocoaPods with `$DiditSdkIosLocationEnabled = true` before `use_native_modules!`, and declare both the selected variant and `DiditSDK/Location` with the same source path. The bare example's Podfile shows this setup. Expo users set `iosLocationEnabled: true` in this package's plugin options and run prebuild. SwiftPM linkage currently cannot opt into Location. Without the module, or without `NSLocationWhenInUseUsageDescription`, the step shows no prompt, reports that the device cannot place the person, and the workflow's own rules decide.
 
 Add the purpose strings to `Info.plist`. `NSLocationTemporaryUsageDescriptionDictionary` is optional: it lets the step ask once for precise location when the person granted only an approximate one (iOS 14+), and its key must be exactly `DiditLocationVerification`.
 
@@ -123,6 +125,9 @@ With Expo, set the same keys in `app.json` and translate them with [`locales`](h
 ```json
 {
   "expo": {
+    "plugins": [
+      ["@didit-protocol/sdk-react-native", { "iosLocationEnabled": true }]
+    ],
     "ios": {
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Your location is used to confirm where you are for this verification.",
