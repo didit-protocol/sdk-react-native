@@ -22,6 +22,10 @@
         "NSMicrophoneUsageDescription": "Microphone access is required to record video for liveness verification.",
         "NSPhotoLibraryUsageDescription": "Photo library access is required to upload document images.",
         "NFCReaderUsageDescription": "NFC is used to read passport chip data for identity verification.",
+        "NSLocationWhenInUseUsageDescription": "Your location is used to confirm where you are for this verification.",
+        "NSLocationTemporaryUsageDescriptionDictionary": {
+          "DiditLocationVerification": "This verification needs your precise location once."
+        },
         "com.apple.developer.nfc.readersession.iso7816.select-identifiers": [
           "D23300000045737445494420763335",
           "A0000002471001",
@@ -29,6 +33,9 @@
           "00000000000000"
         ]
       }
+    },
+    "locales": {
+      "es": "./locales/es.json"
     },
     "android": {
       "package": "me.didit.sdk.reactnative.expoexample",

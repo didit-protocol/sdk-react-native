@@ -164,3 +164,16 @@ jobs:
       - name: Build example for iOS
         run: |
           yarn turbo run build:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+
+      - name: Test iOS bridge
+        if: env.turbo_cache_hit != 1
+        working-directory: example/ios
+        run: |
+          set -o pipefail
+          SIMULATOR_ID=$(xcrun simctl list devices available | grep -E '^[[:space:]]+iPhone' | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}' | tail -n 1)
+          xcodebuild test \
+            -workspace SdkReactNativeExample.xcworkspace \
+            -scheme SdkReactNativeExample \
+            -configuration Debug \
+            -destination "id=$SIMULATOR_ID" \
+            -only-testing:SdkReactNativeExampleTests | xcbeautify
