@@ -29,9 +29,11 @@ const read = (relativePath: string) =>
 /** The body of the bridge's mapErrorType, up to its closing brace. */
 function mapErrorTypeBody(source: string, signature: RegExp): string {
   const start = source.search(signature);
-  expect(start).toBeGreaterThanOrEqual(0);
   const end = source.indexOf('\n    }\n', start);
+
+  expect(start).toBeGreaterThanOrEqual(0);
   expect(end).toBeGreaterThan(start);
+
   return source.slice(start, end);
 }
 
@@ -41,6 +43,7 @@ function iosErrorTypes(): Map<string, string> {
     read('ios/DiditSdkBridge.swift'),
     /private static func mapErrorType\(/
   );
+
   return new Map(
     Array.from(
       body.matchAll(/case \.(\w+)[^:]*:\s*return "(\w+)"/g),
@@ -54,11 +57,13 @@ function androidErrorTypes(): Map<string, string> {
     read('android/src/main/java/com/sdkreactnative/SdkReactNativeModule.kt'),
     /private fun mapErrorType\(/
   );
+
   return new Map(
     Array.from(
       body.matchAll(/is VerificationError\.(\w+) -> "(\w+)"/g),
       (match) => {
         const name = String(match[1]);
+
         return [name[0]!.toLowerCase() + name.slice(1), String(match[2])];
       }
     )
@@ -71,6 +76,7 @@ describe('native error type mapping', () => {
 
   it('reads both bridge switches', () => {
     const shared = ['sessionExpired', 'networkError', 'cameraAccessDenied'];
+
     expect([...ios.keys()]).toEqual(
       expect.arrayContaining([...shared, 'unknown'])
     );
@@ -85,12 +91,12 @@ describe('native error type mapping', () => {
   });
 
   it('sends the same string from Android for every error the iOS bridge maps', () => {
-    for (const [nativeCase, errorType] of ios) {
+    Array.from(ios).forEach(([nativeCase, errorType]) => {
       expect([nativeCase, android.get(nativeCase)]).toEqual([
         nativeCase,
         errorType,
       ]);
-    }
+    });
   });
 
   it.each([...new Set([...ios.values(), ...android.values()])])(
@@ -104,9 +110,7 @@ describe('native error type mapping', () => {
         status: 'Declined',
       });
 
-      const result = await startVerification('test-token');
-
-      expect(result).toMatchObject({
+      expect(await startVerification('test-token')).toMatchObject({
         type: 'failed',
         error: { type: errorType, message: 'native message' },
         session: { sessionId: 'test-session' },
