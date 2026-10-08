@@ -26,7 +26,7 @@ end
 target 'SdkReactNativeExample' do
   didit_sdk_ios_path = Pod::Executable.execute_command('node', [File.expand_path('../../native-sdk-source.js', __dir__), 'ios']).strip
   didit_sdk_ios_path = ENV['DIDIT_SDK_IOS_PATH'] if didit_sdk_ios_path.empty?
-  $DiditSdkIosLocationEnabled = true
+  $DiditSdkIosLocationEnabled = ENV.fetch('DIDIT_SDK_IOS_LOCATION_ENABLED', 'true').downcase == 'true'
   if didit_sdk_ios_path.nil? || didit_sdk_ios_path.empty?
     # DiditSDK is resolved from the sdk-ios git tag through SwiftPM by
     # SdkReactNative.podspec, so no pod declaration is needed here.
