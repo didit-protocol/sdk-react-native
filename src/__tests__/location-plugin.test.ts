@@ -1,3 +1,5 @@
+export {};
+
 const withDiditSdk = require('../../app.plugin.js');
 
 async function podfile(
