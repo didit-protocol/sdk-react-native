@@ -90,7 +90,7 @@ Remember to add tests for your change if possible. Run the unit tests by:
 yarn test
 ```
 
-The iOS bridge has XCTests in `example/ios/SdkReactNativeExampleTests`, hosted by the example app. CI runs them in the iOS job; on a Mac, run them after `bundle exec pod install` in `example/ios`:
+The iOS bridge has XCTests in `example/ios/SdkReactNativeExampleTests`, hosted by the example app. They exercise the native result delivery callback, including `retryBlocked`, and read the built app's location purpose strings. On a Mac, run them after `bundle exec pod install` in `example/ios`:
 
 ```sh
 cd example/ios
@@ -138,7 +138,13 @@ The wrapper version (`version` in `package.json`) and the native Didit SDK versi
 
 This one field drives both iOS resolution paths: the CocoaPods raw-podspec URL and the SwiftPM `exactVersion` requirement (`$DiditSdkIosLinkage = 'spm'`). A bump must therefore have both a matching git tag **and** the SPM release assets (`DiditSDK*.xcframework.zip`) published on that `sdk-ios` release, or SwiftPM consumers fail to resolve.
 
-`SdkReactNative.podspec` and `app.plugin.js` both derive the iOS pin from `diditNativeSdkVersions.ios`, so bumping it there is enough to move the podspec dependency and the sdk-ios podspec URL together. The remaining hand-maintained pins - `android/build.gradle`, the README podspec URL, and the example Podfiles - are asserted against these values by `src/__tests__/native-sdk-pins.test.ts`, so `yarn test` fails if any of them drift (see issues #19 and #28). Only bump `diditNativeSdkVersions.ios` once the matching tag exists in `didit-protocol/sdk-ios`.
+`SdkReactNative.podspec` and `app.plugin.js` derive the iOS pin from `diditNativeSdkVersions.ios`; `android/build.gradle` reads `diditNativeSdkVersions.android`. The README's release URL is checked by `src/__tests__/native-sdk-pins.test.ts`. Only bump release pins once the matching native artifacts exist.
+
+During Bank and Location integration, `diditNativeSdkVersions.source` selects a branch at an immutable revision. Set `DIDIT_SDK_SOURCE_PATH` to that clean native checkout. Both examples consume it through CocoaPods and Gradle's included build; they reject missing, modified, or mismatched source. No native source is copied into this package. Run both Android examples sequentially, plus the native Bank and Location unit and JVM screenshot suites using that checkout's Gradle wrapper.
+
+For release-binary compatibility testing only, use a disposable wrapper checkout without the `source` field, set `DIDIT_SDK_IOS_LOCATION_ENABLED=false`, and run the same iOS bridge XCTests against the declared release. That checks the `retryBlocked` ABI and callback; it does not verify Bank or Location. Public CI explicitly performs this released-binary check. Integration builds and OS permission captures require the pinned source checkout and a Mac for iOS. Verify English and Spanish when-in-use and temporary precise-location prompts on a device; string-resource tests do not prove the OS dialogs.
+
+Before the stacked push, remove the temporary `source` pin, update the released versions, regenerate both examples, refresh CocoaPods lockfiles on a Mac, and repeat the native callback, permission, build and screenshot checks. Enable Location using CocoaPods until a released SwiftPM Location product is supported here.
 
 
 ### Scripts
