@@ -1,0 +1,16 @@
+// Apply from the host's settings.gradle, before resolving Didit dependencies.
+def sourceResolver = new File(buildscript.sourceFile.parentFile.parentFile, 'native-sdk-source.js')
+def nativePath = providers.exec {
+  commandLine('node', sourceResolver.absolutePath, 'android')
+}.standardOutput.asText.get().trim()
+
+if (nativePath) {
+  includeBuild(nativePath) {
+    name = 'didit-native-source'
+    dependencySubstitution {
+      ['sdk', 'sdk-core', 'sdk-autodetection', 'sdk-autodetection-play', 'sdk-nfc', 'sdk-wallet'].each { sdkModule ->
+        substitute module("me.didit:didit-${sdkModule}") using project(":${sdkModule}")
+      }
+    }
+  }
+}
