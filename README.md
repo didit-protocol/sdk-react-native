@@ -91,7 +91,7 @@ Workflows can include a **Bank** step (the person links a bank account) and a **
 
 > **Development preview:** these steps currently use the native integration source pinned in `diditNativeSdkVersions.source` in `package.json`. Set `DIDIT_SDK_SOURCE_PATH` to a clean checkout at that revision before building either example. A missing or different checkout fails the build instead of substituting the 4.9.1 release, which does not contain these steps. The temporary source pin must move to the released native version before the stacked push and package release.
 
-For Android source builds, apply this package's `android/native-source.gradle` from the host's `settings.gradle`. It substitutes the Didit Maven dependencies with projects from the verified source checkout. Both examples already do this; Expo prebuild adds it automatically.
+For Android source builds, apply this package's `android/native-source.gradle` from the host's `settings.gradle`. First run `yarn native:android` to build the pinned native revision with its own Gradle wrapper. The settings script exclusively resolves Didit artifacts from that local Maven repository, preventing a fallback to released artifacts. Both examples already do this; Expo prebuild adds it automatically.
 
 ### Bank
 

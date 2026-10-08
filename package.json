@@ -48,7 +48,8 @@
     "!**/__fixtures__",
     "!**/__mocks__",
     "!**/.*",
-    "native-sdk-source.js"
+    "native-sdk-source.js",
+    "build-native-android.js"
   ],
   "scripts": {
     "example": "yarn workspace sdk-react-native-example",
@@ -59,7 +60,8 @@
     "typecheck": "tsc",
     "release": "release-it --only-version",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "test": "jest"
+    "test": "jest",
+    "native:android": "node build-native-android.js"
   },
   "keywords": [
     "react-native",

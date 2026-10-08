@@ -39,7 +39,7 @@ if (project.extensions.findByName('kotlin') == null) {
 apply plugin: "com.facebook.react"
 
 def nativePins = new groovy.json.JsonSlurper().parse(file("../package.json")).diditNativeSdkVersions
-if (nativePins.source && !gradle.includedBuilds.any { it.name == "didit-native-source" }) {
+if (nativePins.source && !gradle.ext.has("diditNativeSourceRepository")) {
   throw new GradleException("Apply the wrapper android/native-source.gradle in settings.gradle to use the pinned native source.")
 }
 

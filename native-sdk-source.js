@@ -1,5 +1,5 @@
 const { execFileSync } = require('child_process');
-const { realpathSync } = require('fs');
+const { readFileSync, realpathSync } = require('fs');
 const { join } = require('path');
 const { diditNativeSdkVersions } = require('./package.json');
 
@@ -40,8 +40,27 @@ function resolveNativeSdkSource(platform) {
   );
 }
 
-module.exports = { resolveNativeSdkSource };
+function androidRepositoryPath() {
+  return join(__dirname, '.native-sdk', diditNativeSdkVersions.source.revision, 'maven');
+}
+
+function resolveAndroidRepository() {
+  const repository = diditNativeSdkVersions.source ? androidRepositoryPath() : '';
+
+  if (!repository) return '';
+  resolveNativeSdkSource('android');
+  const marker = JSON.parse(readFileSync(join(repository, 'source.json'), 'utf8'));
+
+  if (marker.revision !== diditNativeSdkVersions.source.revision) {
+    throw new Error('Native Android artifacts do not match the pin. Run yarn native:android.');
+  }
+
+  return repository;
+}
+
+module.exports = { resolveNativeSdkSource, resolveAndroidRepository, androidRepositoryPath };
 
 if (require.main === module) {
-  process.stdout.write(resolveNativeSdkSource(process.argv[2]));
+  process.stdout.write(process.argv[2] === 'android-repository'
+    ? resolveAndroidRepository() : resolveNativeSdkSource(process.argv[2]));
 }
