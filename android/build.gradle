@@ -38,6 +38,11 @@ if (project.extensions.findByName('kotlin') == null) {
 
 apply plugin: "com.facebook.react"
 
+def nativePins = new groovy.json.JsonSlurper().parse(file("../package.json")).diditNativeSdkVersions
+if (nativePins.source && !gradle.ext.has("diditNativeSourceRepository")) {
+  throw new GradleException("Apply the wrapper android/native-source.gradle in settings.gradle to use the pinned native source.")
+}
+
 def diditSdkAndroidVariantProperty = (
   rootProject.findProperty("diditSdkAndroidVariant")
     ?: findProperty("diditSdkAndroidVariant")
@@ -132,7 +137,7 @@ dependencies {
   implementation "com.facebook.react:react-android"
 
   // Didit native Android SDK
-  implementation "me.didit:$diditSdkAndroidArtifact:4.9.1"
+  implementation "me.didit:$diditSdkAndroidArtifact:${nativePins.android}"
 
   // Coroutines (required for state flow observation)
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"

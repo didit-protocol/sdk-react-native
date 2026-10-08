@@ -17,7 +17,7 @@ A React Native wrapper for the Didit Identity Verification SDK. Supports both iO
 
 ## Permissions
 
-The SDK uses the camera, location, and optionally NFC on both platforms. Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
+The SDK uses the camera, optionally NFC, and location only for the Location verification step (see [Bank and Location verification steps](#bank-and-location-verification-steps)). Native permissions are declared by the underlying native SDKs and merged automatically where the platform supports it.
 
 ### iOS
 
@@ -84,6 +84,90 @@ The SDK handles Android runtime permission requests automatically. When the user
 3. If the user **grants** the permission, the verification flow continues
 
 You do not need to request camera permission in your app code before calling `startVerification()` — the SDK manages this internally.
+
+## Bank and Location verification steps
+
+Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
+
+> **Development preview:** these steps currently use the native integration source pinned in `diditNativeSdkVersions.source` in `package.json`. Set `DIDIT_SDK_SOURCE_PATH` to a clean checkout at that revision before building either example. A missing or different checkout fails the build instead of substituting the 4.9.1 release, which does not contain these steps. The temporary source pin must move to the released native version before the stacked push and package release.
+
+For Android source builds, apply this package's `android/native-source.gradle` from the host's `settings.gradle`. First run `yarn native:android` to build the pinned native revision with its own Gradle wrapper. The settings script exclusively resolves Didit artifacts from that local Maven repository, preventing a fallback to released artifacts. Both examples already do this; Expo prebuild adds it automatically.
+
+### Bank
+
+No setup. The SDK opens the bank's approval page in the system browser (a Custom Tab on Android, Safari in a sheet on iOS) and checks the result itself when the person comes back, so there is no permission, URL scheme or deep link to register.
+
+### Location on iOS
+
+Location lives in the native SDK's optional `DiditSDK/Location` module, which is not included in the `all` variant. Use CocoaPods with `$DiditSdkIosLocationEnabled = true` before `use_native_modules!`, and declare both the selected variant and `DiditSDK/Location` with the same source path. The bare example's Podfile shows this setup. Expo users set `iosLocationEnabled: true` in this package's plugin options and run prebuild. SwiftPM linkage currently cannot opt into Location. Without the module, or without `NSLocationWhenInUseUsageDescription`, the step shows no prompt, reports that the device cannot place the person, and the workflow's own rules decide.
+
+Add the purpose strings to `Info.plist`. `NSLocationTemporaryUsageDescriptionDictionary` is optional: it lets the step ask once for precise location when the person granted only an approximate one (iOS 14+), and its key must be exactly `DiditLocationVerification`.
+
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Your location is used to confirm where you are for this verification.</string>
+<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+<dict>
+    <key>DiditLocationVerification</key>
+    <string>This verification needs your precise location once.</string>
+</dict>
+```
+
+iOS picks these strings by the device language, not by the SDK's `languageCode`, so translate them in each `<lang>.lproj/InfoPlist.strings`. The precise-location string is translated under its purpose key. For example `es.lproj/InfoPlist.strings`:
+
+```
+"NSLocationWhenInUseUsageDescription" = "Tu ubicación se usa para confirmar dónde estás en esta verificación.";
+"DiditLocationVerification" = "Esta verificación necesita tu ubicación precisa una vez.";
+```
+
+With Expo, set the same keys in `app.json` and translate them with [`locales`](https://docs.expo.dev/guides/localization/#translating-app-metadata):
+
+```json
+{
+  "expo": {
+    "plugins": [
+      ["@didit-protocol/sdk-react-native", { "iosLocationEnabled": true }]
+    ],
+    "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Your location is used to confirm where you are for this verification.",
+        "NSLocationTemporaryUsageDescriptionDictionary": {
+          "DiditLocationVerification": "This verification needs your precise location once."
+        }
+      }
+    },
+    "locales": {
+      "es": "./locales/es.json"
+    }
+  }
+}
+```
+
+where `locales/es.json` is:
+
+```json
+{
+  "ios": {
+    "NSLocationWhenInUseUsageDescription": "Tu ubicación se usa para confirmar dónde estás en esta verificación.",
+    "DiditLocationVerification": "Esta verificación necesita tu ubicación precisa una vez."
+  }
+}
+```
+
+Both example apps in this repository declare these strings in English and Spanish.
+
+Once your app links the module, declare **Precise Location** and **Coarse Location** in App Store Connect under **App Functionality**, linked to the user and not used for tracking. The SDK reads one position per attempt, only while the step is on screen, and never in the background.
+
+### Location on Android
+
+The native SDK declares `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`, plus the location hardware features as optional (`android:required="false"`), and they merge into your app automatically. It asks for them at runtime only when a workflow reaches the step, after a screen that explains why, and the person can grant precise or approximate location. If your app never runs the step, you can remove them from the merged manifest (the `<manifest>` element needs `xmlns:tools="http://schemas.android.com/tools"`):
+
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" tools:node="remove" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" tools:node="remove" />
+```
+
+A session that still reaches the step then reports the location as unavailable, without a prompt. If you keep them, declare **Approximate location** and **Precise location** as collected data in your Google Play Data safety form.
 
 ## Native SDK Variants
 
@@ -526,6 +610,7 @@ Both `startVerification` and `startVerificationWithWorkflow` return a `Promise<V
 | `cameraAccessDenied` | Camera permission not granted |
 | `notInitialized` | SDK not initialized (Android only) |
 | `apiError` | API request failed |
+| `retryBlocked` | A previous verification was not approved and the maximum number of retries was reached |
 | `unknown` | Other error with message |
 
 ### Handling Results

@@ -14,6 +14,7 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		D3B2F5EDC02B66C5935838A5 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A92FAC627B51295BC573C26A /* ExpoModulesProvider.swift */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		08781A61616F403BA05CE643 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9602DDAD615B4729B9401021 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = DiditExpoExample/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* DiditExpoExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "DiditExpoExample-Bridging-Header.h"; path = "DiditExpoExample/DiditExpoExample-Bridging-Header.h"; sourceTree = "<group>"; };
+		9602DDAD615B4729B9401021 /* InfoPlist.strings */ = {isa = PBXFileReference; name = "InfoPlist.strings"; path = "es.lproj/InfoPlist.strings"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = text.plist.strings; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -127,10 +129,20 @@
 			isa = PBXGroup;
 			children = (
 				BB2F792C24A3F905000567C9 /* Expo.plist */,
+				BBEEB4F65AD04F14A9D6BBC7 /* es.lproj */,
 			);
 			name = Supporting;
 			path = DiditExpoExample/Supporting;
 			sourceTree = "<group>";
+		};
+		BBEEB4F65AD04F14A9D6BBC7 /* es.lproj */ = {
+			isa = "PBXGroup";
+			children = (
+				9602DDAD615B4729B9401021 /* InfoPlist.strings */,
+			);
+			name = es.lproj;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -197,6 +209,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				36DE53FAFBF2A3780CD20F58 /* PrivacyInfo.xcprivacy in Resources */,
+				08781A61616F403BA05CE643 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -86,3 +86,6 @@ android/generated
 
 # React Native Nitro Modules
 nitrogen/
+
+# Native integration artifacts built from the pinned source checkout
+.native-sdk/

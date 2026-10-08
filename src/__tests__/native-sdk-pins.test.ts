@@ -40,6 +40,14 @@ const BARE_PODFILE = ["target 'App' do", '  use_native_modules!', 'end'].join(
 );
 
 async function runPodfileMod(props: object, podfile: string) {
+  jest.resetModules();
+  jest.doMock('../../package.json', () => ({
+    ...pkg,
+    diditNativeSdkVersions: {
+      ...pkg.diditNativeSdkVersions,
+      source: undefined,
+    },
+  }));
   const withDiditSdk = require('../../app.plugin.js');
   const config = withDiditSdk({ name: 'test', slug: 'test' }, props);
   const result = await config.mods.ios.podfile({
@@ -67,13 +75,17 @@ describe('expo config plugin podspec pin', () => {
   it('injects the declared iOS version into an Expo Podfile', async () => {
     const contents = await runPodfileMod({}, EXPO_PODFILE);
 
-    expect(podspecUrlRefs(contents)).toEqual([declaredIosVersion]);
+    expect(new Set(podspecUrlRefs(contents))).toEqual(
+      new Set([declaredIosVersion])
+    );
   });
 
   it('injects the declared iOS version into a bare React Native Podfile', async () => {
     const contents = await runPodfileMod({}, BARE_PODFILE);
 
-    expect(podspecUrlRefs(contents)).toEqual([declaredIosVersion]);
+    expect(new Set(podspecUrlRefs(contents))).toEqual(
+      new Set([declaredIosVersion])
+    );
   });
 
   it('lets a consumer override the podspec URL as an escape hatch', async () => {
@@ -156,7 +168,7 @@ describe('swift package manager linkage', () => {
 });
 
 describe('hand-maintained pins stay in lockstep', () => {
-  it.each(['README.md', 'example-expo/ios/Podfile'])(
+  it.each(['README.md'])(
     '%s references only the declared iOS version',
     (relativePath) => {
       const refs = podspecUrlRefs(read(relativePath));
@@ -174,10 +186,11 @@ describe('hand-maintained pins stay in lockstep', () => {
   });
 
   it('android/build.gradle pins the declared Android version', () => {
-    const match = read('android/build.gradle').match(
-      /me\.didit:\$diditSdkAndroidArtifact:([\d.]+)/
-    );
+    const gradle = read('android/build.gradle');
 
-    expect(match?.[1]).toBe(declaredAndroidVersion);
+    expect(gradle).toContain('diditNativeSdkVersions');
+    expect(gradle).toContain(
+      'me.didit:$diditSdkAndroidArtifact:${nativePins.android}'
+    );
   });
 });
