@@ -39,7 +39,6 @@ function publish() {
   if (result.status !== 0) process.exit(result.status || 1);
 }
 
-if (!nativePath) throw new Error('No native source pin is configured.');
 mkdirSync(repository, { recursive: true });
 rmSync(marker, { force: true });
 
