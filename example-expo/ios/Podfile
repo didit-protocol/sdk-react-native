@@ -21,17 +21,6 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 prepare_react_native_project!
 
 target 'DiditExpoExample' do
-  $DiditSdkIosVariant = 'all'
-  didit_sdk_subspec = case $DiditSdkIosVariant
-                      when 'all'           then 'DiditSDK/All'
-                      when 'core'          then 'DiditSDK/Core'
-                      when 'autodetection' then 'DiditSDK/AutoDetection'
-                      when 'nfc'           then 'DiditSDK/NFC'
-                      else
-                        raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
-                      end
-  pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.9.1/DiditSDK.podspec'
-
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
