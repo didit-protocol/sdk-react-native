@@ -7,6 +7,9 @@ const {
 } = require('./native-sdk-source');
 const { diditNativeSdkVersions } = require('./package.json');
 const nativePath = resolveNativeSdkSource('android');
+
+if (!nativePath) throw new Error('No native source pin is configured.');
+
 const repository = androidRepositoryPath();
 const marker = join(repository, 'source.json');
 const modules = [
@@ -36,7 +39,6 @@ function publish() {
   if (result.status !== 0) process.exit(result.status || 1);
 }
 
-if (!nativePath) throw new Error('No native source pin is configured.');
 mkdirSync(repository, { recursive: true });
 rmSync(marker, { force: true });
 
