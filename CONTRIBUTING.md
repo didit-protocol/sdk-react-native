@@ -90,6 +90,16 @@ Remember to add tests for your change if possible. Run the unit tests by:
 yarn test
 ```
 
+The iOS bridge has XCTests in `example/ios/SdkReactNativeExampleTests`, hosted by the example app. CI runs them in the iOS job; on a Mac, run them after `bundle exec pod install` in `example/ios`:
+
+```sh
+cd example/ios
+xcodebuild test \
+  -workspace SdkReactNativeExample.xcworkspace \
+  -scheme SdkReactNativeExample \
+  -destination 'platform=iOS Simulator,name=<any iPhone simulator>'
+```
+
 
 ### Commit message convention
 

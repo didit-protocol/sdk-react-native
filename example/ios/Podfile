@@ -51,6 +51,11 @@ target 'SdkReactNativeExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  # The bridge's XCTests run inside the example app, which already links the pods.
+  target 'SdkReactNativeExampleTests' do
+    inherit! :search_paths
+  end
+
   post_install do |installer|
     react_native_post_install(
       installer,
