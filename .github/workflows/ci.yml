@@ -170,7 +170,7 @@ jobs:
         working-directory: example/ios
         run: |
           set -o pipefail
-          SIMULATOR_ID=$(xcrun simctl list devices available | grep -m1 -E '^[[:space:]]+iPhone' | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
+          SIMULATOR_ID=$(xcrun simctl list devices available | grep -E '^[[:space:]]+iPhone' | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}' | tail -n 1)
           xcodebuild test \
             -workspace SdkReactNativeExample.xcworkspace \
             -scheme SdkReactNativeExample \
