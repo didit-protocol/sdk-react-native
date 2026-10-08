@@ -17,3 +17,5 @@ dependencyResolutionManagement {
 rootProject.name = 'sdkreactnative.example'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+apply from: file("../../android/native-source.gradle")

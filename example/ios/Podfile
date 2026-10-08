@@ -24,9 +24,9 @@ if linkage != nil
 end
 
 target 'SdkReactNativeExample' do
-  config = use_native_modules!
-
-  didit_sdk_ios_path = ENV['DIDIT_SDK_IOS_PATH']
+  didit_sdk_ios_path = Pod::Executable.execute_command('node', [File.expand_path('../../native-sdk-source.js', __dir__), 'ios']).strip
+  didit_sdk_ios_path = ENV['DIDIT_SDK_IOS_PATH'] if didit_sdk_ios_path.empty?
+  $DiditSdkIosLocationEnabled = true
   if didit_sdk_ios_path.nil? || didit_sdk_ios_path.empty?
     # DiditSDK is resolved from the sdk-ios git tag through SwiftPM by
     # SdkReactNative.podspec, so no pod declaration is needed here.
@@ -43,7 +43,10 @@ target 'SdkReactNativeExample' do
                           raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                         end
     pod didit_sdk_subspec, :path => didit_sdk_ios_path
+    pod 'DiditSDK/Location', :path => didit_sdk_ios_path if $DiditSdkIosLocationEnabled
   end
+
+  config = use_native_modules!
 
   use_react_native!(
     :path => config[:reactNativePath],

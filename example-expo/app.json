@@ -10,6 +10,7 @@
         "@didit-protocol/sdk-react-native",
         {
           "iosVariant": "all",
+          "iosLocationEnabled": true,
           "androidVariant": "all"
         }
       ]
