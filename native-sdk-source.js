@@ -16,9 +16,9 @@ function verifySource(sourcePath, pin) {
       `Didit native source must match ${pin.branch} at ${pin.revision}.`
     );
   }
-  if (git(sourcePath, ['status', '--porcelain', '--untracked-files=no'])) {
+  if (git(sourcePath, ['status', '--porcelain'])) {
     throw new Error(
-      'Didit native source has tracked changes; use the pinned checkout.'
+      'Didit native source has local changes; use the pinned checkout.'
     );
   }
 }
@@ -41,26 +41,48 @@ function resolveNativeSdkSource(platform) {
 }
 
 function androidRepositoryPath() {
-  return join(__dirname, '.native-sdk', diditNativeSdkVersions.source.revision, 'maven');
+  return join(
+    __dirname,
+    '.native-sdk',
+    diditNativeSdkVersions.source.revision,
+    'maven'
+  );
+}
+
+function verifyAndroidArtifacts(repository) {
+  const marker = JSON.parse(
+    readFileSync(join(repository, 'source.json'), 'utf8')
+  );
+
+  if (marker.revision !== diditNativeSdkVersions.source.revision) {
+    throw new Error(
+      'Native Android artifacts do not match the pin. Run yarn native:android.'
+    );
+  }
 }
 
 function resolveAndroidRepository() {
-  const repository = diditNativeSdkVersions.source ? androidRepositoryPath() : '';
+  const repository = diditNativeSdkVersions.source
+    ? androidRepositoryPath()
+    : '';
 
   if (!repository) return '';
   resolveNativeSdkSource('android');
-  const marker = JSON.parse(readFileSync(join(repository, 'source.json'), 'utf8'));
-
-  if (marker.revision !== diditNativeSdkVersions.source.revision) {
-    throw new Error('Native Android artifacts do not match the pin. Run yarn native:android.');
-  }
+  verifyAndroidArtifacts(repository);
 
   return repository;
 }
 
-module.exports = { resolveNativeSdkSource, resolveAndroidRepository, androidRepositoryPath };
+module.exports = {
+  resolveNativeSdkSource,
+  resolveAndroidRepository,
+  androidRepositoryPath,
+};
 
 if (require.main === module) {
-  process.stdout.write(process.argv[2] === 'android-repository'
-    ? resolveAndroidRepository() : resolveNativeSdkSource(process.argv[2]));
+  process.stdout.write(
+    process.argv[2] === 'android-repository'
+      ? resolveAndroidRepository()
+      : resolveNativeSdkSource(process.argv[2])
+  );
 }

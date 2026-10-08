@@ -1,11 +1,17 @@
 import { execFileSync } from 'child_process';
-import { realpathSync } from 'fs';
+import { readFileSync, realpathSync } from 'fs';
 
 jest.mock('child_process', () => ({ execFileSync: jest.fn() }));
-jest.mock('fs', () => ({ realpathSync: jest.fn((path) => path) }));
+jest.mock('fs', () => ({
+  realpathSync: jest.fn((path) => path),
+  readFileSync: jest.fn(),
+}));
 
 const { diditNativeSdkVersions } = require('../../package.json');
-const { resolveNativeSdkSource } = require('../../native-sdk-source');
+const {
+  resolveNativeSdkSource,
+  resolveAndroidRepository,
+} = require('../../native-sdk-source');
 const git = execFileSync as jest.Mock;
 const originalPath = process.env.DIDIT_SDK_SOURCE_PATH;
 
@@ -40,7 +46,7 @@ it('rejects tracked edits to the pinned source', () => {
   git.mockReturnValueOnce(diditNativeSdkVersions.source.revision);
   git.mockReturnValueOnce(' M sdk-source');
 
-  expect(() => resolveNativeSdkSource('ios')).toThrow('tracked changes');
+  expect(() => resolveNativeSdkSource('ios')).toThrow('local changes');
 });
 
 it.each([
@@ -62,3 +68,29 @@ it.each([
     ]);
   }
 );
+
+it('rejects local artifacts built from another revision', () => {
+  process.env.DIDIT_SDK_SOURCE_PATH = '/native';
+  git
+    .mockReturnValueOnce(diditNativeSdkVersions.source.revision)
+    .mockReturnValueOnce('');
+  (readFileSync as jest.Mock).mockReturnValueOnce(
+    JSON.stringify({ revision: 'different' })
+  );
+
+  expect(() => resolveAndroidRepository()).toThrow('yarn native:android');
+});
+
+it('selects only the local repository built from the pin', () => {
+  process.env.DIDIT_SDK_SOURCE_PATH = '/native';
+  git
+    .mockReturnValueOnce(diditNativeSdkVersions.source.revision)
+    .mockReturnValueOnce('');
+  (readFileSync as jest.Mock).mockReturnValueOnce(
+    JSON.stringify(diditNativeSdkVersions.source)
+  );
+
+  expect(resolveAndroidRepository()).toContain(
+    `.native-sdk/${diditNativeSdkVersions.source.revision}/maven`
+  );
+});
