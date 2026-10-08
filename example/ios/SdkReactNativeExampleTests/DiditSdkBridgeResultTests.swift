@@ -55,6 +55,41 @@ final class DiditSdkBridgeResultTests: XCTestCase {
         }
     }
 
+    func testCompletedAndCancelledResultsKeepTheSession() {
+        let session = SessionData(sessionId: "test-session", status: .pending)
+        let completed = deliver(.completed(session: session))
+        let cancelled = deliver(.cancelled(session: session))
+
+        XCTAssertEqual(completed["type"] as? String, "completed")
+        XCTAssertEqual(cancelled["type"] as? String, "cancelled")
+        for result in [completed, cancelled] {
+            XCTAssertEqual(result["sessionId"] as? String, "test-session")
+            XCTAssertEqual(result["status"] as? String, "Pending")
+            XCTAssertNil(result["errorType"])
+        }
+    }
+
+    func testResultIsDeliveredOnlyOnceForTheCurrentPresentation() {
+        let bridge = DiditSdkBridge()
+        let stale = bridge.beginPresentation()
+        let current = bridge.beginPresentation()
+        let delivered = expectation(description: "delivered once")
+        delivered.assertForOverFulfill = true
+
+        bridge.deliverResult(.cancelled(session: nil), generation: stale) { _ in
+            XCTFail("A stale presentation must not resolve the current callback")
+        }
+        bridge.deliverResult(.failed(error: .retryBlocked, session: nil), generation: current) { result in
+            XCTAssertEqual(result["errorType"] as? String, "retryBlocked")
+            XCTAssertNil(result["sessionId"])
+            delivered.fulfill()
+        }
+        bridge.deliverResult(.cancelled(session: nil), generation: current) { _ in
+            XCTFail("A duplicate result must not resolve twice")
+        }
+        wait(for: [delivered], timeout: 5)
+    }
+
     /// Starts a presentation, hands it one native result and waits for what
     /// the bridge resolves.
     private func deliver(_ result: VerificationResult) -> NSDictionary {
