@@ -11,6 +11,7 @@
     "build:android": {
       "env": [
         "ANDROID_HOME",
+        "DIDIT_SDK_SOURCE_PATH",
         "ORG_GRADLE_PROJECT_newArchEnabled"
       ],
       "inputs": [
@@ -20,13 +21,17 @@
         "$TURBO_ROOT$/cpp/**",
         "$TURBO_ROOT$/app.plugin.js",
         "$TURBO_ROOT$/react-native.config.js",
+        "$TURBO_ROOT$/native-sdk-source.js",
         "$TURBO_ROOT$/android/build.gradle",
+        "$TURBO_ROOT$/android/native-source.gradle",
         "$TURBO_ROOT$/android/src/**"
       ],
       "outputs": []
     },
     "build:ios": {
       "env": [
+        "DIDIT_SDK_SOURCE_PATH",
+        "DIDIT_SDK_IOS_LOCATION_ENABLED",
         "RCT_NEW_ARCH_ENABLED",
         "RCT_REMOVE_LEGACY_ARCH",
         "RCT_USE_RN_DEP",
@@ -39,6 +44,7 @@
         "$TURBO_ROOT$/cpp/**",
         "$TURBO_ROOT$/app.plugin.js",
         "$TURBO_ROOT$/react-native.config.js",
+        "$TURBO_ROOT$/native-sdk-source.js",
         "$TURBO_ROOT$/*.podspec",
         "$TURBO_ROOT$/ios/**",
         "!$TURBO_ROOT$/ios/build/**"
