@@ -12,10 +12,7 @@ import { join } from 'path';
 const root = join(__dirname, '..', '..');
 const fixture = mkdtempSync(join(tmpdir(), 'native-build-environment-'));
 const turbo = require.resolve('turbo/bin/turbo');
-const buildEnvironment = {
-  DIDIT_SDK_SOURCE_PATH: '/native-source-fixture',
-  DIDIT_SDK_IOS_LOCATION_ENABLED: 'false',
-};
+const sourcePath = '/native-source-fixture';
 const probe = `console.log('NATIVE_BUILD_ENV=' + JSON.stringify({
   source: process.env.DIDIT_SDK_SOURCE_PATH,
   location: process.env.DIDIT_SDK_IOS_LOCATION_ENABLED,
@@ -60,7 +57,7 @@ function runBuild(task: string, location: string, dry = false) {
     encoding: 'utf8',
     env: {
       ...process.env,
-      ...buildEnvironment,
+      DIDIT_SDK_SOURCE_PATH: sourcePath,
       DIDIT_SDK_IOS_LOCATION_ENABLED: location,
       UNRELATED_BUILD_SETTING: 'must-not-leak',
       TURBO_TELEMETRY_DISABLED: '1',
@@ -76,7 +73,7 @@ it.each(['false', 'true'])(
 
     expect(output).toContain(
       `NATIVE_BUILD_ENV=${JSON.stringify({
-        source: buildEnvironment.DIDIT_SDK_SOURCE_PATH,
+        source: sourcePath,
         location,
       })}`
     );
@@ -88,7 +85,7 @@ it('preserves the Android source checkout in strict mode', () => {
 
   expect(output).toContain(
     `NATIVE_BUILD_ENV=${JSON.stringify({
-      source: buildEnvironment.DIDIT_SDK_SOURCE_PATH,
+      source: sourcePath,
     })}`
   );
 });
