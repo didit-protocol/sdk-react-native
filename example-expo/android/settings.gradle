@@ -37,3 +37,5 @@ expoAutolinking.useExpoVersionCatalog()
 
 include ':app'
 includeBuild(expoAutolinking.reactNativeGradlePlugin)
+
+apply from: new File(providers.exec { commandLine('node', '--print', "require.resolve('@didit-protocol/sdk-react-native/package.json')") }.standardOutput.asText.get().trim()).toPath().resolveSibling('android/native-source.gradle').toFile()
