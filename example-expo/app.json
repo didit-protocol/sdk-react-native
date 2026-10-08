@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "DiditExpoExample",
+    "slug": "didit-expo-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "plugins": [
+      [
+        "@didit-protocol/sdk-react-native",
+        {
+          "iosVariant": "all",
+          "androidVariant": "all"
+        }
+      ]
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "me.didit.sdk.reactnative.expo-example",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera access is required for identity verification to capture documents and facial photos.",
+        "NSMicrophoneUsageDescription": "Microphone access is required to record video for liveness verification.",
+        "NSPhotoLibraryUsageDescription": "Photo library access is required to upload document images.",
+        "NFCReaderUsageDescription": "NFC is used to read passport chip data for identity verification.",
+        "com.apple.developer.nfc.readersession.iso7816.select-identifiers": [
+          "D23300000045737445494420763335",
+          "A0000002471001",
+          "A0000002472001",
+          "00000000000000"
+        ]
+      }
+    },
+    "android": {
+      "package": "me.didit.sdk.reactnative.expoexample",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      }
+    }
+  }
+}
