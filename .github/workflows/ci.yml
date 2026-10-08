@@ -58,6 +58,7 @@ jobs:
         run: yarn prepare
 
   build-android:
+    name: Released Android compatibility
     runs-on: ubuntu-latest
 
     env:
@@ -128,6 +129,7 @@ jobs:
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
 
   build-ios:
+    name: Released iOS compatibility and bridge tests
     runs-on: macos-latest
 
     env:
