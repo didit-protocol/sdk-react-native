@@ -9,7 +9,7 @@ if (nativeRepository) {
   // Cover both React Native's settings repositories and Expo's project repositories.
   def configureRepository = { repositories ->
     repositories.exclusiveContent {
-      forRepository { maven { url = uri(nativeRepository) } }
+      forRepository { repositories.maven { url = uri(nativeRepository) } }
       filter { includeGroup('me.didit') }
     }
   }
