@@ -32,7 +32,10 @@ type Gate = (index: number) => boolean;
 
 /** Every file under `directory` whose name ends with one of `extensions`. */
 function sources(directory: string, extensions: string[]): string[] {
-  const entries = readdirSync(join(repoRoot, directory), { recursive: true });
+  const entries = readdirSync(join(repoRoot, directory), {
+    recursive: true,
+    encoding: 'utf8',
+  });
 
   return entries
     .filter((name) => extensions.some((extension) => name.endsWith(extension)))
