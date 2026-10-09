@@ -79,26 +79,24 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         config: ReadableMap?,
         promise: Promise
     ) {
-        Log.d(TAG, "startVerificationWithWorkflow: workflowId=$workflowId, vendorData=$vendorData, metadata=$metadata")
-        Log.d(TAG, "startVerificationWithWorkflow: contactDetails=$contactDetails, expectedDetails=$expectedDetails, config=$config")
+        logDebug("startVerificationWithWorkflow: started")
         val activity = reactApplicationContext.currentActivity
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
-                Log.d(TAG, "startVerificationWithWorkflow: parsed configuration=$configuration")
 
                 DiditSdk.startVerification(
                     workflowId = workflowId,
                     vendorData = vendorData,
                     configuration = configuration
                 ) { result ->
-                    Log.d(TAG, "startVerificationWithWorkflow: onResult callback fired, type=${result::class.simpleName}")
+                    logDebug("startVerificationWithWorkflow: onResult callback fired, type=${result::class.simpleName}")
                     promise.resolve(mapVerificationResult(result))
                 }
 
                 awaitReadyAndLaunchUI(promise, activity)
             } catch (e: Exception) {
-                Log.e(TAG, "startVerificationWithWorkflow: exception", e)
+                logDebugError("startVerificationWithWorkflow: exception", e)
                 rejectWithError(promise, e)
             }
         }
@@ -113,7 +111,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
      */
     private suspend fun awaitReadyAndLaunchUI(promise: Promise, activity: android.app.Activity?) {
         if (activity == null) {
-            Log.e(TAG, "awaitReadyAndLaunchUI: no active Activity at call time")
+            logDebugError("awaitReadyAndLaunchUI: no active Activity at call time")
             val errorResult = mapVerificationResult(
                 VerificationResult.Failed(
                     error = VerificationError.Unknown("No active Activity available to present verification UI."),
@@ -128,15 +126,15 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
 
         val stateReached = withTimeoutOrNull(TIMEOUT_MS) {
             DiditSdk.state.first { state ->
-                Log.d(TAG, "awaitReadyAndLaunchUI: SDK state = $state")
+                logDebug("awaitReadyAndLaunchUI: SDK state = ${state::class.simpleName}")
                 when (state) {
                     is DiditSdkState.Ready -> {
-                        Log.d(TAG, "awaitReadyAndLaunchUI: launching verification UI")
+                        logDebug("awaitReadyAndLaunchUI: launching verification UI")
                         DiditSdk.launchVerificationUI(activity)
                         true
                     }
                     is DiditSdkState.Error -> {
-                        Log.e(TAG, "awaitReadyAndLaunchUI: SDK entered Error state: ${state.message}")
+                        logDebugError("awaitReadyAndLaunchUI: SDK entered Error state")
                         val errorResult = mapVerificationResult(
                             VerificationResult.Failed(
                                 error = VerificationError.Unknown(state.message ?: "SDK entered error state."),
@@ -152,7 +150,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         }
 
         if (stateReached == null) {
-            Log.e(TAG, "awaitReadyAndLaunchUI: timed out waiting for SDK state after ${TIMEOUT_MS}ms")
+            logDebugError("awaitReadyAndLaunchUI: timed out waiting for SDK state after ${TIMEOUT_MS}ms")
             val errorResult = mapVerificationResult(
                 VerificationResult.Failed(
                     error = VerificationError.Unknown("Timed out waiting for verification SDK to become ready."),
@@ -274,7 +272,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                 )
                 promise.resolve(TransactionJson.resultJson(result))
             } catch (e: Exception) {
-                Log.e(TAG, "submitTransaction: exception", e)
+                logDebugError("submitTransaction: exception", e)
                 rejectTransactionError(promise, e)
             }
         }
@@ -298,7 +296,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                 )
                 promise.resolve(TransactionJson.resultJson(result))
             } catch (e: Exception) {
-                Log.e(TAG, "getTransaction: exception", e)
+                logDebugError("getTransaction: exception", e)
                 rejectTransactionError(promise, e)
             }
         }
@@ -322,6 +320,23 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
             else ->
                 promise.reject("network", e.message ?: "Transaction request failed.", e)
         }
+    }
+
+    // ─── Diagnostics ─────────────────────────────────────────────────────────
+
+    /**
+     * Debug-build-only logging. The release build type does not minify, so
+     * nothing strips a plain Log call: every diagnostic goes through these two
+     * helpers, and no call site may pass a session token, personal data or a
+     * native error message. src/__tests__/android-logging-privacy.test.ts fails
+     * the build if one does.
+     */
+    private fun logDebug(message: String) {
+        if (BuildConfig.DEBUG) Log.d(TAG, message)
+    }
+
+    private fun logDebugError(message: String, error: Throwable? = null) {
+        if (BuildConfig.DEBUG) Log.e(TAG, message, error)
     }
 
     companion object {
