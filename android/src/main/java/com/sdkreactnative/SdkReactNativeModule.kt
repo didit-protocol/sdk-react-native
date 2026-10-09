@@ -46,24 +46,23 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         config: ReadableMap?,
         promise: Promise
     ) {
-        Log.d(TAG, "startVerification: token=${token.take(8)}..., config=$config")
+        logDebug("startVerification: started")
         val activity = reactApplicationContext.currentActivity
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
-                Log.d(TAG, "startVerification: parsed configuration=$configuration")
 
                 DiditSdk.startVerification(
                     token = token,
                     configuration = configuration
                 ) { result ->
-                    Log.d(TAG, "startVerification: onResult callback fired, type=${result::class.simpleName}")
+                    logDebug("startVerification: onResult callback fired, type=${result::class.simpleName}")
                     promise.resolve(mapVerificationResult(result))
                 }
 
                 awaitReadyAndLaunchUI(promise, activity)
             } catch (e: Exception) {
-                Log.e(TAG, "startVerification: exception", e)
+                logDebugError("startVerification: exception", e)
                 rejectWithError(promise, e)
             }
         }
