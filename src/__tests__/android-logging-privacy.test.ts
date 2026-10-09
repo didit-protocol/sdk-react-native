@@ -75,12 +75,16 @@ const inDebugRegion = (source: string, index: number) =>
   );
 
 /** Kotlin logs are allowed inside a function gated on BuildConfig.DEBUG. */
-const kotlinGate = (source: string): Gate => (index) =>
-  functionBody(source, index).includes('BuildConfig.DEBUG');
+const kotlinGate =
+  (source: string): Gate =>
+  (index) =>
+    functionBody(source, index).includes('BuildConfig.DEBUG');
 
 /** Apple logs are allowed inside a `#if DEBUG` region. */
-const appleGate = (source: string): Gate => (index) =>
-  inDebugRegion(source, index);
+const appleGate =
+  (source: string): Gate =>
+  (index) =>
+    inDebugRegion(source, index);
 
 const lineOf = (source: string, index: number) =>
   source.slice(0, index).split('\n').length;
@@ -152,7 +156,9 @@ describe('the logging guard itself', () => {
       '}'
     );
 
-    expect(violations(fixture, kotlinGate)).toEqual(['line 2: logs vendorData']);
+    expect(violations(fixture, kotlinGate)).toEqual([
+      'line 2: logs vendorData',
+    ]);
   });
 
   it('rejects a structural log with no debug gate', () => {
@@ -174,7 +180,9 @@ describe('the logging guard itself', () => {
   });
 
   it('accepts an Apple log inside #if DEBUG and rejects one outside it', () => {
-    expect(violations(lines('#if DEBUG', 'NSLog("started")', '#endif'), appleGate)).toEqual([]);
+    expect(
+      violations(lines('#if DEBUG', 'NSLog("started")', '#endif'), appleGate)
+    ).toEqual([]);
     expect(violations('NSLog("started")', appleGate)).toEqual([
       'line 1: is not behind a debug-only gate',
     ]);
