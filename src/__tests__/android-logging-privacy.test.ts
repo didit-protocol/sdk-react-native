@@ -21,6 +21,9 @@ const read = (relativePath: string) =>
 const LOG_CALL =
   /\b(?:Log\.[deiwv]|logDebug(?:Error)?|NSLog|os_log|print(?:ln)?)\s*\(/g;
 
+/** A log call that reaches the platform logger directly, so it needs a gate. */
+const RAW_LOG = /\b(?:Log\.[deiwv]|NSLog|os_log|print(?:ln)?)\s*\(/;
+
 /** A credential, personal data, or a native error message. */
 const SENSITIVE =
   /\b(?:transactionToken|token|vendorData|metadata|contactDetails|expectedDetails|config(?:uration)?|session(?:Id)?|state\.message)\b/i;
@@ -89,14 +92,15 @@ const appleGate =
 const lineOf = (source: string, index: number) =>
   source.slice(0, index).split('\n').length;
 
-/** Why one log call is not allowed, or null when it is. */
+/** Why one log call is not allowed, or null when it is. A call that goes
+ * through a gated helper is gated by construction, so only its text matters. */
 function violation(source: string, match: RegExpMatchArray, gated: Gate) {
   const index = match.index ?? 0;
   const text = callText(source, index + match[0].length - 1);
   const leaked = text.match(SENSITIVE)?.[0];
 
   if (leaked) return `line ${lineOf(source, index)}: logs ${leaked}`;
-  if (gated(index)) return null;
+  if (!RAW_LOG.test(match[0]) || gated(index)) return null;
 
   return `line ${lineOf(source, index)}: is not behind a debug-only gate`;
 }
@@ -177,6 +181,18 @@ describe('the logging guard itself', () => {
     );
 
     expect(violations(fixture, kotlinGate)).toEqual([]);
+  });
+
+  it('rejects a helper that reaches the logger without a gate', () => {
+    const fixture = lines(
+      'private fun logDebug(message: String) {',
+      '    Log.d(TAG, message)',
+      '}'
+    );
+
+    expect(violations(fixture, kotlinGate)).toEqual([
+      'line 2: is not behind a debug-only gate',
+    ]);
   });
 
   it('accepts an Apple log inside #if DEBUG and rejects one outside it', () => {
