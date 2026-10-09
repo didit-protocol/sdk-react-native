@@ -95,8 +95,10 @@ const appleGate =
 const lineOf = (source: string, index: number) =>
   source.slice(0, index).split('\n').length;
 
-/** Why one log call is not allowed, or null when it is. A call that goes
- * through a gated helper is gated by construction, so only its text matters. */
+/**
+ * Why one log call is not allowed, or null when it is. A call that goes through
+ * a gated helper is gated by construction, so only its text matters.
+ */
 function violation(source: string, match: RegExpMatchArray, gated: Gate) {
   const index = match.index ?? 0;
   const text = callText(source, index + match[0].length - 1);
