@@ -1,0 +1,81 @@
+================================================================================
+PULL REQUEST
+================================================================================
+
+Title: fix: resolve config plugin warning, Google Play cnr rejection, and iOS build errors
+
+Body:
+
+## Summary
+
+- **Fix config plugin warning in app.json** (Fixes #1, Fixes #2): Added CommonJS build target so Expo's config plugin validator can `require()` the package without ESM parse errors. Follows the official [react-native-builder-bob dual package setup](https://callstack.github.io/react-native-builder-bob/esm#dual-package-setup).
+- **Fix Google Play "cnr" language rejection** (Fixes #4): Bumped native Android SDK to 3.2.1 which renames the Montenegrin locale from `values-cnr` to `values-sr-rME` (Serbian, Montenegro) — a code recognized by Google Play.
+- **Fix iOS build error on Xcode 16.2 and older** (Fixes #5): Bumped native iOS SDK to 3.2.1 which patches the XCFramework `.swiftinterface` files to remove `$NonescapableTypes` compiler feature guards that hid public APIs from older Swift compilers.
+
+## Changes
+
+- `package.json`: Added `commonjs` build target, `module` field, updated `main`/`types`/`exports` for dual CJS/ESM package setup
+- `android/build.gradle`: Bumped `me.didit:didit-sdk` from `3.2.0` to `3.2.1`
+- `lib/`: Rebuilt with both CommonJS and ESM outputs
+
+## Test plan
+
+- [x] Verified config plugin warning no longer appears in app.json
+- [x] Verified `npx expo run:ios` fails with old iOS SDK 3.2.0 on Xcode 16.2 (reproduced Issue #5)
+- [x] Verified `npx expo run:ios` succeeds with patched iOS SDK 3.2.1 on Xcode 16.2
+- [x] Verified Android build succeeds with native SDK 3.2.1
+- [x] Verified `grep "NonescapableTypes"` returns no matches in patched XCFramework
+
+================================================================================
+ISSUE RESPONSES
+================================================================================
+
+--- Issue #1: Package does not contain a valid config plugin ---
+URL: https://github.com/didit-protocol/sdk-react-native/issues/1
+
+Response:
+
+This has been fixed. The issue was that the package's `main` field pointed to an ESM module (`lib/module/index.js`), which Expo's config plugin validator tried to `require()` in a CommonJS context — causing a parse error.
+
+We've added a CommonJS build target following the official [react-native-builder-bob dual package setup](https://callstack.github.io/react-native-builder-bob/esm#dual-package-setup). The `main` field now points to `lib/commonjs/index.js`, while bundlers like Metro still use the ESM build via the `module` and `exports` fields.
+
+This will be included in the next release. The warning is cosmetic and doesn't affect builds, but it will no longer appear after updating.
+
+--- Issue #2: INVALID_PLUGIN_IMPORT warning ---
+URL: https://github.com/didit-protocol/sdk-react-native/issues/2
+
+Response:
+
+This is the same root cause as #1 — the ESM-only package entry point couldn't be `require()`'d by Expo's config plugin validator. Fixed by adding a CommonJS build target. Will be included in the next release.
+
+--- Issue #4: Google Play rejection due to "cnr" language ---
+URL: https://github.com/didit-protocol/sdk-react-native/issues/4
+
+Response:
+
+Fixed in native Android SDK v3.2.1 (now included in this React Native SDK release).
+
+The `cnr` language code (ISO 639-3 for Montenegrin) was used as an Android resource directory (`values-cnr/`), but Google Play only recognizes codes from the IANA Language Subtag Registry. Since Montenegrin has no ISO 639-1 code, Google Play rejected the bundle.
+
+**What changed:**
+- Renamed `values-cnr/` to `values-sr-rME/` (Serbian, region Montenegro) — recognized by Google Play
+- Updated `SupportedLanguage.MONTENEGRIN` code from `"cnr"` to `"sr-ME"` in the native SDK
+- Added backward compatibility: passing `"cnr"` as a language code still resolves to Montenegrin
+- Devices with `sr_ME` locale correctly match the Montenegrin translations
+
+You no longer need `resConfigs` workarounds. After updating to the new version, the Google Play upload should succeed.
+
+--- Issue #5: iOS build error (missing members/initializers) ---
+URL: https://github.com/didit-protocol/sdk-react-native/issues/5
+
+Response:
+
+Fixed in native iOS SDK v3.2.1 (now included in this React Native SDK release).
+
+**Root cause:** The iOS SDK's XCFramework was built with Xcode 26 (Swift 6.2), which wrapped public API declarations in `#if compiler(>=5.3) && $NonescapableTypes` guards in the `.swiftinterface` files. When compiled with Xcode 16.2 (Swift 6.0.3), the compiler didn't recognize the `$NonescapableTypes` feature flag, evaluated it as `false`, and hid all the wrapped APIs — causing the "no member" and "no accessible initializers" errors.
+
+**What changed:**
+- Added a post-processing step to the XCFramework build script that strips `$NonescapableTypes` guards from `.swiftinterface` files
+- The patched XCFramework is now compatible with Xcode 15+ (Swift 5.9+)
+
+After updating, `npx expo run:ios` should build successfully on any Xcode version from 15 onwards.
