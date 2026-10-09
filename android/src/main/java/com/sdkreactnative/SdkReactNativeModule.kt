@@ -329,7 +329,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
      * nothing strips a plain Log call: every diagnostic goes through these two
      * helpers, and no call site may pass a session token, personal data or a
      * native error message. src/__tests__/android-logging-privacy.test.ts fails
-     * the build if one does.
+     * if one does.
      */
     private fun logDebug(message: String) {
         if (BuildConfig.DEBUG) Log.d(TAG, message)
