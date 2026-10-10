@@ -97,12 +97,7 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
         let bridgeView = DiditBridgeView(
             onResult: { [weak self] result in
-                guard let self = self, self.claimResultDelivery(for: generation) else { return }
-                self.tearDownThenResolve(
-                    generation: generation,
-                    result: Self.mapVerificationResult(result),
-                    completion: completion
-                )
+                self?.deliverResult(result, generation: generation, completion: completion)
             }
         )
 
@@ -120,10 +115,24 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         hostingController = nil
     }
 
-    private func beginPresentation() -> Int {
+    func beginPresentation() -> Int {
         presentationGeneration += 1
         hasDeliveredResult = false
         return presentationGeneration
+    }
+
+    /// Sends the native result of one presentation to JS, once, after its host is dismissed.
+    func deliverResult(
+        _ result: VerificationResult,
+        generation: Int,
+        completion: @escaping @Sendable (NSDictionary) -> Void
+    ) {
+        guard claimResultDelivery(for: generation) else { return }
+        tearDownThenResolve(
+            generation: generation,
+            result: Self.mapVerificationResult(result),
+            completion: completion
+        )
     }
 
     private func claimResultDelivery(for generation: Int) -> Bool {
@@ -323,6 +332,8 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             return "networkError"
         case .cameraAccessDenied:
             return "cameraAccessDenied"
+        case .retryBlocked:
+            return "retryBlocked"
         case .unknown:
             return "unknown"
         @unknown default:

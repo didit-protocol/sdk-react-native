@@ -24,7 +24,7 @@ import {
 const DEMO_WALLET_ADDRESS = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
 
 export default function App() {
-  const [token, setToken] = useState('e5xD6RVXV19Q');
+  const [token, setToken] = useState('');
   const [workflowId, setWorkflowId] = useState('');
   const [transactionToken, setTransactionToken] = useState('');
   const [transactionResult, setTransactionResult] = useState<string | null>(

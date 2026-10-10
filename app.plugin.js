@@ -91,6 +91,7 @@ function normalizeOptions(props = {}) {
     iosVariant: normalizeVariant(props.iosVariant, legacyIosVariant),
     iosLinkage: normalizeLinkage(props.iosLinkage),
     iosPodspecUrl: normalizePodspecUrl(props.iosPodspecUrl),
+    iosLocationEnabled: props.iosLocationEnabled === true,
   };
 }
 
@@ -144,7 +145,17 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
   const lines = [
     variantAssignment,
     `  $DiditSdkIosLinkage = '${options.iosLinkage}'`,
+    `  $DiditSdkIosLocationEnabled = ${options.iosLocationEnabled}`,
   ];
+
+  if (
+    options.iosLinkage === 'spm' &&
+    (options.iosLocationEnabled || pkg.diditNativeSdkVersions.source)
+  ) {
+    throw new Error(
+      'Location and native source builds require cocoapods iosLinkage.'
+    );
+  }
 
   if (options.iosLinkage === 'spm') {
     // SdkReactNative.podspec declares DiditSDK as a SwiftPM dependency, so the
@@ -160,9 +171,22 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
     "                      when 'nfc'           then 'DiditSDK/NFC'",
     '                      else',
     '                        raise "Invalid $DiditSdkIosVariant \'#{$DiditSdkIosVariant}\'. Supported values: all, core, autodetection, nfc."',
-    '                      end',
-    `  pod didit_sdk_subspec, :podspec => '${options.iosPodspecUrl}'`
+    '                      end'
   );
+
+  if (pkg.diditNativeSdkVersions.source) {
+    lines.push(
+      `  didit_source_script = Pod::Executable.execute_command('node', ['--print', "require.resolve('@didit-protocol/sdk-react-native/native-sdk-source')"]).strip`,
+      `  didit_source_path = Pod::Executable.execute_command('node', [didit_source_script, 'ios']).strip`,
+      '  pod didit_sdk_subspec, :path => didit_source_path',
+      "  pod 'DiditSDK/Location', :path => didit_source_path if $DiditSdkIosLocationEnabled"
+    );
+  } else {
+    lines.push(
+      `  pod didit_sdk_subspec, :podspec => '${options.iosPodspecUrl}'`,
+      `  pod 'DiditSDK/Location', :podspec => '${options.iosPodspecUrl}' if $DiditSdkIosLocationEnabled`
+    );
+  }
 
   return lines.join('\n');
 }
@@ -213,6 +237,18 @@ function withDiditSettingsGradle(config) {
         /dependencyResolutionManagement\s*\{[^}]*repositories\s*\{/,
         (m) => `${m}\n${MAVEN_LINE}`
       );
+    }
+
+    return mod;
+  });
+}
+
+function withDiditNativeSource(config) {
+  return withSettingsGradle(config, (mod) => {
+    const line = `apply from: new File(providers.exec { commandLine('node', '--print', "require.resolve('@didit-protocol/sdk-react-native/package.json')") }.standardOutput.asText.get().trim()).toPath().resolveSibling('android/native-source.gradle').toFile()`;
+
+    if (!mod.modResults.contents.includes('android/native-source.gradle')) {
+      mod.modResults.contents += `\n${line}\n`;
     }
 
     return mod;
@@ -298,6 +334,7 @@ function withDiditAndroidVariantProperty(config, androidVariant) {
 function withDiditAndroidMaven(config, options) {
   config = withDiditBuildGradle(config);
   config = withDiditSettingsGradle(config);
+  config = withDiditNativeSource(config);
   config = withDiditAndroidVariantProperty(config, options.androidVariant);
   config = withDiditPackagingExclusion(config);
   return config;

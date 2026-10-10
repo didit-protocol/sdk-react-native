@@ -3,7 +3,11 @@
   "version": "4.9.1",
   "diditNativeSdkVersions": {
     "ios": "4.9.1",
-    "android": "4.9.1"
+    "android": "4.9.1",
+    "source": {
+      "branch": "integration/console-v2",
+      "revision": "88259c3b2ac57520ead46579ee7c1fb56686cdb1"
+    }
   },
   "description": "React Native wrapper for Didit Identity Verification SDK",
   "main": "./lib/commonjs/index.js",
@@ -22,7 +26,8 @@
       }
     },
     "./package.json": "./package.json",
-    "./app.plugin.js": "./app.plugin.js"
+    "./app.plugin.js": "./app.plugin.js",
+    "./native-sdk-source": "./native-sdk-source.js"
   },
   "files": [
     "src",
@@ -42,7 +47,9 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "native-sdk-source.js",
+    "build-native-android.js"
   ],
   "scripts": {
     "example": "yarn workspace sdk-react-native-example",
@@ -53,7 +60,8 @@
     "typecheck": "tsc",
     "release": "release-it --only-version",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "test": "jest"
+    "test": "jest",
+    "native:android": "node build-native-android.js"
   },
   "keywords": [
     "react-native",

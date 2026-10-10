@@ -59,6 +59,18 @@ didit_sdk_ios_linkage = (
     ENV.fetch("DIDIT_SDK_IOS_LINKAGE", "cocoapods")
 ).downcase
 
+didit_sdk_ios_location_enabled = (
+  defined?($DiditSdkIosLocationEnabled) ? $DiditSdkIosLocationEnabled :
+    ENV.fetch("DIDIT_SDK_IOS_LOCATION_ENABLED", "false").downcase == "true"
+)
+if didit_sdk_ios_location_enabled && didit_sdk_ios_linkage == "spm"
+  raise "Location requires CocoaPods linkage with the optional DiditSDK/Location subspec."
+end
+if package.dig("diditNativeSdkVersions", "source")
+  Pod::Executable.execute_command('node', [File.join(__dir__, 'native-sdk-source.js'), 'ios'])
+  raise "The pinned native source requires CocoaPods linkage." if didit_sdk_ios_linkage == "spm"
+end
+
 unless ["spm", "cocoapods"].include?(didit_sdk_ios_linkage)
   raise "Invalid DiditSdk iOS linkage '#{didit_sdk_ios_linkage}'. Set $DiditSdkIosLinkage or DIDIT_SDK_IOS_LINKAGE to one of: spm, cocoapods."
 end
@@ -107,6 +119,7 @@ Pod::Spec.new do |s|
     )
   else
     s.dependency didit_sdk_subspec, didit_sdk_ios_version
+    s.dependency "DiditSDK/Location", didit_sdk_ios_version if didit_sdk_ios_location_enabled
   end
 
   install_modules_dependencies(s)

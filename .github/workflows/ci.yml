@@ -58,6 +58,7 @@ jobs:
         run: yarn prepare
 
   build-android:
+    name: Released Android compatibility
     runs-on: ubuntu-latest
 
     env:
@@ -69,6 +70,17 @@ jobs:
 
       - name: Setup
         uses: ./.github/actions/setup
+
+      # Public CI checks the released native ABI. Source integration is checked
+      # separately with the pinned checkout; released binaries lack the new steps.
+      - name: Select released native SDK for compatibility check
+        run: |
+          node - <<'JS'
+          const fs = require('fs');
+          const pkg = require('./package.json');
+          delete pkg.diditNativeSdkVersions.source;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          JS
 
       - name: Cache turborepo for Android
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -117,11 +129,13 @@ jobs:
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
 
   build-ios:
+    name: Released iOS compatibility and bridge tests
     runs-on: macos-latest
 
     env:
       XCODE_VERSION: 26
       TURBO_CACHE_DIR: .turbo/ios
+      DIDIT_SDK_IOS_LOCATION_ENABLED: "false"
       RCT_USE_RN_DEP: 1
       RCT_USE_PREBUILT_RNCORE: 1
 
@@ -131,6 +145,17 @@ jobs:
 
       - name: Setup
         uses: ./.github/actions/setup
+
+      # Public CI checks the released native ABI. Source integration is checked
+      # separately with the pinned checkout; released binaries lack the new steps.
+      - name: Select released native SDK for compatibility check
+        run: |
+          node - <<'JS'
+          const fs = require('fs');
+          const pkg = require('./package.json');
+          delete pkg.diditNativeSdkVersions.source;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          JS
 
       - name: Cache turborepo for iOS
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
@@ -149,13 +174,11 @@ jobs:
           fi
 
       - name: Use appropriate Xcode version
-        if: env.turbo_cache_hit != 1
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
           xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Install cocoapods
-        if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'
         run: |
           cd example/ios
           bundle install
@@ -164,3 +187,15 @@ jobs:
       - name: Build example for iOS
         run: |
           yarn turbo run build:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+
+      - name: Test iOS bridge against released native SDK
+        working-directory: example/ios
+        run: |
+          set -o pipefail
+          SIMULATOR_ID=$(xcrun simctl list devices available | grep -E '^[[:space:]]+iPhone' | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}' | tail -n 1)
+          xcodebuild test \
+            -workspace SdkReactNativeExample.xcworkspace \
+            -scheme SdkReactNativeExample \
+            -configuration Debug \
+            -destination "id=$SIMULATOR_ID" \
+            -only-testing:SdkReactNativeExampleTests | xcbeautify
