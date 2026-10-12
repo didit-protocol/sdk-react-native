@@ -11,13 +11,30 @@ class DiditAuthPackage : BaseReactPackage() {
     if (name == DiditAuthModule.NAME) DiditAuthModule(reactContext) else null
 
   override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
-    mapOf(DiditAuthModule.NAME to ReactModuleInfo(
-      DiditAuthModule.NAME,
-      DiditAuthModule::class.java.name,
-      false, // canOverrideExistingModule
-      false, // needsEagerInit
-      false, // isCxxModule
-      true   // isTurboModule
-    ))
+    val constructors = ReactModuleInfo::class.java.constructors
+    val sevenParamCtor = constructors.firstOrNull { it.parameterTypes.size == 7 }
+    val info = if (sevenParamCtor != null) {
+      // RN 0.77-0.78 includes hasConstants; newer versions may retain this overload.
+      sevenParamCtor.newInstance(
+        DiditAuthModule.NAME,
+        DiditAuthModule::class.java.name,
+        false, // canOverrideExistingModule
+        false, // needsEagerInit
+        false, // hasConstants
+        false, // isCxxModule
+        true   // isTurboModule
+      )
+    } else {
+      // RN 0.79+ also supports registration without hasConstants.
+      constructors.first { it.parameterTypes.size == 6 }.newInstance(
+        DiditAuthModule.NAME,
+        DiditAuthModule::class.java.name,
+        false, // canOverrideExistingModule
+        false, // needsEagerInit
+        false, // isCxxModule
+        true   // isTurboModule
+      )
+    } as ReactModuleInfo
+    mapOf(DiditAuthModule.NAME to info)
   }
 }
