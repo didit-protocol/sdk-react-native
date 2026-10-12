@@ -2,7 +2,7 @@ import { execFileSync } from 'child_process';
 import { join, resolve } from 'path';
 import manifest from '../../package.json';
 
-const root = resolve(__dirname, '../../../../..');
+const root = resolve(__dirname, '../../../..');
 const packageRoot = resolve(__dirname, '../..');
 
 function packedFiles(cwd: string): string[] {
