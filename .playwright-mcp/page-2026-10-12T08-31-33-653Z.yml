@@ -1,0 +1,437 @@
+- generic [ref=f6e4]:
+  - generic [ref=f6e5]:
+    - generic [ref=f6e6]: end user help
+    - generic [ref=f6e9]:
+      - generic [ref=f6e10]:
+        - img "Didit" [ref=f6e11]
+        - 'button "Language: English" [ref=f6e16] [cursor=pointer]':
+          - generic [ref=f6e24]: English
+      - generic [ref=f6e28]:
+        - generic [ref=f6e29]:
+          - generic [ref=f6e30]:
+            - generic [ref=f6e31]: Identity · Transactions · Authentication
+            - generic [ref=f6e32]: Didit console
+          - generic [ref=f6e34]:
+            - heading "Didit verifies identity for other companies" [level=2] [ref=f6e35]
+            - paragraph [ref=f6e36]: If a company sent you a link, finish your verification there. This console is for the businesses that run verifications.
+        - generic [ref=f6e40]:
+          - generic [ref=f6e41]:
+            - heading "Verifying your identity for a service?" [level=1] [ref=f6e49]
+            - paragraph [ref=f6e50]: Didit checks identity for other companies. If a business sent you a link, you don't need an account here.
+          - generic [ref=f6e51]:
+            - generic [ref=f6e52]: Continue or retry your verification
+            - generic [ref=f6e53]:
+              - textbox "Continue or retry your verification" [ref=f6e54]:
+                - /placeholder: Paste the link the company sent you
+              - button "Continue" [ref=f6e55] [cursor=pointer]
+          - generic [ref=f6e56]:
+            - generic [ref=f6e62]:
+              - generic [ref=f6e63]: Ask about your result
+              - generic [ref=f6e64]: Only the company that asked you to verify can explain or change a decision. Contact their support team.
+            - generic [ref=f6e70]:
+              - generic [ref=f6e71]: Your link expired
+              - generic [ref=f6e72]: Ask the company for a new verification link. Didit can't send one for them.
+            - generic [ref=f6e78]:
+              - generic [ref=f6e79]: Delete your data
+              - generic [ref=f6e80]: Ask the company to delete your verification. Your document images, selfies and results are then deleted and can't be recovered.
+          - paragraph [ref=f6e81]: Here for your business? Go to sign in
+      - generic [ref=f6e82]:
+        - generic [ref=f6e83]: © 2026 Didit
+        - generic [ref=f6e84]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e89]:
+    - generic [ref=f6e90]: session expired
+    - generic [ref=f6e93]:
+      - generic [ref=f6e94]:
+        - img "Didit" [ref=f6e95]
+        - 'button "Language: English" [ref=f6e100] [cursor=pointer]':
+          - generic [ref=f6e108]: English
+      - generic [ref=f6e112]:
+        - generic [ref=f6e113]:
+          - generic [ref=f6e114]:
+            - generic [ref=f6e115]: Identity · Transactions · Authentication
+            - generic [ref=f6e116]: Didit console
+          - generic [ref=f6e118]:
+            - heading "Verify identities, screen transactions and sign users in" [level=2] [ref=f6e119]
+            - paragraph [ref=f6e120]: Identity and business verification, transaction monitoring with Travel Rule, and sign-in for your own users, in one console. Start free in Sandbox.
+            - generic [ref=f6e121]:
+              - generic [ref=f6e122]: 220+ countries
+              - generic [ref=f6e131]: 14,000+ document types
+              - generic [ref=f6e138]: 48 languages
+        - generic [ref=f6e148]:
+          - heading "Welcome back" [level=1] [ref=f6e155]
+          - status [ref=f6e156]:
+            - generic [ref=f6e161]: You were signed out after 12 hours without activity. Sign in to pick up where you left off.
+          - generic [ref=f6e162]:
+            - button "Sign in with Google" [ref=f6e163] [cursor=pointer]
+            - button "Sign in with Passkey" [ref=f6e169] [cursor=pointer]
+            - generic [ref=f6e173]:
+              - button "Sign in with Microsoft" [ref=f6e174] [cursor=pointer]
+              - button "Sign in with GitHub" [ref=f6e180] [cursor=pointer]
+              - button "Sign in with Apple" [ref=f6e183] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e186] [cursor=pointer]
+          - generic [ref=f6e187]: or
+          - generic [ref=f6e188]:
+            - generic [ref=f6e189]:
+              - generic [ref=f6e190]: Email
+              - textbox "Email Email Email Email Email Email" [ref=f6e191]:
+                - /placeholder: you@company.com
+            - generic [ref=f6e192]:
+              - generic [ref=f6e193]:
+                - generic [ref=f6e194]: Password
+                - button "Forgot your password?" [ref=f6e195] [cursor=pointer]
+              - generic [ref=f6e196]:
+                - textbox "Password Password Password Password Password Password" [ref=f6e197]:
+                  - /placeholder: Your password
+                - button "Show password" [ref=f6e198] [cursor=pointer]
+          - button "Sign in" [disabled] [ref=f6e203]
+          - paragraph [ref=f6e204]:
+            - text: Don't have an account?
+            - button "Sign up" [ref=f6e205] [cursor=pointer]
+          - paragraph [ref=f6e206]:
+            - text: Verifying your identity for a service?
+            - button "Get help" [ref=f6e207] [cursor=pointer]
+      - generic [ref=f6e208]:
+        - generic [ref=f6e209]: © 2026 Didit
+        - generic [ref=f6e210]:
+          - text: An AI agent?
+          - generic [ref=f6e215] [cursor=pointer]: Get API access
+        - generic [ref=f6e216]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e221]:
+    - generic [ref=f6e222]: dark
+    - generic [ref=f6e225]:
+      - generic [ref=f6e226]:
+        - img "Didit" [ref=f6e227]
+        - 'button "Language: English" [ref=f6e232] [cursor=pointer]':
+          - generic [ref=f6e240]: English
+      - generic [ref=f6e244]:
+        - generic [ref=f6e245]:
+          - generic [ref=f6e246]:
+            - generic [ref=f6e247]: Identity · Transactions · Authentication
+            - generic [ref=f6e248]: Didit console
+          - generic [ref=f6e250]:
+            - heading "Verify identities, screen transactions and sign users in" [level=2] [ref=f6e251]
+            - paragraph [ref=f6e252]: Identity and business verification, transaction monitoring with Travel Rule, and sign-in for your own users, in one console. Start free in Sandbox.
+            - generic [ref=f6e253]:
+              - generic [ref=f6e254]: 220+ countries
+              - generic [ref=f6e263]: 14,000+ document types
+              - generic [ref=f6e270]: 48 languages
+        - generic [ref=f6e280]:
+          - heading "Welcome back" [level=1] [ref=f6e287]
+          - generic [ref=f6e288]:
+            - button "Sign in with Google" [ref=f6e289] [cursor=pointer]
+            - button "Sign in with Passkey" [ref=f6e295] [cursor=pointer]
+            - generic [ref=f6e299]:
+              - button "Sign in with Microsoft" [ref=f6e300] [cursor=pointer]
+              - button "Sign in with GitHub" [ref=f6e306] [cursor=pointer]
+              - button "Sign in with Apple" [ref=f6e309] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e312] [cursor=pointer]
+          - generic [ref=f6e313]: or
+          - generic [ref=f6e314]:
+            - generic [ref=f6e315]:
+              - generic [ref=f6e316]: Email
+              - textbox "you@company.com" [ref=f6e317]
+            - generic [ref=f6e318]:
+              - generic [ref=f6e319]:
+                - generic [ref=f6e320]: Password
+                - button "Forgot your password?" [ref=f6e321] [cursor=pointer]
+              - generic [ref=f6e322]:
+                - textbox "Your password" [ref=f6e323]
+                - button "Show password" [ref=f6e324] [cursor=pointer]
+          - button "Sign in" [disabled] [ref=f6e329]
+          - paragraph [ref=f6e330]:
+            - text: Don't have an account?
+            - button "Sign up" [ref=f6e331] [cursor=pointer]
+          - paragraph [ref=f6e332]:
+            - text: Verifying your identity for a service?
+            - button "Get help" [ref=f6e333] [cursor=pointer]
+      - generic [ref=f6e334]:
+        - generic [ref=f6e335]: © 2026 Didit
+        - generic [ref=f6e336]:
+          - text: An AI agent?
+          - generic [ref=f6e341] [cursor=pointer]: Get API access
+        - generic [ref=f6e342]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e347]:
+    - generic [ref=f6e348]: identity
+    - generic [ref=f6e351]:
+      - generic [ref=f6e352]:
+        - img "Didit" [ref=f6e353]
+        - 'button "Language: English" [ref=f6e358] [cursor=pointer]':
+          - generic [ref=f6e366]: English
+      - generic [ref=f6e370]:
+        - generic [ref=f6e371]:
+          - generic [ref=f6e372]:
+            - generic [ref=f6e373]: Identity verification
+            - generic [ref=f6e374]: 220+ countries
+          - generic [ref=f6e376]:
+            - generic [ref=f6e377]: Identity verification
+            - heading "Verify identities in 220+ countries, in under a minute" [level=2] [ref=f6e378]
+            - paragraph [ref=f6e379]: ID document, liveness and face match for 14,000+ document types, with AML screening and reusable KYC when you need them.
+            - generic [ref=f6e380]:
+              - generic [ref=f6e381]: 220+ countries
+              - generic [ref=f6e390]: 14,000+ document types
+              - generic [ref=f6e397]: $10 of free credit a month
+        - generic [ref=f6e409]:
+          - heading "Welcome back" [level=1] [ref=f6e416]
+          - generic [ref=f6e417]:
+            - button "Sign in with Google" [ref=f6e418] [cursor=pointer]
+            - button "Sign in with Passkey" [ref=f6e424] [cursor=pointer]
+            - generic [ref=f6e428]:
+              - button "Sign in with Microsoft" [ref=f6e429] [cursor=pointer]
+              - button "Sign in with GitHub" [ref=f6e435] [cursor=pointer]
+              - button "Sign in with Apple" [ref=f6e438] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e441] [cursor=pointer]
+          - generic [ref=f6e442]: or
+          - generic [ref=f6e443]:
+            - generic [ref=f6e444]:
+              - generic [ref=f6e445]: Email
+              - textbox "you@company.com" [ref=f6e446]
+            - generic [ref=f6e447]:
+              - generic [ref=f6e448]:
+                - generic [ref=f6e449]: Password
+                - button "Forgot your password?" [ref=f6e450] [cursor=pointer]
+              - generic [ref=f6e451]:
+                - textbox "Your password" [ref=f6e452]
+                - button "Show password" [ref=f6e453] [cursor=pointer]
+          - button "Sign in" [disabled] [ref=f6e458]
+          - paragraph [ref=f6e459]:
+            - text: Don't have an account?
+            - button "Sign up" [ref=f6e460] [cursor=pointer]
+          - paragraph [ref=f6e461]:
+            - text: Verifying your identity for a service?
+            - button "Get help" [ref=f6e462] [cursor=pointer]
+      - generic [ref=f6e463]:
+        - generic [ref=f6e464]: © 2026 Didit
+        - generic [ref=f6e465]:
+          - text: An AI agent?
+          - generic [ref=f6e470] [cursor=pointer]: Get API access
+        - generic [ref=f6e471]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e476]:
+    - generic [ref=f6e477]: transactions
+    - generic [ref=f6e480]:
+      - generic [ref=f6e481]:
+        - img "Didit" [ref=f6e482]
+        - 'button "Language: English" [ref=f6e487] [cursor=pointer]':
+          - generic [ref=f6e495]: English
+      - generic [ref=f6e499]:
+        - generic [ref=f6e500]:
+          - generic [ref=f6e501]:
+            - generic [ref=f6e502]: Transaction monitoring · Travel Rule
+            - generic [ref=f6e503]: Real time
+          - generic [ref=f6e505]:
+            - generic [ref=f6e506]: Transaction monitoring & Travel Rule
+            - heading "Screen payments and crypto transfers in real time" [level=2] [ref=f6e507]
+            - paragraph [ref=f6e508]: Rules that hold, alert or open a case on a transaction, with Travel Rule for crypto transfers. One API call, a decision back in milliseconds.
+            - generic [ref=f6e509]:
+              - generic [ref=f6e510]: Rules and alerts
+              - generic [ref=f6e516]: Travel Rule
+              - generic [ref=f6e525]: $0.02 a transaction
+        - generic [ref=f6e535]:
+          - heading "Welcome back" [level=1] [ref=f6e542]
+          - generic [ref=f6e543]:
+            - button "Sign in with Google" [ref=f6e544] [cursor=pointer]
+            - button "Sign in with Passkey" [ref=f6e550] [cursor=pointer]
+            - generic [ref=f6e554]:
+              - button "Sign in with Microsoft" [ref=f6e555] [cursor=pointer]
+              - button "Sign in with GitHub" [ref=f6e561] [cursor=pointer]
+              - button "Sign in with Apple" [ref=f6e564] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e567] [cursor=pointer]
+          - generic [ref=f6e568]: or
+          - generic [ref=f6e569]:
+            - generic [ref=f6e570]:
+              - generic [ref=f6e571]: Email
+              - textbox "you@company.com" [ref=f6e572]
+            - generic [ref=f6e573]:
+              - generic [ref=f6e574]:
+                - generic [ref=f6e575]: Password
+                - button "Forgot your password?" [ref=f6e576] [cursor=pointer]
+              - generic [ref=f6e577]:
+                - textbox "Your password" [ref=f6e578]
+                - button "Show password" [ref=f6e579] [cursor=pointer]
+          - button "Sign in" [disabled] [ref=f6e584]
+          - paragraph [ref=f6e585]:
+            - text: Don't have an account?
+            - button "Sign up" [ref=f6e586] [cursor=pointer]
+          - paragraph [ref=f6e587]:
+            - text: Verifying your identity for a service?
+            - button "Get help" [ref=f6e588] [cursor=pointer]
+      - generic [ref=f6e589]:
+        - generic [ref=f6e590]: © 2026 Didit
+        - generic [ref=f6e591]:
+          - text: An AI agent?
+          - generic [ref=f6e596] [cursor=pointer]: Get API access
+        - generic [ref=f6e597]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e602]:
+    - generic [ref=f6e603]: authentication
+    - generic [ref=f6e606]:
+      - generic [ref=f6e607]:
+        - img "Didit" [ref=f6e608]
+        - 'button "Language: English" [ref=f6e613] [cursor=pointer]':
+          - generic [ref=f6e621]: English
+      - generic [ref=f6e625]:
+        - generic [ref=f6e626]:
+          - generic [ref=f6e627]:
+            - generic [ref=f6e628]: Authentication
+            - generic [ref=f6e629]: Early access
+          - generic [ref=f6e631]:
+            - generic [ref=f6e632]: Authentication · early access
+            - heading "Sign-in for your app, with passkeys, Google and verified identities" [level=2] [ref=f6e633]
+            - paragraph [ref=f6e634]: Passkeys, email codes, magic links and social sign-in in your brand, with bot detection built in. Ask for a verified identity only when it matters.
+            - generic [ref=f6e635]:
+              - generic [ref=f6e636]: Passkeys
+              - generic [ref=f6e643]: Only allow humans
+              - generic [ref=f6e649]: Early access · pricing at launch
+        - generic [ref=f6e657]:
+          - heading "Welcome back" [level=1] [ref=f6e664]
+          - generic [ref=f6e665]:
+            - button "Sign in with Google" [ref=f6e666] [cursor=pointer]
+            - button "Sign in with Passkey" [ref=f6e672] [cursor=pointer]
+            - generic [ref=f6e676]:
+              - button "Sign in with Microsoft" [ref=f6e677] [cursor=pointer]
+              - button "Sign in with GitHub" [ref=f6e683] [cursor=pointer]
+              - button "Sign in with Apple" [ref=f6e686] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e689] [cursor=pointer]
+          - generic [ref=f6e690]: or
+          - generic [ref=f6e691]:
+            - generic [ref=f6e692]:
+              - generic [ref=f6e693]: Email
+              - textbox "you@company.com" [ref=f6e694]
+            - generic [ref=f6e695]:
+              - generic [ref=f6e696]:
+                - generic [ref=f6e697]: Password
+                - button "Forgot your password?" [ref=f6e698] [cursor=pointer]
+              - generic [ref=f6e699]:
+                - textbox "Your password" [ref=f6e700]
+                - button "Show password" [ref=f6e701] [cursor=pointer]
+          - button "Sign in" [disabled] [ref=f6e706]
+          - paragraph [ref=f6e707]:
+            - text: Don't have an account?
+            - button "Sign up" [ref=f6e708] [cursor=pointer]
+          - paragraph [ref=f6e709]:
+            - text: Verifying your identity for a service?
+            - button "Get help" [ref=f6e710] [cursor=pointer]
+      - generic [ref=f6e711]:
+        - generic [ref=f6e712]: © 2026 Didit
+        - generic [ref=f6e713]:
+          - text: An AI agent?
+          - generic [ref=f6e718] [cursor=pointer]: Get API access
+        - generic [ref=f6e719]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e724]:
+    - generic [ref=f6e725]: still
+    - generic [ref=f6e728]:
+      - generic [ref=f6e729]:
+        - img "Didit" [ref=f6e730]
+        - 'button "Language: English" [ref=f6e735] [cursor=pointer]':
+          - generic [ref=f6e743]: English
+      - generic [ref=f6e747]:
+        - generic [ref=f6e748]:
+          - generic [ref=f6e749]:
+            - generic [ref=f6e750]: Identity · Transactions · Authentication
+            - generic [ref=f6e751]: Didit console
+          - generic [ref=f6e753]:
+            - heading "Verify identities, screen transactions and sign users in" [level=2] [ref=f6e754]
+            - paragraph [ref=f6e755]: Identity and business verification, transaction monitoring with Travel Rule, and sign-in for your own users, in one console. Start free in Sandbox.
+            - generic [ref=f6e756]:
+              - generic [ref=f6e757]: 220+ countries
+              - generic [ref=f6e766]: 14,000+ document types
+              - generic [ref=f6e773]: 48 languages
+        - generic [ref=f6e783]:
+          - heading "Welcome back" [level=1] [ref=f6e790]
+          - generic [ref=f6e791]:
+            - button "Sign in with Google" [ref=f6e792] [cursor=pointer]
+            - button "Sign in with Passkey" [ref=f6e798] [cursor=pointer]
+            - generic [ref=f6e802]:
+              - button "Sign in with Microsoft" [ref=f6e803] [cursor=pointer]
+              - button "Sign in with GitHub" [ref=f6e809] [cursor=pointer]
+              - button "Sign in with Apple" [ref=f6e812] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e815] [cursor=pointer]
+          - generic [ref=f6e816]: or
+          - generic [ref=f6e817]:
+            - generic [ref=f6e818]:
+              - generic [ref=f6e819]: Email
+              - textbox "you@company.com" [ref=f6e820]
+            - generic [ref=f6e821]:
+              - generic [ref=f6e822]:
+                - generic [ref=f6e823]: Password
+                - button "Forgot your password?" [ref=f6e824] [cursor=pointer]
+              - generic [ref=f6e825]:
+                - textbox "Your password" [ref=f6e826]
+                - button "Show password" [ref=f6e827] [cursor=pointer]
+          - button "Sign in" [disabled] [ref=f6e832]
+          - paragraph [ref=f6e833]:
+            - text: Don't have an account?
+            - button "Sign up" [ref=f6e834] [cursor=pointer]
+          - paragraph [ref=f6e835]:
+            - text: Verifying your identity for a service?
+            - button "Get help" [ref=f6e836] [cursor=pointer]
+      - generic [ref=f6e837]:
+        - generic [ref=f6e838]: © 2026 Didit
+        - generic [ref=f6e839]:
+          - text: An AI agent?
+          - generic [ref=f6e844] [cursor=pointer]: Get API access
+        - generic [ref=f6e845]: SOC 2 Type 2 · ISO 27001 · GDPR
+  - generic [ref=f6e850]:
+    - generic [ref=f6e851]: sign up · password too weak, after Sign up
+    - generic [ref=f6e854]:
+      - generic [ref=f6e855]:
+        - img "Didit" [ref=f6e856]
+        - 'button "Language: English" [ref=f6e861] [cursor=pointer]':
+          - generic [ref=f6e869]: English
+      - generic [ref=f6e873]:
+        - generic [ref=f6e874]:
+          - generic [ref=f6e875]:
+            - generic [ref=f6e876]: Identity · Transactions · Authentication
+            - generic [ref=f6e877]: Didit console
+          - generic [ref=f6e879]:
+            - heading "Verify identities, screen transactions and sign users in" [level=2] [ref=f6e880]
+            - paragraph [ref=f6e881]: Identity and business verification, transaction monitoring with Travel Rule, and sign-in for your own users, in one console. Start free in Sandbox.
+            - generic [ref=f6e882]:
+              - generic [ref=f6e883]: 220+ countries
+              - generic [ref=f6e892]: 14,000+ document types
+              - generic [ref=f6e899]: 48 languages
+        - generic [ref=f6e909]:
+          - generic [ref=f6e910]:
+            - heading "Create your account" [level=1] [ref=f6e916]
+            - paragraph [ref=f6e917]: Start free in Sandbox. No card needed.
+          - generic [ref=f6e918]:
+            - button "Sign up with Google" [ref=f6e919] [cursor=pointer]
+            - generic [ref=f6e925]:
+              - button "Sign up with Microsoft" [ref=f6e926] [cursor=pointer]
+              - button "Sign up with GitHub" [ref=f6e932] [cursor=pointer]
+              - button "Sign up with Apple" [ref=f6e935] [cursor=pointer]
+            - button "Continue with SSO" [ref=f6e938] [cursor=pointer]
+          - generic [ref=f6e939]: or
+          - generic [ref=f6e940]:
+            - generic [ref=f6e941]:
+              - generic [ref=f6e942]: Work email
+              - textbox "Work email" [ref=f6e943]:
+                - /placeholder: you@company.com
+                - text: alejandro@aurora-play.com
+              - generic [ref=f6e944]: Work emails get $10 of free credit every month.
+            - generic [ref=f6e952]:
+              - generic [ref=f6e953]: Password
+              - generic [ref=f6e954]:
+                - textbox "Password" [invalid] [ref=f6e955]:
+                  - /placeholder: Create a password
+                  - text: aurora26
+                - button "Show password" [ref=f6e956] [cursor=pointer]
+              - alert [ref=f6e960]:
+                - generic [ref=f6e964]: Your password needs a special character.
+          - generic [ref=f6e965]:
+            - checkbox [checked] [ref=f6e966] [cursor=pointer]:
+              - generic [ref=f6e971]:
+                - text: I agree to the
+                - link "Terms of Service" [ref=f6e972]:
+                  - /url: "#"
+                - text: ", and acknowledge Didit's"
+                - link "Privacy Policy" [ref=f6e973]:
+                  - /url: "#"
+            - button "Sign up" [ref=f6e974] [cursor=pointer]
+          - paragraph [ref=f6e976]:
+            - text: Already registered?
+            - button "Sign in" [ref=f6e977] [cursor=pointer]
+      - generic [ref=f6e978]:
+        - generic [ref=f6e979]: © 2026 Didit
+        - generic [ref=f6e980]:
+          - text: An AI agent?
+          - generic [ref=f6e985] [cursor=pointer]: Get API access
+        - generic [ref=f6e986]: SOC 2 Type 2 · ISO 27001 · GDPR

@@ -1,0 +1,54 @@
+- generic [ref=f3e4]:
+  - generic [ref=f3e5]:
+    - img "Didit" [ref=f3e6]
+    - 'button "Language: English" [ref=f3e11] [cursor=pointer]':
+      - generic [ref=f3e19]: English
+  - generic [ref=f3e23]:
+    - generic [ref=f3e24]:
+      - generic [ref=f3e25]:
+        - generic [ref=f3e26]: Identity · Transactions · Authentication
+        - generic [ref=f3e27]: Didit console
+      - generic [ref=f3e29]:
+        - heading "Verify identities, screen transactions and sign users in" [level=2] [ref=f3e30]
+        - paragraph [ref=f3e31]: Identity and business verification, transaction monitoring with Travel Rule, and sign-in for your own users, in one console. Start free in Sandbox.
+        - generic [ref=f3e32]:
+          - generic [ref=f3e33]: 220+ countries
+          - generic [ref=f3e42]: 14,000+ document types
+          - generic [ref=f3e49]: 48 languages
+    - generic [ref=f3e59]:
+      - heading "Welcome back" [level=1] [ref=f3e66]
+      - generic [ref=f3e67]:
+        - button "Sign in with Google" [ref=f3e68] [cursor=pointer]
+        - button "Sign in with Passkey" [ref=f3e74] [cursor=pointer]
+        - generic [ref=f3e78]:
+          - button "Sign in with Microsoft" [ref=f3e79] [cursor=pointer]
+          - button "Sign in with GitHub" [ref=f3e85] [cursor=pointer]
+          - button "Sign in with Apple" [ref=f3e88] [cursor=pointer]
+        - button "Continue with SSO" [ref=f3e91] [cursor=pointer]
+      - generic [ref=f3e92]: or
+      - generic [ref=f3e93]:
+        - generic [ref=f3e94]:
+          - generic [ref=f3e95]: Email
+          - textbox "Email" [ref=f3e96]:
+            - /placeholder: you@company.com
+        - generic [ref=f3e97]:
+          - generic [ref=f3e98]:
+            - generic [ref=f3e99]: Password
+            - button "Forgot your password?" [ref=f3e100] [cursor=pointer]
+          - generic [ref=f3e101]:
+            - textbox "Password" [ref=f3e102]:
+              - /placeholder: Your password
+            - button "Show password" [ref=f3e103] [cursor=pointer]
+      - button "Sign in" [disabled] [ref=f3e108]
+      - paragraph [ref=f3e109]:
+        - text: Don't have an account?
+        - button "Sign up" [ref=f3e110] [cursor=pointer]
+      - paragraph [ref=f3e111]:
+        - text: Verifying your identity for a service?
+        - button "Get help" [ref=f3e112] [cursor=pointer]
+  - generic [ref=f3e113]:
+    - generic [ref=f3e114]: © 2026 Didit
+    - generic [ref=f3e115]:
+      - text: An AI agent?
+      - generic [ref=f3e120] [cursor=pointer]: Get API access
+    - generic [ref=f3e121]: SOC 2 Type 2 · ISO 27001 · GDPR
