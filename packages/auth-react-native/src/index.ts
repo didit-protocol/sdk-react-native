@@ -4,9 +4,7 @@ import { DiditAuthUnavailableError } from './errors';
 export { DiditAuthUnavailableError } from './errors';
 
 async function unavailable(method: keyof Spec): Promise<never> {
-  if (NativeDiditAuth) {
-    await NativeDiditAuth[method]();
-  }
+  await NativeDiditAuth?.[method]?.();
 
   // Never interpret an absent or mismatched native implementation as success.
   throw new DiditAuthUnavailableError();

@@ -61,7 +61,8 @@
     "release": "release-it --only-version",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "test": "jest",
-    "native:android": "node build-native-android.js"
+    "native:android": "node build-native-android.js",
+    "build:auth": "yarn workspace @didit-protocol/auth-react-native build"
   },
   "keywords": [
     "react-native",
@@ -118,7 +119,8 @@
   },
   "workspaces": [
     "example",
-    "example-expo"
+    "example-expo",
+    "packages/auth-react-native"
   ],
   "packageManager": "yarn@4.11.0",
   "react-native-builder-bob": {
@@ -183,7 +185,9 @@
     "preset": "react-native",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
+      "<rootDir>/lib/",
+      "<rootDir>/packages/auth-react-native/lib/",
+      "<rootDir>/packages/auth-react-native/node_modules/"
     ]
   },
   "expo": {
