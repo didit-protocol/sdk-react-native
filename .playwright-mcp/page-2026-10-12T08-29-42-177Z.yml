@@ -1,0 +1,859 @@
+- generic [ref=f6e4]:
+  - generic [ref=f6e5]:
+    - generic [ref=f6e6]: 1 · Sign-in methods · dark preview
+    - generic [ref=f6e9]:
+      - generic [ref=f6e10]:
+        - img "Didit" [ref=f6e11]
+        - button "Skip to console" [ref=f6e16] [cursor=pointer]
+      - generic [ref=f6e20]:
+        - generic [ref=f6e22]:
+          - generic [ref=f6e23]:
+            - text: Authentication · Step 1 of 6
+            - heading "Choose how your users sign in" [level=1] [ref=f6e24]
+            - paragraph [ref=f6e25]: Turn methods on and watch your sign-in box change. It uses your logo and colours from Customization.
+          - generic [ref=f6e26]:
+            - generic [ref=f6e27]: Sign-in options
+            - group "Sign-in options" [ref=f6e28]:
+              - switch "Email and password" [checked] [ref=f6e29] [cursor=pointer]
+              - switch "Passkeys" [checked] [ref=f6e40] [cursor=pointer]
+              - switch "Email code" [ref=f6e48] [cursor=pointer]
+              - switch "Magic link" [checked] [ref=f6e58] [cursor=pointer]
+              - switch "Google" [checked] [ref=f6e68] [cursor=pointer]
+              - switch "Apple" [ref=f6e79] [cursor=pointer]
+              - switch "GitHub" [checked] [ref=f6e87] [cursor=pointer]
+              - switch "Microsoft" [ref=f6e95] [cursor=pointer]
+            - generic [ref=f6e106]: "Passkeys are recommended: no password to steal, and free."
+          - generic [ref=f6e107]:
+            - generic [ref=f6e108]: Always on
+            - generic [ref=f6e109]:
+              - generic [ref=f6e115]:
+                - generic [ref=f6e116]:
+                  - text: Didit ID Wallet
+                  - generic [ref=f6e117]: No new KYC
+                - generic [ref=f6e118]: Verified people sign in with one tap.
+                - button "Preview" [ref=f6e119] [cursor=pointer]
+              - generic [ref=f6e120]: Always on
+          - generic [ref=f6e125]:
+            - generic [ref=f6e126]: Protection
+            - generic [ref=f6e127]:
+              - generic [ref=f6e133]:
+                - generic [ref=f6e134]: Only allow humans
+                - generic [ref=f6e135]: Stops bots at sign-up and sign-in, with no puzzles.
+                - button "Preview" [ref=f6e136] [cursor=pointer]
+              - switch "Only allow humans" [checked] [ref=f6e137] [cursor=pointer]
+          - button "Continue" [ref=f6e140] [cursor=pointer]
+        - generic "Live preview" [ref=f6e141]:
+          - generic [ref=f6e142]:
+            - generic [ref=f6e143]: Live preview
+            - button "Brand from Customization" [ref=f6e146] [cursor=pointer]
+            - radiogroup "Preview theme" [ref=f6e147]:
+              - radio "Light" [ref=f6e148] [cursor=pointer]
+              - radio "Dark" [checked] [ref=f6e157] [cursor=pointer]
+          - generic [ref=f6e162]:
+            - generic [ref=f6e163]:
+              - generic [ref=f6e164]:
+                - generic [ref=f6e165]:
+                  - generic [ref=f6e166]: A
+                  - generic [ref=f6e167]: Sign in to Aurora Play
+                  - generic [ref=f6e168]: Welcome back! Sign in to continue.
+                - button "Continue with Google" [ref=f6e169] [cursor=pointer]
+                - generic [ref=f6e175]: Continue with GitHub
+                - generic [ref=f6e178]: Sign in with a passkey
+                - generic [ref=f6e181]: Continue with Didit ID Wallet
+                - generic [ref=f6e186]: or
+                - generic [ref=f6e187]:
+                  - generic [ref=f6e188]: Email address
+                  - generic [ref=f6e189]: you@example.com
+                - generic [ref=f6e190]:
+                  - generic [ref=f6e191]: Password
+                  - generic [ref=f6e192]: ••••••••••
+                - generic [ref=f6e193]: Continue
+                - generic [ref=f6e195]: Email me a sign-in link
+                - generic [ref=f6e196]: Don't have an account? Sign up
+              - generic [ref=f6e197]: Secured by Didit
+            - generic [ref=f6e198]: This is a preview · 5 methods on
+      - navigation "Authentication setup" [ref=f6e199]:
+        - generic [ref=f6e200]: Authentication
+        - generic [ref=f6e201]:
+          - 'button "Step 1 of 6: Sign-in methods, current" [ref=f6e202]'
+          - 'button "Step 2 of 6: Redirects" [ref=f6e204]'
+          - 'button "Step 3 of 6: Test" [ref=f6e206]'
+          - 'button "Step 4 of 6: Your users" [ref=f6e208]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e210]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e212]'
+  - generic [ref=f6e214]:
+    - generic [ref=f6e215]: 1 · Sign-in methods · Didit ID Wallet preview
+    - generic [ref=f6e218]:
+      - generic [ref=f6e219]:
+        - img "Didit" [ref=f6e220]
+        - button "Skip to console" [ref=f6e225] [cursor=pointer]
+      - generic [ref=f6e229]:
+        - generic [ref=f6e231]:
+          - generic [ref=f6e232]:
+            - text: Authentication · Step 1 of 6
+            - heading "Choose how your users sign in" [level=1] [ref=f6e233]
+            - paragraph [ref=f6e234]: Turn methods on and watch your sign-in box change. It uses your logo and colours from Customization.
+          - generic [ref=f6e235]:
+            - generic [ref=f6e236]: Sign-in options
+            - group "Sign-in options" [ref=f6e237]:
+              - switch "Email and password" [checked] [ref=f6e238] [cursor=pointer]
+              - switch "Passkeys" [checked] [ref=f6e249] [cursor=pointer]
+              - switch "Email code" [ref=f6e257] [cursor=pointer]
+              - switch "Magic link" [checked] [ref=f6e267] [cursor=pointer]
+              - switch "Google" [checked] [ref=f6e277] [cursor=pointer]
+              - switch "Apple" [ref=f6e288] [cursor=pointer]
+              - switch "GitHub" [checked] [ref=f6e296] [cursor=pointer]
+              - switch "Microsoft" [ref=f6e304] [cursor=pointer]
+            - generic [ref=f6e315]: "Passkeys are recommended: no password to steal, and free."
+          - generic [ref=f6e316]:
+            - generic [ref=f6e317]: Always on
+            - generic [ref=f6e318]:
+              - generic [ref=f6e324]:
+                - generic [ref=f6e325]:
+                  - text: Didit ID Wallet
+                  - generic [ref=f6e326]: No new KYC
+                - generic [ref=f6e327]: Verified people sign in with one tap.
+                - button "Hide preview" [pressed] [ref=f6e328] [cursor=pointer]
+              - generic [ref=f6e329]: Always on
+          - generic [ref=f6e334]:
+            - generic [ref=f6e335]: Protection
+            - generic [ref=f6e336]:
+              - generic [ref=f6e342]:
+                - generic [ref=f6e343]: Only allow humans
+                - generic [ref=f6e344]: Stops bots at sign-up and sign-in, with no puzzles.
+                - button "Preview" [ref=f6e345] [cursor=pointer]
+              - switch "Only allow humans" [checked] [ref=f6e346] [cursor=pointer]
+          - button "Continue" [ref=f6e349] [cursor=pointer]
+        - generic "What your users see" [ref=f6e350]:
+          - generic [ref=f6e351]:
+            - generic [ref=f6e352]: What your users see
+            - button "Brand from Customization" [ref=f6e354] [cursor=pointer]
+            - radiogroup "Preview theme" [ref=f6e355]:
+              - radio "Light" [checked] [ref=f6e356] [cursor=pointer]
+              - radio "Dark" [ref=f6e365] [cursor=pointer]
+          - generic [ref=f6e370]:
+            - generic [ref=f6e371]:
+              - generic [ref=f6e372]:
+                - generic [ref=f6e373]:
+                  - generic [ref=f6e374]: A
+                  - generic [ref=f6e386]: Aurora Play asks to confirm
+                  - generic [ref=f6e387]: From your Didit ID Wallet · verified on Mar 12, 2026
+                - generic [ref=f6e388]:
+                  - generic [ref=f6e389]:
+                    - generic [ref=f6e394]: Over 18
+                    - generic [ref=f6e395]: "Yes"
+                  - generic [ref=f6e396]:
+                    - generic [ref=f6e401]: Verified first name
+                    - generic [ref=f6e402]: Maria
+                  - generic [ref=f6e403]:
+                    - generic [ref=f6e408]: Country of residence
+                    - generic [ref=f6e409]: Portugal
+                - generic [ref=f6e410]: Only these facts are shared. Aurora Play never sees your document or your photo.
+                - generic [ref=f6e416]: Share with a passkey
+                - generic [ref=f6e419]: Cancel
+              - generic [ref=f6e420]: Secured by Didit
+            - generic [ref=f6e421]: This is a preview · 5 methods on
+      - navigation "Authentication setup" [ref=f6e422]:
+        - generic [ref=f6e423]: Authentication
+        - generic [ref=f6e424]:
+          - 'button "Step 1 of 6: Sign-in methods, current" [ref=f6e425]'
+          - 'button "Step 2 of 6: Redirects" [ref=f6e427]'
+          - 'button "Step 3 of 6: Test" [ref=f6e429]'
+          - 'button "Step 4 of 6: Your users" [ref=f6e431]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e433]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e435]'
+  - generic [ref=f6e437]:
+    - generic [ref=f6e438]: 1 · Sign-in methods · Only allow humans preview
+    - generic [ref=f6e441]:
+      - generic [ref=f6e442]:
+        - img "Didit" [ref=f6e443]
+        - button "Skip to console" [ref=f6e448] [cursor=pointer]
+      - generic [ref=f6e452]:
+        - generic [ref=f6e454]:
+          - generic [ref=f6e455]:
+            - text: Authentication · Step 1 of 6
+            - heading "Choose how your users sign in" [level=1] [ref=f6e456]
+            - paragraph [ref=f6e457]: Turn methods on and watch your sign-in box change. It uses your logo and colours from Customization.
+          - generic [ref=f6e458]:
+            - generic [ref=f6e459]: Sign-in options
+            - group "Sign-in options" [ref=f6e460]:
+              - switch "Email and password" [checked] [ref=f6e461] [cursor=pointer]
+              - switch "Passkeys" [checked] [ref=f6e472] [cursor=pointer]
+              - switch "Email code" [ref=f6e480] [cursor=pointer]
+              - switch "Magic link" [checked] [ref=f6e490] [cursor=pointer]
+              - switch "Google" [checked] [ref=f6e500] [cursor=pointer]
+              - switch "Apple" [ref=f6e511] [cursor=pointer]
+              - switch "GitHub" [checked] [ref=f6e519] [cursor=pointer]
+              - switch "Microsoft" [ref=f6e527] [cursor=pointer]
+            - generic [ref=f6e538]: "Passkeys are recommended: no password to steal, and free."
+          - generic [ref=f6e539]:
+            - generic [ref=f6e540]: Always on
+            - generic [ref=f6e541]:
+              - generic [ref=f6e547]:
+                - generic [ref=f6e548]:
+                  - text: Didit ID Wallet
+                  - generic [ref=f6e549]: No new KYC
+                - generic [ref=f6e550]: Verified people sign in with one tap.
+                - button "Preview" [ref=f6e551] [cursor=pointer]
+              - generic [ref=f6e552]: Always on
+          - generic [ref=f6e557]:
+            - generic [ref=f6e558]: Protection
+            - generic [ref=f6e559]:
+              - generic [ref=f6e565]:
+                - generic [ref=f6e566]: Only allow humans
+                - generic [ref=f6e567]: Stops bots at sign-up and sign-in, with no puzzles.
+                - button "Hide preview" [pressed] [ref=f6e568] [cursor=pointer]
+              - switch "Only allow humans" [checked] [ref=f6e569] [cursor=pointer]
+          - button "Continue" [ref=f6e572] [cursor=pointer]
+        - generic "Only allow humans · Sandbox" [ref=f6e573]:
+          - generic [ref=f6e579]:
+            - generic [ref=f6e580]:
+              - generic [ref=f6e581]:
+                - generic [ref=f6e582]: Sign-ups and sign-ins, last hour
+                - generic [ref=f6e583]:
+                  - status:
+                    - generic: Checking
+              - generic [ref=f6e584]:
+                - generic [ref=f6e590]:
+                  - generic [ref=f6e591]: New sign-up · maria.oliveira@gmail.com
+                  - generic [ref=f6e592]: Real person · iPhone, Lisbon
+                - generic [ref=f6e593]: Passed
+              - generic [ref=f6e595]:
+                - generic [ref=f6e601]:
+                  - generic [ref=f6e602]: New sign-up · headless browser
+                  - generic [ref=f6e603]: Scripted form fill from a data center
+                - generic [ref=f6e604]: Blocked
+              - generic [ref=f6e606]:
+                - generic [ref=f6e612]:
+                  - generic [ref=f6e613]: Sign-in · 40 accounts in 2 minutes
+                  - generic [ref=f6e614]: Credential-stuffing tool on one device
+                - generic [ref=f6e615]: Blocked
+              - generic [ref=f6e617]:
+                - generic [ref=f6e622]:
+                  - generic [ref=f6e623]: New sign-up · emulator
+                  - generic [ref=f6e624]: Android emulator farm · asked for a selfie
+                - generic [ref=f6e625]: Challenged
+              - generic [ref=f6e627]:
+                - generic [ref=f6e633]:
+                  - generic [ref=f6e634]: Sign-in · lukas.weber@web.de
+                  - generic [ref=f6e635]: Real person · passkey
+                - generic [ref=f6e636]: Passed
+            - generic [ref=f6e638]: Real people never see a puzzle. Blocked attempts show in Events with the reason.
+      - navigation "Authentication setup" [ref=f6e644]:
+        - generic [ref=f6e645]: Authentication
+        - generic [ref=f6e646]:
+          - 'button "Step 1 of 6: Sign-in methods, current" [ref=f6e647]'
+          - 'button "Step 2 of 6: Redirects" [ref=f6e649]'
+          - 'button "Step 3 of 6: Test" [ref=f6e651]'
+          - 'button "Step 4 of 6: Your users" [ref=f6e653]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e655]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e657]'
+  - generic [ref=f6e659]:
+    - generic [ref=f6e660]: 2 · Redirects
+    - generic [ref=f6e663]:
+      - generic [ref=f6e664]:
+        - img "Didit" [ref=f6e665]
+        - button "Skip to console" [ref=f6e670] [cursor=pointer]
+      - generic [ref=f6e674]:
+        - generic [ref=f6e676]:
+          - generic [ref=f6e677]:
+            - text: Authentication · Step 2 of 6
+            - heading "Where users land after signing in" [level=1] [ref=f6e678]
+            - paragraph [ref=f6e679]: Didit only sends users back to addresses on this list. Add your local address to test and your app's address for production.
+          - generic [ref=f6e680]:
+            - generic [ref=f6e681]: Redirect URLs
+            - generic [ref=f6e682]:
+              - generic [ref=f6e683]:
+                - generic [ref=f6e684]: http://localhost:3000/auth/callback
+                - generic [ref=f6e685]: Sandbox
+                - button "Remove http://localhost:3000/auth/callback" [ref=f6e687] [cursor=pointer]
+              - generic [ref=f6e692]:
+                - generic [ref=f6e693]: https://app.aurora-play.com/auth/callback
+                - generic [ref=f6e694]: Live
+                - button "Remove https://app.aurora-play.com/auth/callback" [ref=f6e696] [cursor=pointer]
+            - button "Add a redirect URL" [ref=f6e701] [cursor=pointer]
+          - generic [ref=f6e705]:
+            - generic [ref=f6e706]: Allowed origins
+            - generic [ref=f6e707]:
+              - generic [ref=f6e708]:
+                - generic [ref=f6e709]: http://localhost:3000
+                - generic [ref=f6e710]: Sandbox
+                - button "Remove http://localhost:3000" [ref=f6e712] [cursor=pointer]
+              - generic [ref=f6e717]:
+                - generic [ref=f6e718]: https://app.aurora-play.com
+                - generic [ref=f6e719]: Live
+                - button "Remove https://app.aurora-play.com" [ref=f6e721] [cursor=pointer]
+            - button "Add an origin" [ref=f6e726] [cursor=pointer]
+          - generic [ref=f6e730]:
+            - generic [ref=f6e731]: After sign-out
+            - textbox "After sign-out" [ref=f6e732]: https://aurora-play.com
+          - generic [ref=f6e733]: Exact matches only, no wildcards, so a lookalike address can never receive your users' sessions.
+          - generic [ref=f6e734]:
+            - button "Back" [ref=f6e735] [cursor=pointer]
+            - button "Continue" [ref=f6e736] [cursor=pointer]
+        - generic "How sign-in works" [ref=f6e737]:
+          - generic [ref=f6e742]:
+            - generic [ref=f6e743]:
+              - generic [ref=f6e744]: "1"
+              - generic [ref=f6e745]:
+                - generic [ref=f6e746]: Your app
+                - generic [ref=f6e747]: localhost:3000
+                - generic [ref=f6e748]: The user taps Sign in
+            - generic [ref=f6e750]:
+              - generic [ref=f6e751]: "2"
+              - generic [ref=f6e752]:
+                - generic [ref=f6e753]: Didit sign-in
+                - generic [ref=f6e754]: auth.didit.me/aurora-play
+                - generic [ref=f6e755]: The methods you chose, in your brand
+            - generic [ref=f6e757]:
+              - generic [ref=f6e758]: "3"
+              - generic [ref=f6e759]:
+                - generic [ref=f6e760]: Back to your app
+                - generic [ref=f6e761]: /auth/callback?code=…
+                - generic [ref=f6e762]: Only to an address on your list
+            - generic [ref=f6e764]:
+              - generic [ref=f6e765]: "4"
+              - generic [ref=f6e766]:
+                - generic [ref=f6e767]: Your server
+                - generic [ref=f6e768]: POST /oauth/token
+                - generic [ref=f6e769]: Swaps the code for tokens with your secret key
+      - navigation "Authentication setup" [ref=f6e770]:
+        - generic [ref=f6e771]: Authentication
+        - generic [ref=f6e772]:
+          - 'button "Step 1 of 6: Sign-in methods, done, go back" [ref=f6e773] [cursor=pointer]'
+          - 'button "Step 2 of 6: Redirects, current" [ref=f6e775]'
+          - 'button "Step 3 of 6: Test" [ref=f6e777]'
+          - 'button "Step 4 of 6: Your users" [ref=f6e779]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e781]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e783]'
+  - generic [ref=f6e785]:
+    - generic [ref=f6e786]: 3 · Test · signed in
+    - generic [ref=f6e789]:
+      - generic [ref=f6e790]:
+        - img "Didit" [ref=f6e791]
+        - button "Skip to console" [ref=f6e796] [cursor=pointer]
+      - generic [ref=f6e800]:
+        - generic [ref=f6e802]:
+          - generic [ref=f6e803]: First success · your first sign-in
+          - generic [ref=f6e808]:
+            - text: Authentication · Step 3 of 6
+            - heading "You signed in to Aurora Play" [level=1] [ref=f6e809]
+            - paragraph [ref=f6e810]: Didit created a Sandbox user for alejandro@aurora-play.com. This is what your app receives after the redirect.
+          - generic [ref=f6e811]:
+            - generic [ref=f6e812]:
+              - generic [ref=f6e813]: ID token claims
+              - button "Copy" [ref=f6e815] [cursor=pointer]
+            - generic [ref=f6e821]:
+              - generic [ref=f6e822]: "{"
+              - generic [ref=f6e824]:
+                - generic [ref=f6e826]: "\"sub\""
+                - generic [ref=f6e827]: ":"
+                - generic [ref=f6e828]: "\"usr_2Kx9Tq4Lm\""
+                - generic [ref=f6e829]: ","
+              - generic [ref=f6e830]:
+                - generic [ref=f6e832]: "\"email\""
+                - generic [ref=f6e833]: ":"
+                - generic [ref=f6e834]: "\"alejandro@aurora-play.com\""
+                - generic [ref=f6e835]: ","
+              - generic [ref=f6e836]:
+                - generic [ref=f6e838]: "\"email_verified\""
+                - generic [ref=f6e839]: ":"
+                - generic [ref=f6e840]: "true"
+                - generic [ref=f6e841]: ","
+              - generic [ref=f6e842]:
+                - generic [ref=f6e844]: "\"name\""
+                - generic [ref=f6e845]: ":"
+                - generic [ref=f6e846]: "\"Alejandro Rosas\""
+                - generic [ref=f6e847]: ","
+              - generic [ref=f6e848]:
+                - generic [ref=f6e850]: "\"amr\""
+                - generic [ref=f6e851]: ": ["
+                - generic [ref=f6e852]: "\"google\""
+                - generic [ref=f6e853]: "],"
+              - generic [ref=f6e854]:
+                - generic [ref=f6e856]: "\"iss\""
+                - generic [ref=f6e857]: ":"
+                - generic [ref=f6e858]: "\"https://auth.didit.me/aurora-play\""
+              - generic [ref=f6e859]: "}"
+          - generic [ref=f6e861]:
+            - button "Sign out and retry" [ref=f6e862] [cursor=pointer]
+            - button "Continue" [ref=f6e863] [cursor=pointer]
+        - generic "Live preview" [ref=f6e864]:
+          - generic [ref=f6e865]:
+            - generic [ref=f6e866]: Live preview
+            - button "Brand from Customization" [ref=f6e869] [cursor=pointer]
+            - radiogroup "Preview theme" [ref=f6e870]:
+              - radio "Light" [checked] [ref=f6e871] [cursor=pointer]
+              - radio "Dark" [ref=f6e880] [cursor=pointer]
+          - generic [ref=f6e885]:
+            - generic [ref=f6e886]:
+              - generic [ref=f6e887]:
+                - generic [ref=f6e888]:
+                  - generic [ref=f6e889]: A
+                  - generic [ref=f6e890]: Aurora Play
+                  - generic [ref=f6e891]: Signed in
+                - generic [ref=f6e892]:
+                  - generic [ref=f6e893]: AR
+                  - generic [ref=f6e894]:
+                    - generic [ref=f6e895]: Alejandro Rosas
+                    - generic [ref=f6e896]: alejandro@aurora-play.com
+                - generic [ref=f6e897]:
+                  - generic [ref=f6e898]:
+                    - generic [ref=f6e899]: Signed in with
+                    - generic [ref=f6e900]: Google
+                  - generic [ref=f6e907]:
+                    - generic [ref=f6e908]: Session
+                    - generic [ref=f6e909]: Sandbox · 12 hours
+                  - generic [ref=f6e910]:
+                    - generic [ref=f6e911]: Back to your app
+                    - generic [ref=f6e912]: localhost:3000/auth/callback
+              - generic [ref=f6e913]: Secured by Didit
+            - generic [ref=f6e914]: Signed in · Sandbox
+      - navigation "Authentication setup" [ref=f6e915]:
+        - generic [ref=f6e916]: Authentication
+        - generic [ref=f6e917]:
+          - 'button "Step 1 of 6: Sign-in methods, done, go back" [ref=f6e918] [cursor=pointer]'
+          - 'button "Step 2 of 6: Redirects, done, go back" [ref=f6e920] [cursor=pointer]'
+          - 'button "Step 3 of 6: Test, current" [ref=f6e922]'
+          - 'button "Step 4 of 6: Your users" [ref=f6e924]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e926]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e928]'
+  - generic [ref=f6e930]:
+    - generic [ref=f6e931]: 4 · Your users · import
+    - generic [ref=f6e934]:
+      - generic [ref=f6e935]:
+        - img "Didit" [ref=f6e936]
+        - button "Skip to console" [ref=f6e941] [cursor=pointer]
+      - generic [ref=f6e945]:
+        - generic [ref=f6e947]:
+          - generic [ref=f6e948]:
+            - text: Authentication · Step 4 of 6
+            - heading "Bring your users" [level=1] [ref=f6e949]
+            - paragraph [ref=f6e950]: Moving from another identity platform? Import your users so they keep signing in the way they do today.
+          - radiogroup "Are you moving from another identity platform?" [ref=f6e951]:
+            - radio "I'm starting fresh" [ref=f6e952] [cursor=pointer]
+            - radio "I'm moving from another platform" [checked] [ref=f6e956] [cursor=pointer]
+          - generic [ref=f6e960]:
+            - generic [ref=f6e961]: Where your users are today
+            - generic [ref=f6e962]:
+              - button "Another platform" [pressed] [ref=f6e963] [cursor=pointer]
+              - button "Your own database" [ref=f6e965] [cursor=pointer]
+              - button "CSV or JSON file" [ref=f6e967] [cursor=pointer]
+          - generic [ref=f6e969]:
+            - generic [ref=f6e970]: Passwords
+            - radiogroup "Passwords" [ref=f6e971]:
+              - radio "Import password hashes bcrypt, scrypt, Argon2 and PBKDF2. People keep their password." [checked] [ref=f6e972] [cursor=pointer]:
+                - generic [ref=f6e974]:
+                  - generic [ref=f6e975]: Import password hashes
+                  - generic [ref=f6e976]: bcrypt, scrypt, Argon2 and PBKDF2. People keep their password.
+              - radio "Ask people to set a new password They get an email the first time they sign in." [ref=f6e977] [cursor=pointer]:
+                - generic [ref=f6e979]:
+                  - generic [ref=f6e980]: Ask people to set a new password
+                  - generic [ref=f6e981]: They get an email the first time they sign in.
+          - generic [ref=f6e982]:
+            - generic [ref=f6e983]:
+              - generic [ref=f6e984]:
+                - generic [ref=f6e985]: Keep social sign-in links
+                - generic [ref=f6e987]: Google, GitHub, Apple and Microsoft accounts stay linked
+              - switch "Keep social sign-in links" [checked] [ref=f6e988] [cursor=pointer]
+            - generic [ref=f6e990]:
+              - generic [ref=f6e991]:
+                - generic [ref=f6e992]: Keep verified emails
+                - generic [ref=f6e994]: People don't confirm their email again
+              - switch "Keep verified emails" [checked] [ref=f6e995] [cursor=pointer]
+            - generic [ref=f6e997]:
+              - generic [ref=f6e998]:
+                - generic [ref=f6e999]: Keep authenticator apps
+                - generic [ref=f6e1001]: Passkeys belong to your old domain, so people add them again
+              - switch "Keep authenticator apps" [checked] [ref=f6e1002] [cursor=pointer]
+          - generic [ref=f6e1004]:
+            - button "Back" [ref=f6e1005] [cursor=pointer]
+            - button "Import 48,210 users" [ref=f6e1006] [cursor=pointer]
+        - generic "Dry run" [ref=f6e1008]:
+          - generic [ref=f6e1013]:
+            - generic [ref=f6e1014]:
+              - generic [ref=f6e1015]:
+                - generic [ref=f6e1021]:
+                  - generic [ref=f6e1022]: users-export.json
+                  - generic [ref=f6e1023]: Dry run · nothing is imported until you start
+                - generic [ref=f6e1024]: Dry run
+              - generic [ref=f6e1026]:
+                - generic [ref=f6e1027]:
+                  - generic [ref=f6e1028]: Email addresses
+                  - generic [ref=f6e1029]: To each user's email
+                - generic [ref=f6e1030]: 48,210
+                - generic [ref=f6e1031]: Ready
+              - generic [ref=f6e1033]:
+                - generic [ref=f6e1034]:
+                  - generic [ref=f6e1035]: Password hashes (bcrypt)
+                  - generic [ref=f6e1036]: People keep their password
+                - generic [ref=f6e1037]: 47,898
+                - generic [ref=f6e1038]: Ready
+              - generic [ref=f6e1040]:
+                - generic [ref=f6e1041]:
+                  - generic [ref=f6e1042]: Unsupported password hashes
+                  - generic [ref=f6e1043]: A new password on first sign-in
+                - generic [ref=f6e1044]: "312"
+                - generic [ref=f6e1045]: Reset
+              - generic [ref=f6e1047]:
+                - generic [ref=f6e1048]:
+                  - generic [ref=f6e1049]: Google and GitHub links
+                  - generic [ref=f6e1050]: Stay linked for social sign-in
+                - generic [ref=f6e1051]: 21,406
+                - generic [ref=f6e1052]: Ready
+              - generic [ref=f6e1054]:
+                - generic [ref=f6e1055]:
+                  - generic [ref=f6e1056]: Authenticator apps
+                  - generic [ref=f6e1057]: Move over as MFA
+                - generic [ref=f6e1058]: 3,120
+                - generic [ref=f6e1059]: Ready
+              - generic [ref=f6e1061]:
+                - generic [ref=f6e1062]:
+                  - generic [ref=f6e1063]: Same email twice
+                  - generic [ref=f6e1064]: Merged into one person
+                - generic [ref=f6e1065]: "18"
+                - generic [ref=f6e1066]: Merged
+            - generic [ref=f6e1068]: "You can run it again: people already imported are skipped."
+      - navigation "Authentication setup" [ref=f6e1074]:
+        - generic [ref=f6e1075]: Authentication
+        - generic [ref=f6e1076]:
+          - 'button "Step 1 of 6: Sign-in methods, done, go back" [ref=f6e1077] [cursor=pointer]'
+          - 'button "Step 2 of 6: Redirects, done, go back" [ref=f6e1079] [cursor=pointer]'
+          - 'button "Step 3 of 6: Test, done, go back" [ref=f6e1081] [cursor=pointer]'
+          - 'button "Step 4 of 6: Your users, current" [ref=f6e1083]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e1085]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e1087]'
+  - generic [ref=f6e1089]:
+    - generic [ref=f6e1090]: 4 · Your users · imported
+    - generic [ref=f6e1093]:
+      - generic [ref=f6e1094]:
+        - img "Didit" [ref=f6e1095]
+        - button "Skip to console" [ref=f6e1100] [cursor=pointer]
+      - generic [ref=f6e1104]:
+        - generic [ref=f6e1106]:
+          - generic [ref=f6e1107]: Imported · 48,210 users
+          - generic [ref=f6e1112]:
+            - text: Authentication · Step 4 of 6
+            - heading "Your users are in" [level=1] [ref=f6e1113]
+            - paragraph [ref=f6e1114]: 48,210 people can sign in to Aurora Play with Didit, most of them with the password they already had.
+          - generic [ref=f6e1115]:
+            - generic [ref=f6e1116]:
+              - generic [ref=f6e1117]: Imported
+              - generic [ref=f6e1118]: 48,210 users
+            - generic [ref=f6e1120]:
+              - generic [ref=f6e1121]: Sign in with their password
+              - generic [ref=f6e1122]: 47,898
+            - generic [ref=f6e1124]:
+              - generic [ref=f6e1125]: Set a new password
+              - generic [ref=f6e1126]: "312"
+            - generic [ref=f6e1128]:
+              - generic [ref=f6e1129]: Social links kept
+              - generic [ref=f6e1130]: 21,406
+            - generic [ref=f6e1132]:
+              - generic [ref=f6e1133]: Merged, same email
+              - generic [ref=f6e1134]: "18"
+          - generic [ref=f6e1136]: The 312 people whose old password could not be imported get the email on the right the first time they sign in, from your own sender.
+          - generic [ref=f6e1137]:
+            - button "Back" [ref=f6e1138] [cursor=pointer]
+            - button "Continue" [ref=f6e1139] [cursor=pointer]
+        - generic "Your import" [ref=f6e1141]:
+          - generic [ref=f6e1146]:
+            - generic [ref=f6e1147]:
+              - generic [ref=f6e1148]:
+                - generic [ref=f6e1154]:
+                  - generic [ref=f6e1155]: Import finished
+                  - generic [ref=f6e1156]: users-export.json · 48,210 users · 4 min
+                - generic [ref=f6e1157]: Done
+              - generic [ref=f6e1159]:
+                - generic [ref=f6e1160]:
+                  - generic [ref=f6e1161]: 48,210
+                  - generic [ref=f6e1162]: people can now sign in to Aurora Play
+                - generic [ref=f6e1166]:
+                  - generic [ref=f6e1167]: 47,898 keep their password
+                  - generic [ref=f6e1169]: 312 choose a new one
+              - generic [ref=f6e1171]:
+                - generic [ref=f6e1172]:
+                  - generic [ref=f6e1173]: Imported
+                  - generic [ref=f6e1174]: Every user, with their profile and sign-in history
+                - generic [ref=f6e1175]: 48,210
+                - generic [ref=f6e1176]: Done
+              - generic [ref=f6e1178]:
+                - generic [ref=f6e1179]:
+                  - generic [ref=f6e1180]: Sign in with their password
+                  - generic [ref=f6e1181]: Their bcrypt hashes came across
+                - generic [ref=f6e1182]: 47,898
+                - generic [ref=f6e1183]: Ready
+              - generic [ref=f6e1185]:
+                - generic [ref=f6e1186]:
+                  - generic [ref=f6e1187]: Set a new password
+                  - generic [ref=f6e1188]: Their old hashes can't be imported
+                - generic [ref=f6e1189]: "312"
+                - generic [ref=f6e1190]: Reset
+            - generic [ref=f6e1192]:
+              - generic [ref=f6e1193]:
+                - generic [ref=f6e1194]:
+                  - generic [ref=f6e1195]: From
+                  - generic [ref=f6e1196]: Aurora Play <no-reply@aurora-play.com>
+                - generic [ref=f6e1197]:
+                  - generic [ref=f6e1198]: Subject
+                  - generic [ref=f6e1199]: Set a new password for Aurora Play
+              - generic [ref=f6e1200]: We moved Aurora Play to a new sign-in. Your account, your history and your Google link are all here; you only need to choose a new password, or add a passkey instead.
+              - generic [ref=f6e1201]: Set a new password
+            - generic [ref=f6e1203]: Every imported user is in People, with where they came from.
+      - navigation "Authentication setup" [ref=f6e1210]:
+        - generic [ref=f6e1211]: Authentication
+        - generic [ref=f6e1212]:
+          - 'button "Step 1 of 6: Sign-in methods, done, go back" [ref=f6e1213] [cursor=pointer]'
+          - 'button "Step 2 of 6: Redirects, done, go back" [ref=f6e1215] [cursor=pointer]'
+          - 'button "Step 3 of 6: Test, done, go back" [ref=f6e1217] [cursor=pointer]'
+          - 'button "Step 4 of 6: Your users, current" [ref=f6e1219]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e1221]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e1223]'
+  - generic [ref=f6e1225]:
+    - generic [ref=f6e1226]: 5 · Add to your app
+    - generic [ref=f6e1229]:
+      - generic [ref=f6e1230]:
+        - img "Didit" [ref=f6e1231]
+        - button "Skip to console" [ref=f6e1236] [cursor=pointer]
+      - generic [ref=f6e1240]:
+        - generic [ref=f6e1242]:
+          - generic [ref=f6e1243]:
+            - text: Authentication · Step 5 of 6
+            - heading "Add sign-in to your app" [level=1] [ref=f6e1244]
+            - paragraph [ref=f6e1245]: Install the SDK, wrap your app and drop in the sign-in box. The publishable key in the snippet is safe to ship in your app.
+          - generic [ref=f6e1246]:
+            - tablist [ref=f6e1247]:
+              - tab "React" [selected] [ref=f6e1248] [cursor=pointer]
+              - tab "Next.js" [ref=f6e1249] [cursor=pointer]
+              - tab "iOS" [ref=f6e1250] [cursor=pointer]
+              - tab "Android" [ref=f6e1251] [cursor=pointer]
+              - button "Copy" [ref=f6e1253] [cursor=pointer]
+            - generic [ref=f6e1259]:
+              - generic [ref=f6e1260]: // npm install @didit-protocol/auth-react
+              - generic [ref=f6e1262]:
+                - generic [ref=f6e1263]: import
+                - generic [ref=f6e1264]: "{ DiditAuth, SignIn }"
+              - generic [ref=f6e1265]:
+                - generic [ref=f6e1267]: from
+                - generic [ref=f6e1269]: "'@didit-protocol/auth-react'"
+                - generic [ref=f6e1270]: ;
+              - generic [ref=f6e1273]:
+                - generic [ref=f6e1274]: export
+                - generic [ref=f6e1276]: default
+                - generic [ref=f6e1278]: function
+                - generic [ref=f6e1279]: "App() {"
+              - generic [ref=f6e1280]:
+                - generic [ref=f6e1282]: return
+                - generic [ref=f6e1283]: (
+              - generic [ref=f6e1284]:
+                - generic [ref=f6e1285]: <DiditAuth publishableKey=
+                - generic [ref=f6e1286]: "\"pk_test_7Hq2Xa9\""
+                - generic [ref=f6e1287]: ">"
+              - generic [ref=f6e1288]:
+                - generic [ref=f6e1289]: <SignIn afterSignIn=
+                - generic [ref=f6e1290]: "\"/dashboard\""
+                - generic [ref=f6e1291]: />
+              - generic [ref=f6e1292]: </DiditAuth>
+              - generic [ref=f6e1294]: );
+              - generic [ref=f6e1296]: "}"
+          - generic [ref=f6e1298]:
+            - generic [ref=f6e1299]:
+              - generic [ref=f6e1307]: Or paste this into your AI coding agent
+              - button "Copy prompt" [ref=f6e1308] [cursor=pointer]
+            - generic [ref=f6e1314]: "Add Didit Authentication to this app. First ask me: are we moving users from another identity platform? If yes, run the migration before switching sign-in (import users with their password hashes or trigger a reset, keep their social links and our user IDs). Then install @didit-protocol/auth-react, wrap the app in <DiditAuth publishableKey=\"pk_test_7Hq2Xa9\">, add <SignIn /> on /sign-in, and verify the session token on every server route. If Agent access is on, render <ConnectedAgents /> on the account settings page and check the agent claims before each action."
+          - generic [ref=f6e1315]:
+            - generic [ref=f6e1316]:
+              - status: Waiting for a sign-in from your app
+            - generic [ref=f6e1317]: localhost:3000
+          - generic [ref=f6e1318]:
+            - button "Back" [ref=f6e1319] [cursor=pointer]
+            - button "Continue" [ref=f6e1320] [cursor=pointer]
+        - generic "Sign-ins in Sandbox" [ref=f6e1321]:
+          - generic [ref=f6e1327]:
+            - generic [ref=f6e1328]:
+              - generic [ref=f6e1329]:
+                - generic [ref=f6e1330]: Sign-ins
+                - generic [ref=f6e1331]:
+                  - status:
+                    - generic: Waiting for your app
+              - generic [ref=f6e1332]:
+                - generic [ref=f6e1338]:
+                  - generic [ref=f6e1339]: alejandro@aurora-play.com
+                  - generic [ref=f6e1340]: Google · from the console preview · just now
+                - generic [ref=f6e1341]: Signed in
+            - generic [ref=f6e1343]: Every sign-in and new user shows up here, and on your Authentication home.
+      - navigation "Authentication setup" [ref=f6e1353]:
+        - generic [ref=f6e1354]: Authentication
+        - generic [ref=f6e1355]:
+          - 'button "Step 1 of 6: Sign-in methods, done, go back" [ref=f6e1356] [cursor=pointer]'
+          - 'button "Step 2 of 6: Redirects, done, go back" [ref=f6e1358] [cursor=pointer]'
+          - 'button "Step 3 of 6: Test, done, go back" [ref=f6e1360] [cursor=pointer]'
+          - 'button "Step 4 of 6: Your users, done, go back" [ref=f6e1362] [cursor=pointer]'
+          - 'button "Step 5 of 6: Add to your app, current" [ref=f6e1364]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e1366]'
+  - generic [ref=f6e1368]:
+    - generic [ref=f6e1369]: 6 · Verified identity
+    - generic [ref=f6e1372]:
+      - generic [ref=f6e1373]:
+        - img "Didit" [ref=f6e1374]
+        - button "Skip to console" [ref=f6e1379] [cursor=pointer]
+      - generic [ref=f6e1383]:
+        - generic [ref=f6e1385]:
+          - generic [ref=f6e1386]:
+            - text: Authentication · Step 6 of 6
+            - heading "Verify identity when it matters" [level=1] [ref=f6e1387]
+            - paragraph [ref=f6e1388]: Optional. Add a Didit identity check at sign-up or before sensitive actions. Your app gets verified claims, not a document to store.
+          - generic [ref=f6e1389]:
+            - generic [ref=f6e1395]:
+              - generic [ref=f6e1396]: Require a verified identity
+              - generic [ref=f6e1397]: On · users verify once, then sign in as usual
+            - switch "Require a verified identity" [checked] [ref=f6e1398] [cursor=pointer]
+          - radiogroup "Check" [ref=f6e1400]:
+            - radio "Liveness A real, live person. No document. From $0.10" [ref=f6e1401] [cursor=pointer]:
+              - generic [ref=f6e1403]:
+                - generic [ref=f6e1404]: Liveness
+                - generic [ref=f6e1405]: A real, live person. No document.
+              - generic [ref=f6e1406]: From $0.10
+            - radio "Full identity verification Document, liveness and face match. Adds name and date of birth. About $0.33" [checked] [ref=f6e1407] [cursor=pointer]:
+              - generic [ref=f6e1409]:
+                - generic [ref=f6e1410]: Full identity verification
+                - generic [ref=f6e1411]: Document, liveness and face match. Adds name and date of birth.
+              - generic [ref=f6e1412]: About $0.33
+          - generic [ref=f6e1413]:
+            - generic [ref=f6e1414]: When to ask
+            - generic [ref=f6e1415]:
+              - button "At sign-up" [pressed] [ref=f6e1416] [cursor=pointer]
+              - button "Before actions you choose" [pressed] [ref=f6e1418] [cursor=pointer]
+              - button "Every sign-in" [ref=f6e1420] [cursor=pointer]
+          - generic [ref=f6e1422]:
+            - generic [ref=f6e1423]: Claims your app gets
+            - generic [ref=f6e1424]:
+              - button "verified" [pressed] [ref=f6e1425] [cursor=pointer]
+              - button "given_name" [pressed] [ref=f6e1427] [cursor=pointer]
+              - button "family_name" [pressed] [ref=f6e1429] [cursor=pointer]
+              - button "birthdate" [pressed] [ref=f6e1431] [cursor=pointer]
+              - button "age_over_18" [pressed] [ref=f6e1433] [cursor=pointer]
+              - button "nationality" [ref=f6e1435] [cursor=pointer]
+          - generic [ref=f6e1437]: Checks are charged at Identity verification prices. Sign-in itself is free up to 50,000 active users a month.
+          - generic [ref=f6e1438]:
+            - button "Back" [ref=f6e1439] [cursor=pointer]
+            - button "Finish setup" [ref=f6e1440] [cursor=pointer]
+        - generic "Live preview" [ref=f6e1441]:
+          - generic [ref=f6e1442]:
+            - generic [ref=f6e1443]: Live preview
+            - button "Brand from Customization" [ref=f6e1445] [cursor=pointer]
+            - radiogroup "Preview theme" [ref=f6e1446]:
+              - radio "Light" [checked] [ref=f6e1447] [cursor=pointer]
+              - radio "Dark" [ref=f6e1456] [cursor=pointer]
+          - generic [ref=f6e1461]:
+            - generic [ref=f6e1462]:
+              - generic [ref=f6e1463]:
+                - generic [ref=f6e1469]:
+                  - generic [ref=f6e1470]: Confirm it's you
+                  - generic [ref=f6e1471]: Aurora Play needs your ID and a selfie to verify your identity. It takes about a minute.
+                - generic [ref=f6e1472]:
+                  - generic [ref=f6e1473]:
+                    - generic [ref=f6e1480]:
+                      - generic [ref=f6e1481]: Scan your ID
+                      - generic [ref=f6e1482]: Passport, ID card or driving licence
+                    - emphasis [ref=f6e1483]: 20 s
+                  - generic [ref=f6e1484]:
+                    - generic [ref=f6e1490]:
+                      - generic [ref=f6e1491]: Take a quick selfie
+                      - generic [ref=f6e1492]: Proves it's you, live
+                    - emphasis [ref=f6e1493]: 10 s
+                - generic [ref=f6e1494]: Scan your ID
+                - generic [ref=f6e1496]: Verified by Didit. Aurora Play only gets the details it asks for.
+              - generic [ref=f6e1497]: Secured by Didit
+            - generic [ref=f6e1498]: Shown at sign-up · full identity verification
+      - navigation "Authentication setup" [ref=f6e1499]:
+        - generic [ref=f6e1500]: Authentication
+        - generic [ref=f6e1501]:
+          - 'button "Step 1 of 6: Sign-in methods, done, go back" [ref=f6e1502] [cursor=pointer]'
+          - 'button "Step 2 of 6: Redirects, done, go back" [ref=f6e1504] [cursor=pointer]'
+          - 'button "Step 3 of 6: Test, done, go back" [ref=f6e1506] [cursor=pointer]'
+          - 'button "Step 4 of 6: Your users, done, go back" [ref=f6e1508] [cursor=pointer]'
+          - 'button "Step 5 of 6: Add to your app, done, go back" [ref=f6e1510] [cursor=pointer]'
+          - 'button "Step 6 of 6: Verified identity, current" [ref=f6e1512]'
+  - generic [ref=f6e1514]:
+    - generic [ref=f6e1515]: Dark · Sign-in methods
+    - generic [ref=f6e1518]:
+      - generic [ref=f6e1519]:
+        - img "Didit" [ref=f6e1520]
+        - button "Skip to console" [ref=f6e1525] [cursor=pointer]
+      - generic [ref=f6e1529]:
+        - generic [ref=f6e1531]:
+          - generic [ref=f6e1532]:
+            - text: Authentication · Step 1 of 6
+            - heading "Choose how your users sign in" [level=1] [ref=f6e1533]
+            - paragraph [ref=f6e1534]: Turn methods on and watch your sign-in box change. It uses your logo and colours from Customization.
+          - generic [ref=f6e1535]:
+            - generic [ref=f6e1536]: Sign-in options
+            - group "Sign-in options" [ref=f6e1537]:
+              - switch "Email and password" [checked] [ref=f6e1538] [cursor=pointer]
+              - switch "Passkeys" [checked] [ref=f6e1549] [cursor=pointer]
+              - switch "Email code" [ref=f6e1557] [cursor=pointer]
+              - switch "Magic link" [checked] [ref=f6e1567] [cursor=pointer]
+              - switch "Google" [checked] [ref=f6e1577] [cursor=pointer]
+              - switch "Apple" [ref=f6e1588] [cursor=pointer]
+              - switch "GitHub" [checked] [ref=f6e1596] [cursor=pointer]
+              - switch "Microsoft" [ref=f6e1604] [cursor=pointer]
+            - generic [ref=f6e1615]: "Passkeys are recommended: no password to steal, and free."
+          - generic [ref=f6e1616]:
+            - generic [ref=f6e1617]: Always on
+            - generic [ref=f6e1618]:
+              - generic [ref=f6e1624]:
+                - generic [ref=f6e1625]:
+                  - text: Didit ID Wallet
+                  - generic [ref=f6e1626]: No new KYC
+                - generic [ref=f6e1627]: Verified people sign in with one tap.
+                - button "Preview" [ref=f6e1628] [cursor=pointer]
+              - generic [ref=f6e1629]: Always on
+          - generic [ref=f6e1634]:
+            - generic [ref=f6e1635]: Protection
+            - generic [ref=f6e1636]:
+              - generic [ref=f6e1642]:
+                - generic [ref=f6e1643]: Only allow humans
+                - generic [ref=f6e1644]: Stops bots at sign-up and sign-in, with no puzzles.
+                - button "Preview" [ref=f6e1645] [cursor=pointer]
+              - switch "Only allow humans" [checked] [ref=f6e1646] [cursor=pointer]
+          - button "Continue" [ref=f6e1649] [cursor=pointer]
+        - generic "Live preview" [ref=f6e1650]:
+          - generic [ref=f6e1651]:
+            - generic [ref=f6e1652]: Live preview
+            - button "Brand from Customization" [ref=f6e1655] [cursor=pointer]
+            - radiogroup "Preview theme" [ref=f6e1656]:
+              - radio "Light" [checked] [ref=f6e1657] [cursor=pointer]
+              - radio "Dark" [ref=f6e1666] [cursor=pointer]
+          - generic [ref=f6e1671]:
+            - generic [ref=f6e1672]:
+              - generic [ref=f6e1673]:
+                - generic [ref=f6e1674]:
+                  - generic [ref=f6e1675]: A
+                  - generic [ref=f6e1676]: Sign in to Aurora Play
+                  - generic [ref=f6e1677]: Welcome back! Sign in to continue.
+                - button "Continue with Google" [ref=f6e1678] [cursor=pointer]
+                - generic [ref=f6e1684]: Continue with GitHub
+                - generic [ref=f6e1687]: Sign in with a passkey
+                - generic [ref=f6e1690]: Continue with Didit ID Wallet
+                - generic [ref=f6e1695]: or
+                - generic [ref=f6e1696]:
+                  - generic [ref=f6e1697]: Email address
+                  - generic [ref=f6e1698]: you@example.com
+                - generic [ref=f6e1699]:
+                  - generic [ref=f6e1700]: Password
+                  - generic [ref=f6e1701]: ••••••••••
+                - generic [ref=f6e1702]: Continue
+                - generic [ref=f6e1704]: Email me a sign-in link
+                - generic [ref=f6e1705]: Don't have an account? Sign up
+              - generic [ref=f6e1706]: Secured by Didit
+            - generic [ref=f6e1707]: This is a preview · 5 methods on
+      - navigation "Authentication setup" [ref=f6e1708]:
+        - generic [ref=f6e1709]: Authentication
+        - generic [ref=f6e1710]:
+          - 'button "Step 1 of 6: Sign-in methods, current" [ref=f6e1711]'
+          - 'button "Step 2 of 6: Redirects" [ref=f6e1713]'
+          - 'button "Step 3 of 6: Test" [ref=f6e1715]'
+          - 'button "Step 4 of 6: Your users" [ref=f6e1717]'
+          - 'button "Step 5 of 6: Add to your app" [ref=f6e1719]'
+          - 'button "Step 6 of 6: Verified identity" [ref=f6e1721]'

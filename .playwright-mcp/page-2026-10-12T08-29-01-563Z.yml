@@ -1,0 +1,477 @@
+- generic [ref=e4]:
+  - generic "Sidebar" [ref=e6]
+  - main [ref=e7]:
+    - generic [ref=e8]:
+      - heading "Authentication" [level=1] [ref=e14]
+      - link [ref=e15] [cursor=pointer]:
+        - /url: https://docs.didit.me
+      - button "Try sign-in page" [ref=e19] [cursor=pointer]
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - heading "Authentication" [level=2] [ref=e36]
+          - paragraph [ref=e37]: 18,420 people signed in this month. Passkeys are 31% of sign-ins, 3,541 bot and takeover attempts were stopped, and 248 people let their own AI agent act for them.
+        - generic [ref=e38]:
+          - textbox "Ask Didit" [ref=e41]:
+            - /placeholder: Ask about sign-ins, methods, bots and agents, or tell Didit what to do
+          - generic [ref=e42]:
+            - generic [ref=e43]: Aurora Play · Web · This month
+            - button "Ask Didit" [ref=e46] [cursor=pointer]
+        - generic [ref=e50]:
+          - button "Why did sign-in success dip on Tuesday?" [ref=e51] [cursor=pointer]
+          - button "Who signed in on a new device, then asked for a payout?" [ref=e60] [cursor=pointer]
+          - button "How many people use a passkey now?" [ref=e69] [cursor=pointer]
+          - button "Which agents acted most this week?" [ref=e78] [cursor=pointer]
+      - region "Key metrics" [ref=e87]:
+        - link "Sign-ins today 4,812 +6% vs last Sunday" [ref=e88] [cursor=pointer]:
+          - /url: Analytics.dc.html?tab=auth
+          - generic "Sign-ins today" [ref=e89]
+          - generic [ref=e90]:
+            - generic [ref=e91]: 4,812
+            - generic [ref=e92]: +6%
+          - generic "vs last Sunday" [ref=e98]
+        - link "Active users 18,420 +6% In the last 30 days" [ref=e99] [cursor=pointer]:
+          - /url: Users.dc.html?view=signin&scope=auth
+          - generic "Active users" [ref=e100]
+          - generic [ref=e101]:
+            - generic [ref=e102]: 18,420
+            - generic [ref=e103]: +6%
+          - generic "In the last 30 days" [ref=e109]
+        - 'link "Success rate 97.9% +0.3 pt Failed: a wrong code" [ref=e110] [cursor=pointer]':
+          - /url: Analytics.dc.html?tab=auth
+          - generic "Success rate" [ref=e111]
+          - generic [ref=e112]:
+            - generic [ref=e113]: 97.9%
+            - generic [ref=e114]: +0.3 pt
+          - 'generic "Failed: a wrong code" [ref=e120]'
+        - link "Bots blocked 1,284 This month, most on Sep 24" [ref=e121] [cursor=pointer]:
+          - /url: Analytics.dc.html?tab=auth
+          - generic "Bots blocked" [ref=e122]
+          - generic [ref=e123]: 1,284
+          - generic "This month, most on Sep 24" [ref=e129]
+        - link "Active agent grants 312 +18% 248 people · 5 agents" [ref=e130] [cursor=pointer]:
+          - /url: Analytics.dc.html?tab=auth
+          - generic "Active agent grants" [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133]: "312"
+            - generic [ref=e134]: +18%
+          - generic "248 people · 5 agents" [ref=e140]
+      - region [ref=e141]:
+        - generic [ref=e142]:
+          - heading "Needs your attention" [level=2] [ref=e143]
+          - generic [ref=e144]: "5"
+          - link [ref=e145] [cursor=pointer]:
+            - /url: Events.dc.html?view=authentication
+        - list [ref=e149]:
+          - listitem [ref=e150]:
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - generic [ref=e159]: Authenticator codes failing
+                - generic [ref=e160]: MFA
+              - generic [ref=e166]:
+                - generic [ref=e168]: 41 wrong codes in 30 minutes
+                - generic [ref=e169]: ·
+                - generic "3 accounts in Germany, all from one data center network" [ref=e170]
+            - generic [ref=e171]: 22m
+            - button "Open sign-ins" [ref=e173] [cursor=pointer]
+          - listitem [ref=e175]:
+            - generic [ref=e179]:
+              - generic [ref=e180]:
+                - link "Lukas Weber" [ref=e181] [cursor=pointer]:
+                  - /url: Users.dc.html?view=locked&scope=auth&person=usr_7701
+                - generic [ref=e182]: Account
+              - generic [ref=e188]:
+                - generic [ref=e190]: Locked after 5 wrong passwords
+                - generic [ref=e191]: ·
+                - generic "The password is in a known data breach · Berlin" [ref=e192]
+            - generic [ref=e193]: 8m
+            - generic [ref=e194]:
+              - button "Keep locked" [ref=e195] [cursor=pointer]
+              - button "Unlock" [ref=e197] [cursor=pointer]
+          - listitem [ref=e199]:
+            - generic [ref=e203]:
+              - generic [ref=e204]:
+                - link "Chinedu Okafor" [ref=e205] [cursor=pointer]:
+                  - /url: Users.dc.html?view=signin&scope=auth&person=usr_9130
+                - generic [ref=e206]: New device
+              - generic [ref=e211]:
+                - generic [ref=e213]: Impossible travel, blocked
+                - generic [ref=e214]: ·
+                - generic "Lagos at 06:10, Singapore at 06:48 · he says it was not him" [ref=e215]
+            - generic [ref=e216]: 1h 30m
+            - button "Review" [ref=e218] [cursor=pointer]
+          - listitem [ref=e220]:
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - generic [ref=e231]: Scripted sign-ups stopped
+                - generic [ref=e232]: Only allow humans
+              - generic [ref=e238]:
+                - generic [ref=e239]: 1,106 blocked in one hour
+                - generic [ref=e240]: ·
+                - generic "Headless browsers on 3 data center networks · Sep 24, 03:10" [ref=e241]
+            - generic [ref=e242]: 3d
+            - button "See detections" [ref=e244] [cursor=pointer]
+          - listitem [ref=e246]:
+            - generic [ref=e253]:
+              - generic [ref=e254]:
+                - generic [ref=e255]: 14 agent grants end today
+                - generic [ref=e256]: Agent access
+              - generic [ref=e261]:
+                - generic [ref=e262]: People are asked to approve again
+                - generic [ref=e263]: ·
+                - generic "Nova for 9 people, Atlas for 5 · nothing to do" [ref=e264]
+            - button "Open Agent access" [ref=e266] [cursor=pointer]
+      - generic [ref=e268]:
+        - region [ref=e269]:
+          - generic [ref=e270]:
+            - heading "Sign-ins, 30 days" [level=2] [ref=e271]
+            - generic [ref=e272]: By method · all devices
+            - link [ref=e273] [cursor=pointer]:
+              - /url: Analytics.dc.html?tab=auth
+          - generic [ref=e277]:
+            - generic [ref=e278]: 142,380
+            - generic [ref=e279]: +9%
+            - generic [ref=e280]: sign-ins · Aug 29 to Sep 27
+            - generic [ref=e281]: Passkeys
+            - generic [ref=e284]: Social
+            - generic [ref=e287]: Email, phone and wallet
+          - 'img "Sign-ins per day for 30 days, by method: 142,380 in total" [ref=e290]':
+            - generic [ref=e291]: 6k
+            - generic [ref=e294]: 4k
+            - generic [ref=e297]: 2k
+            - generic [ref=e300]: "0"
+            - generic [ref=e303]:
+              - 'generic "Aug 29: 4,479 sign-ins" [ref=e304]'
+              - 'generic "Aug 30: 4,414 sign-ins" [ref=e308]'
+              - 'generic "Aug 31: 4,421 sign-ins" [ref=e312]'
+              - 'generic "Sep 1: 4,494 sign-ins" [ref=e316]'
+              - 'generic "Sep 2: 4,198 sign-ins" [ref=e320]'
+              - 'generic "Sep 3: 4,207 sign-ins" [ref=e324]'
+              - 'generic "Sep 4: 4,375 sign-ins" [ref=e328]'
+              - 'generic "Sep 5: 4,158 sign-ins" [ref=e332]'
+              - 'generic "Sep 6: 4,400 sign-ins" [ref=e336]'
+              - 'generic "Sep 7: 4,297 sign-ins" [ref=e340]'
+              - 'generic "Sep 8: 4,599 sign-ins" [ref=e344]'
+              - 'generic "Sep 9: 4,500 sign-ins" [ref=e348]'
+              - 'generic "Sep 10: 4,668 sign-ins" [ref=e352]'
+              - 'generic "Sep 11: 4,889 sign-ins" [ref=e356]'
+              - 'generic "Sep 12: 4,817 sign-ins" [ref=e360]'
+              - 'generic "Sep 13: 4,621 sign-ins"'
+              - 'generic "Sep 14: 4,727 sign-ins"'
+              - 'generic "Sep 15: 4,464 sign-ins"'
+              - 'generic "Sep 16: 4,388 sign-ins"'
+              - 'generic "Sep 17: 4,398 sign-ins"'
+              - 'generic "Sep 18: 4,717 sign-ins"'
+              - 'generic "Sep 19: 4,561 sign-ins"'
+              - 'generic "Sep 20: 4,370 sign-ins"'
+              - 'generic "Sep 21: 4,378 sign-ins"'
+              - 'generic "Sep 22: 4,780 sign-ins" [ref=e364]'
+              - 'generic "Sep 23: 4,811 sign-ins" [ref=e368]'
+              - 'generic "Sep 24: 4,519 sign-ins" [ref=e372]'
+              - 'generic "Sep 25: 4,898 sign-ins" [ref=e376]'
+              - 'generic "Sep 26: 5,144 sign-ins" [ref=e380]'
+              - 'generic "Sep 27: 5,110 sign-ins" [ref=e384]'
+            - generic [ref=e388]:
+              - generic [ref=e389]: Aug 29
+              - generic [ref=e390]: Sep 5
+              - generic [ref=e391]: Sep 12
+              - generic [ref=e392]: Sep 19
+              - generic [ref=e393]: Sep 27
+        - region [ref=e394]:
+          - generic [ref=e395]:
+            - heading "Live" [level=2] [ref=e396]
+            - generic [ref=e397]: Authentication events
+          - generic [ref=e399]:
+            - generic [ref=e400]:
+              - generic [ref=e403]:
+                - generic [ref=e404]: Maria Oliveira
+                - generic "Passkey after a VPN check · San Francisco" [ref=e405]
+              - generic [ref=e406]: Challenged
+              - generic [ref=e408]: 1m
+            - generic [ref=e409]:
+              - generic [ref=e415]:
+                - generic [ref=e416]: Nova, for Maria Oliveira
+                - generic "Checked payout status · agent session" [ref=e417]
+              - generic [ref=e418]: Allowed
+              - generic [ref=e420]: 2m
+            - generic [ref=e421]:
+              - generic [ref=e424]:
+                - generic [ref=e425]: Lukas Weber
+                - generic "Locked after 5 wrong passwords" [ref=e426]
+              - generic [ref=e427]: Blocked
+              - generic [ref=e429]: 4m
+            - generic [ref=e430]:
+              - generic [ref=e433]:
+                - generic [ref=e434]: Ana Gómez
+                - generic "Google · Ciudad de México" [ref=e435]
+              - generic [ref=e436]: Signed in
+              - generic [ref=e438]: 30m
+            - generic [ref=e439]:
+              - generic [ref=e442]:
+                - generic [ref=e443]: Scripted sign-up
+                - generic "Disposable email · headless browser" [ref=e444]
+              - generic [ref=e445]: Blocked
+              - generic [ref=e447]: 39m
+            - generic [ref=e448]:
+              - generic [ref=e453]:
+                - generic [ref=e454]: Aisha Khan
+                - generic "Didit ID Wallet · shared over 18, first name" [ref=e455]
+              - generic [ref=e456]: Signed in
+              - generic [ref=e458]: 1h
+          - link [ref=e459] [cursor=pointer]:
+            - /url: Events.dc.html?view=authentication
+      - generic [ref=e463]:
+        - region [ref=e464]:
+          - generic [ref=e465]:
+            - heading "Method mix" [level=2] [ref=e466]
+            - generic [ref=e467]: Share · success
+          - generic [ref=e468]:
+            - generic [ref=e470]:
+              - generic [ref=e474]: Passkeys
+              - generic [ref=e475]: 99.6% success
+              - generic [ref=e476]: 31%
+            - generic [ref=e480]:
+              - generic [ref=e487]: Google
+              - generic [ref=e488]: 98.9% success
+              - generic [ref=e489]: 26%
+            - generic [ref=e493]:
+              - generic [ref=e499]: Email and password
+              - generic [ref=e500]: 93.8% success
+              - generic [ref=e501]: 13%
+            - generic [ref=e505]:
+              - generic [ref=e510]: Email code
+              - generic [ref=e511]: 96.1% success
+              - generic [ref=e512]: 12%
+            - generic [ref=e516]:
+              - generic [ref=e520]: Apple
+              - generic [ref=e521]: 99.1% success
+              - generic [ref=e522]: 6%
+            - generic [ref=e526]:
+              - generic [ref=e531]: Phone code
+              - generic [ref=e532]: 95.2% success
+              - generic [ref=e533]: 5%
+            - generic [ref=e537]:
+              - generic [ref=e544]: Microsoft
+              - generic [ref=e545]: 98.5% success
+              - generic [ref=e546]: 4%
+            - generic [ref=e550]:
+              - generic [ref=e554]: Didit ID Wallet
+              - generic [ref=e555]: 99.8% success
+              - generic [ref=e556]: 3%
+          - generic [ref=e559]: A Didit ID Wallet sign-in skips a new KYC for people already verified with Didit.
+        - region [ref=e560]:
+          - generic [ref=e561]:
+            - heading "Security" [level=2] [ref=e562]
+            - generic [ref=e563]: "On"
+            - button [ref=e564] [cursor=pointer]
+          - generic [ref=e568]:
+            - generic [ref=e574]:
+              - generic [ref=e575]: Only allow humans
+              - generic [ref=e576]: Scripted sign-ups and sign-ins stopped
+            - generic [ref=e577]: 1,284 blocked
+          - generic [ref=e578]:
+            - generic [ref=e585]:
+              - generic [ref=e586]: Leaked passwords
+              - generic [ref=e587]: Credential stuffing on 604 accounts
+            - generic [ref=e588]: 1,902 blocked
+          - generic [ref=e589]:
+            - generic [ref=e595]:
+              - generic [ref=e596]: Too many attempts
+              - generic [ref=e597]: Paused for 15 minutes after 5 tries
+            - generic [ref=e598]: 412 paused
+          - generic [ref=e599]:
+            - generic [ref=e605]:
+              - generic [ref=e606]: Verified identity step
+              - generic [ref=e607]: Selfie login before a payout
+            - generic [ref=e608]: 1,106 passed
+          - generic [ref=e609]:
+            - generic [ref=e615]:
+              - generic [ref=e616]: MFA
+              - generic [ref=e617]: Turned on by 64% of active users
+            - generic [ref=e618]: 11,790 people
+          - generic [ref=e619]: "A device or network blocked in Identity verification is blocked at sign-in too: one Blocklist, in Lists."
+      - region [ref=e620]:
+        - generic [ref=e621]:
+          - heading "Usage and cost" [level=2] [ref=e622]
+          - generic [ref=e623]: Sep 1 to 27
+          - link [ref=e624] [cursor=pointer]:
+            - /url: Billing.dc.html?section=usage
+        - row "Item Count Price Amount" [ref=e628]:
+          - generic [ref=e629]: Item
+          - generic [ref=e630]: Count
+          - generic [ref=e631]: Price
+          - generic [ref=e632]: Amount
+        - row "Active users 142,380 sign-ins from 18,420 people this month 18,420 First 50,000 free $0.00" [ref=e633]:
+          - generic [ref=e640]:
+            - generic [ref=e641]: Active users
+            - generic "142,380 sign-ins from 18,420 people this month" [ref=e642]
+          - generic [ref=e643]: 18,420
+          - generic [ref=e644]: First 50,000 free
+          - generic [ref=e646]: $0.00
+        - row "Phone codes SMS and WhatsApp in 12 countries, 10% off 2,310 From $0.036 $141.38" [ref=e647]:
+          - generic [ref=e654]:
+            - generic [ref=e655]: Phone codes
+            - generic "SMS and WhatsApp in 12 countries, 10% off" [ref=e656]
+          - generic [ref=e657]: 2,310
+          - generic [ref=e658]: From $0.036
+          - generic [ref=e660]: $141.38
+        - row "United Kingdom WhatsApp 760 $0.054 each $41.04" [ref=e661]:
+          - generic [ref=e665]:
+            - generic [ref=e666]: United Kingdom
+            - generic "WhatsApp" [ref=e667]
+          - generic [ref=e668]: "760"
+          - generic [ref=e669]: $0.054 each
+          - generic [ref=e671]: $41.04
+        - row "Germany SMS 412 $0.0909 each $37.45" [ref=e672]:
+          - generic [ref=e676]:
+            - generic [ref=e677]: Germany
+            - generic "SMS" [ref=e678]
+          - generic [ref=e679]: "412"
+          - generic [ref=e680]: $0.0909 each
+          - generic [ref=e682]: $37.45
+        - row "France SMS 298 $0.0657 each $19.58" [ref=e683]:
+          - generic [ref=e687]:
+            - generic [ref=e688]: France
+            - generic "SMS" [ref=e689]
+          - generic [ref=e690]: "298"
+          - generic [ref=e691]: $0.0657 each
+          - generic [ref=e693]: $19.58
+        - row "United States SMS 355 $0.0405 each $14.38" [ref=e694]:
+          - generic [ref=e698]:
+            - generic [ref=e699]: United States
+            - generic "SMS" [ref=e700]
+          - generic [ref=e701]: "355"
+          - generic [ref=e702]: $0.0405 each
+          - generic [ref=e704]: $14.38
+        - row "Japan SMS 120 $0.0522 each $6.26" [ref=e705]:
+          - generic [ref=e709]:
+            - generic [ref=e710]: Japan
+            - generic "SMS" [ref=e711]
+          - generic [ref=e712]: "120"
+          - generic [ref=e713]: $0.0522 each
+          - generic [ref=e715]: $6.26
+        - row "7 other countries SMS and WhatsApp 365 About $0.062 each $22.67" [ref=e716]:
+          - generic [ref=e726]:
+            - generic [ref=e727]: 7 other countries
+            - generic "SMS and WhatsApp" [ref=e728]
+          - generic [ref=e729]: "365"
+          - generic [ref=e730]: About $0.062 each
+          - generic [ref=e732]: $22.67
+        - row "Didit ID Wallet sign-ins No new KYC for people verified with Didit 4,270 No separate price $0.00" [ref=e733]:
+          - generic [ref=e739]:
+            - generic [ref=e740]: Didit ID Wallet sign-ins
+            - generic "No new KYC for people verified with Didit" [ref=e741]
+          - generic [ref=e742]: 4,270
+          - generic [ref=e743]: No separate price
+          - generic [ref=e745]: $0.00
+        - row "Selfie login A live selfie matched to the person's verified ID, before a payout 1,106 $0.09 each $99.54" [ref=e746]:
+          - generic [ref=e753]:
+            - generic [ref=e754]: Selfie login
+            - generic "A live selfie matched to the person's verified ID, before a payout" [ref=e755]
+          - generic [ref=e756]: 1,106
+          - generic [ref=e757]: $0.09 each
+          - generic [ref=e759]: $99.54
+        - row "Full ID step-ups Before a new bank account 64 $0.33 each $21.12" [ref=e760]:
+          - generic [ref=e768]:
+            - generic [ref=e769]: Full ID step-ups
+            - generic "Before a new bank account" [ref=e770]
+          - generic [ref=e771]: "64"
+          - generic [ref=e772]: $0.33 each
+          - generic [ref=e774]: $21.12
+        - row "Used this month $262.04" [ref=e775]:
+          - generic [ref=e776]: Used this month
+          - generic [ref=e779]: $262.04
+        - row "Authentication Scale plan credit -$175.00" [ref=e780]:
+          - generic [ref=e781]: Authentication Scale plan credit
+          - generic [ref=e784]: "-$175.00"
+        - row "From your oldest top-up $87.04" [ref=e785]:
+          - generic [ref=e786]: From your oldest top-up
+          - generic [ref=e789]: $87.04
+        - generic [ref=e790]:
+          - generic [ref=e791]:
+            - generic [ref=e792]:
+              - generic [ref=e793]: "Your plan: Authentication Scale"
+              - generic [ref=e794]: $150 a month, $175 of credit every month
+              - generic [ref=e796]: Prices 10% off
+              - generic [ref=e798]: 18,420 of 50,000 active users
+            - generic [ref=e799]: "Up to 50,000 active users a month are free, and someone who signs up and never returns is free. Scale is $150 a month with $175 of credit every month, no user limit and every price 10% off, as listed here. Selfie login and phone codes are paid from that credit. Included, never billed:"
+            - generic [ref=e800]:
+              - generic [ref=e801]: Passkeys
+              - generic [ref=e806]: Email, social, passwords
+              - generic [ref=e811]: Device fingerprint
+              - generic [ref=e816]: Only allow humans
+              - generic [ref=e821]: Multi-account abuse
+              - generic [ref=e826]: Brute-force lockout
+              - generic [ref=e831]: Agent access
+          - generic [ref=e836]:
+            - generic [ref=e837]:
+              - generic [ref=e838]: Each active user after 50,000
+              - generic [ref=e839]: $0.018 down to $0.0108
+            - generic [ref=e841]:
+              - generic [ref=e842]: Selfie login, a live selfie matched to the person's verified ID
+              - generic [ref=e843]: $0.09 per use
+            - generic [ref=e845]:
+              - generic [ref=e846]: Passkeys, the phone's Face ID or fingerprint
+              - generic [ref=e847]: Free
+            - generic [ref=e849]:
+              - generic [ref=e850]: Phone codes by SMS, WhatsApp, Telegram or call
+              - generic [ref=e851]: from $0.036 per check
+            - generic [ref=e853]:
+              - generic [ref=e854]: Email verification
+              - generic [ref=e855]: $0.027 per check
+        - generic [ref=e857]: "Paid from your organization's one credit balance, like every other product: this month's plan credit first, then your oldest top-up, which is added at face value and works for every product. Full ID steps use the Identity verification Free price ($0.33), with no Authentication discount. The math: $141.38 phone codes + $99.54 selfie login + $21.12 Full ID = $262.04 used; $262.04 - $175.00 plan credit = $87.04 from your oldest top-up."
+      - region [ref=e864]:
+        - generic [ref=e865]:
+          - heading "Next steps" [level=2] [ref=e866]
+          - generic [ref=e867]: What each part of Authentication is doing, and the next thing to do
+        - generic [ref=e868]:
+          - button "On Sign-in methods Passkeys, email codes, passwords and social sign-in, in your brand. 9 of 11 methods on Review methods" [ref=e869] [cursor=pointer]:
+            - generic [ref=e870]: "On"
+            - generic [ref=e878]:
+              - generic [ref=e879]: Sign-in methods
+              - generic [ref=e880]: Passkeys, email codes, passwords and social sign-in, in your brand.
+            - generic [ref=e881]:
+              - generic [ref=e882]: 9 of 11 methods on
+              - generic [ref=e884]: Review methods
+          - button "On Only allow humans Bot detection in the SDK stops scripted sign-ups before they reach your app. 3,541 attempts stopped this month Bot protection" [ref=e889] [cursor=pointer]:
+            - generic [ref=e890]: "On"
+            - generic [ref=e901]:
+              - generic [ref=e902]: Only allow humans
+              - generic [ref=e903]: Bot detection in the SDK stops scripted sign-ups before they reach your app.
+            - generic [ref=e904]:
+              - generic [ref=e905]: 3,541 attempts stopped this month
+              - generic [ref=e907]: Bot protection
+          - 'button "On Verified identity Selfie login before payouts over $500: a live selfie matched to the person''s verified ID. 1,106 step-ups this month Verified identity" [ref=e912] [cursor=pointer]':
+            - generic [ref=e913]: "On"
+            - generic [ref=e931]:
+              - generic [ref=e932]: Verified identity
+              - generic [ref=e933]: "Selfie login before payouts over $500: a live selfie matched to the person's verified ID."
+            - generic [ref=e934]:
+              - generic [ref=e935]: 1,106 step-ups this month
+              - generic [ref=e937]: Verified identity
+          - button "New Agent access People let their own AI agents act for them, with a session they can revoke. 312 active agent grants Open Agent access" [ref=e942] [cursor=pointer]:
+            - generic [ref=e943]: New
+            - generic [ref=e952]:
+              - generic [ref=e953]: Agent access
+              - generic [ref=e954]: People let their own AI agents act for them, with a session they can revoke.
+            - generic [ref=e955]:
+              - generic [ref=e956]: 312 active agent grants
+              - generic [ref=e958]: Open Agent access
+          - button "On Organizations Your business customers' teams, roles, domains and single sign-on. 38 organizations · 12 with SSO Organizations" [ref=e963] [cursor=pointer]:
+            - generic [ref=e964]: "On"
+            - generic [ref=e973]:
+              - generic [ref=e974]: Organizations
+              - generic [ref=e975]: Your business customers' teams, roles, domains and single sign-on.
+            - generic [ref=e976]:
+              - generic [ref=e977]: 38 organizations · 12 with SSO
+              - generic [ref=e979]: Organizations
+          - button "Imported Migration Users, password hashes and social links from another identity platform. 48,210 imported · 312 need a reset Migration" [ref=e984] [cursor=pointer]:
+            - generic [ref=e985]: Imported
+            - generic [ref=e994]:
+              - generic [ref=e995]: Migration
+              - generic [ref=e996]: Users, password hashes and social links from another identity platform.
+            - generic [ref=e997]:
+              - generic [ref=e998]: 48,210 imported · 312 need a reset
+              - generic [ref=e1000]: Migration
+  - generic "AskDiditSlot" [ref=e1006]
+  - generic "Search" [ref=e1008]
