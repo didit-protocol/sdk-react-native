@@ -57,6 +57,12 @@ jobs:
       - name: Build package
         run: yarn prepare
 
+      - name: Build authentication package
+        run: yarn build:auth
+
+      - name: Check authentication package contents
+        run: yarn workspace @didit-protocol/auth-react-native pack --dry-run
+
   build-android:
     name: Released Android compatibility
     runs-on: ubuntu-latest
