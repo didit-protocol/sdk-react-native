@@ -2,6 +2,10 @@
 
 A React Native wrapper for the Didit Identity Verification SDK. Supports both iOS and Android with a unified TypeScript API built on React Native's New Architecture (TurboModules).
 
+Authentication is being prepared as the separate
+[`@didit-protocol/auth-react-native`](packages/auth-react-native/README.md) package.
+It is private and unavailable until the native DiditAuth integration is ready.
+
 ## Requirements
 
 - React Native 0.76+ (New Architecture / TurboModules)

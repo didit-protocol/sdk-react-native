@@ -1910,6 +1910,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@didit-protocol/auth-react-native@workspace:*, @didit-protocol/auth-react-native@workspace:packages/auth-react-native":
+  version: 0.0.0-use.local
+  resolution: "@didit-protocol/auth-react-native@workspace:packages/auth-react-native"
+  dependencies:
+    react-native-builder-bob: "npm:^0.40.13"
+    typescript: "npm:^5.9.2"
+  peerDependencies:
+    react: "*"
+    react-native: ">=0.77.0"
+  languageName: unknown
+  linkType: soft
+
 "@didit-protocol/sdk-react-native@workspace:*, @didit-protocol/sdk-react-native@workspace:.":
   version: 0.0.0-use.local
   resolution: "@didit-protocol/sdk-react-native@workspace:."
@@ -12344,6 +12356,7 @@ __metadata:
     "@babel/core": "npm:^7.25.2"
     "@babel/preset-env": "npm:^7.25.3"
     "@babel/runtime": "npm:^7.25.0"
+    "@didit-protocol/auth-react-native": "workspace:*"
     "@react-native-community/cli": "npm:20.0.0"
     "@react-native-community/cli-platform-android": "npm:20.0.0"
     "@react-native-community/cli-platform-ios": "npm:20.0.0"

@@ -24,7 +24,14 @@
         "$TURBO_ROOT$/native-sdk-source.js",
         "$TURBO_ROOT$/android/build.gradle",
         "$TURBO_ROOT$/android/native-source.gradle",
-        "$TURBO_ROOT$/android/src/**"
+        "$TURBO_ROOT$/android/src/**",
+        "$TURBO_ROOT$/packages/auth-react-native/package.json",
+        "$TURBO_ROOT$/packages/auth-react-native/src/**",
+        "$TURBO_ROOT$/packages/auth-react-native/android/build.gradle",
+        "$TURBO_ROOT$/packages/auth-react-native/android/src/**",
+        "$TURBO_ROOT$/packages/auth-react-native/ios/**",
+        "$TURBO_ROOT$/packages/auth-react-native/*.podspec",
+        "$TURBO_ROOT$/packages/auth-react-native/react-native.config.js"
       ],
       "outputs": []
     },
@@ -47,7 +54,14 @@
         "$TURBO_ROOT$/native-sdk-source.js",
         "$TURBO_ROOT$/*.podspec",
         "$TURBO_ROOT$/ios/**",
-        "!$TURBO_ROOT$/ios/build/**"
+        "!$TURBO_ROOT$/ios/build/**",
+        "$TURBO_ROOT$/packages/auth-react-native/package.json",
+        "$TURBO_ROOT$/packages/auth-react-native/src/**",
+        "$TURBO_ROOT$/packages/auth-react-native/android/build.gradle",
+        "$TURBO_ROOT$/packages/auth-react-native/android/src/**",
+        "$TURBO_ROOT$/packages/auth-react-native/ios/**",
+        "$TURBO_ROOT$/packages/auth-react-native/*.podspec",
+        "$TURBO_ROOT$/packages/auth-react-native/react-native.config.js"
       ],
       "outputs": []
     }
