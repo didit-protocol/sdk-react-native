@@ -1,0 +1,194 @@
+- generic [ref=f14e6]:
+  - generic "Sidebar" [ref=f14e8]
+  - main [ref=f14e9]:
+    - generic [ref=f14e10]:
+      - heading "Sign-in methods" [level=1]
+      - button "Try it" [ref=f14e16] [cursor=pointer]
+    - generic [ref=f14e24]:
+      - generic [ref=f14e25]:
+        - generic:
+          - heading "Sign-in methods" [level=2] [ref=f14e31]
+          - paragraph: Choose how people sign in. The preview is your hosted sign-in page, and it changes as you turn methods on and off.
+      - generic [ref=f14e32]:
+        - generic [ref=f14e33]:
+          - generic [ref=f14e34]:
+            - generic [ref=f14e35]: Hosted sign-in
+            - generic [ref=f14e36]:
+              - generic [ref=f14e37]:
+                - generic:
+                  - generic: Hosted sign-in page
+                  - generic: Sign-in, sign-up, password reset and the account page, hosted by Didit in your brand. Nothing to build; your app only handles the redirect.
+                - generic [ref=f14e46]: Enabled
+              - generic [ref=f14e48]:
+                - generic [ref=f14e49]:
+                  - generic: Hosted URL
+                  - generic:
+                    - generic [ref=f14e50]: https://auth.aurora-play.com/sign-in
+                    - button "Copy the hosted URL" [ref=f14e51] [cursor=pointer]
+                - generic [ref=f14e56]:
+                  - generic: Domain
+                  - generic:
+                    - generic [ref=f14e57]: auth.aurora-play.com
+                    - generic [ref=f14e58]: Verified
+                - generic [ref=f14e59]:
+                  - generic: Environment
+                  - generic: Live
+                - generic [ref=f14e61]:
+                  - generic: Sandbox page
+                  - generic: aurora-play.sandbox.auth.didit.me
+              - generic [ref=f14e63]:
+                - generic [ref=f14e64]: Building your own screens? The SDK components use the same methods.
+                - button "Disable" [ref=f14e65] [cursor=pointer]
+                - button [ref=f14e67] [cursor=pointer]
+          - generic [ref=f14e73]:
+            - generic [ref=f14e74]: Passwordless
+            - generic [ref=f14e75]:
+              - generic [ref=f14e76]:
+                - generic [ref=f14e77]:
+                  - generic: Passkeys
+                  - generic [ref=f14e82]: Enabled
+                - generic [ref=f14e84]: "The phone's Face ID or fingerprint, or its screen lock. Free, phishing-resistant and the fastest way back in. Not a selfie login: no photo is taken."
+                - generic [ref=f14e85]:
+                  - generic [ref=f14e86]: 31% of sign-ins · 99.6% succeed · Free
+                  - button "Configure Passkeys" [ref=f14e88] [cursor=pointer]:
+                    - generic [ref=f14e89]: Configure
+              - generic [ref=f14e90]:
+                - generic [ref=f14e91]:
+                  - generic: Email code
+                  - generic [ref=f14e97]: Enabled
+                - generic [ref=f14e99]: A 6-digit code by email, valid for 10 minutes.
+                - generic [ref=f14e100]:
+                  - generic [ref=f14e101]: 12% of sign-ins
+                  - button "Configure Email code" [ref=f14e103] [cursor=pointer]:
+                    - generic [ref=f14e104]: Configure
+              - generic [ref=f14e105]:
+                - generic [ref=f14e106]:
+                  - generic: Magic link
+                  - generic [ref=f14e112]: Disabled
+                - generic [ref=f14e114]: A one-click sign-in link by email, valid for 15 minutes.
+                - generic [ref=f14e115]:
+                  - generic [ref=f14e116]: Not in your sign-in box
+                  - button "Enable Magic link" [ref=f14e118] [cursor=pointer]:
+                    - generic [ref=f14e119]: Enable
+          - generic [ref=f14e120]:
+            - generic [ref=f14e121]: Password
+            - generic [ref=f14e123]:
+              - generic [ref=f14e124]:
+                - generic: Email and password
+                - generic [ref=f14e131]: Enabled
+              - generic [ref=f14e133]: With the breached-password check and the password rules from Security and sessions.
+              - generic [ref=f14e134]:
+                - generic [ref=f14e135]: 13% of sign-ins · 93.8% succeed
+                - button "Configure Email and password" [ref=f14e137] [cursor=pointer]:
+                  - generic [ref=f14e138]: Configure
+          - generic [ref=f14e139]:
+            - generic [ref=f14e140]: Social
+            - generic [ref=f14e141]:
+              - generic [ref=f14e142]:
+                - generic [ref=f14e143]:
+                  - generic: Google
+                  - generic [ref=f14e151]: Enabled
+                - generic [ref=f14e153]: Continue with Google, on the web and in your apps.
+                - generic [ref=f14e154]:
+                  - generic [ref=f14e155]:
+                    - generic [ref=f14e156]: Your credentials
+                    - generic [ref=f14e158]: 26% of sign-ins
+                  - button "Configure Google" [ref=f14e159] [cursor=pointer]:
+                    - generic [ref=f14e160]: Configure
+              - generic [ref=f14e161]:
+                - generic [ref=f14e162]:
+                  - generic: Microsoft
+                  - generic [ref=f14e170]: Enabled
+                - generic [ref=f14e172]: Personal, work and school Microsoft accounts.
+                - generic [ref=f14e173]:
+                  - generic [ref=f14e174]:
+                    - generic [ref=f14e175]: Your credentials
+                    - generic [ref=f14e177]: 4% of sign-ins
+                  - button "Configure Microsoft" [ref=f14e178] [cursor=pointer]:
+                    - generic [ref=f14e179]: Configure
+              - generic [ref=f14e180]:
+                - generic [ref=f14e181]:
+                  - generic: Apple
+                  - generic [ref=f14e186]: Enabled
+                - generic [ref=f14e188]: Sign in with Apple, with Hide My Email.
+                - generic [ref=f14e189]:
+                  - generic [ref=f14e190]:
+                    - generic [ref=f14e191]: Didit test credentials
+                    - generic [ref=f14e193]: 6% of sign-ins
+                  - button "Configure Apple" [ref=f14e194] [cursor=pointer]:
+                    - generic [ref=f14e195]: Configure
+              - generic [ref=f14e196]:
+                - generic [ref=f14e197]:
+                  - generic: GitHub
+                  - generic [ref=f14e202]: Disabled
+                - generic [ref=f14e204]: For developer tools and communities.
+                - generic [ref=f14e205]:
+                  - generic [ref=f14e206]: Not in your sign-in box
+                  - button "Enable GitHub" [ref=f14e208] [cursor=pointer]:
+                    - generic [ref=f14e209]: Enable
+          - generic [ref=f14e210]:
+            - generic [ref=f14e211]: Phone and reusable identity
+            - generic [ref=f14e212]:
+              - generic [ref=f14e213]:
+                - generic [ref=f14e214]:
+                  - generic: Phone code
+                  - generic [ref=f14e220]: Enabled
+                - generic [ref=f14e222]: A code by SMS or WhatsApp. Often the only way in for people without an email.
+                - generic [ref=f14e223]:
+                  - generic [ref=f14e224]: From $0.036 per code
+                  - button "Configure Phone code" [ref=f14e226] [cursor=pointer]:
+                    - generic [ref=f14e227]: Configure
+              - generic [ref=f14e228]:
+                - generic [ref=f14e229]:
+                  - generic: Didit ID Wallet
+                  - generic [ref=f14e235]: Always on
+                - generic [ref=f14e237]: People already verified with Didit sign in and share only what you ask. No new KYC.
+                - generic [ref=f14e238]:
+                  - generic [ref=f14e239]: 3% of sign-ins · 99.8% succeed
+                  - button "Configure Didit ID Wallet" [ref=f14e241] [cursor=pointer]:
+                    - generic [ref=f14e242]: Configure
+          - generic [ref=f14e243]:
+            - generic [ref=f14e244]: Enterprise
+            - generic [ref=f14e246]:
+              - generic [ref=f14e247]:
+                - generic: Single sign-on (SSO)
+                - generic [ref=f14e253]: Enabled
+              - generic [ref=f14e255]: SAML or OIDC with each organization's own identity provider.
+              - generic [ref=f14e256]:
+                - generic [ref=f14e257]: Part of Authentication Scale
+                - button "Configure Single sign-on (SSO)" [ref=f14e259] [cursor=pointer]:
+                  - generic [ref=f14e260]: Configure
+        - complementary "Live preview of the sign-in page" [ref=f14e261]:
+          - generic [ref=f14e262]:
+            - generic [ref=f14e263]:
+              - heading "Live preview" [level=2] [ref=f14e264]
+              - radiogroup "Preview theme" [ref=f14e265]:
+                - radio "Light" [checked] [ref=f14e266] [cursor=pointer]
+                - radio "Dark" [ref=f14e275] [cursor=pointer]
+            - generic [ref=f14e280]:
+              - 'img "Sign-in box: Google, Microsoft, Apple, passkey, Didit ID Wallet, email" [ref=f14e281]':
+                - generic [ref=f14e282]:
+                  - generic:
+                    - generic [ref=f14e283]: A
+                    - generic [ref=f14e284]: Sign in to Aurora Play
+                    - generic [ref=f14e285]: Welcome back! Sign in to continue.
+                  - generic [ref=f14e286]: Continue with Google
+                  - generic [ref=f14e294]: Continue with Microsoft
+                  - generic [ref=f14e302]: Continue with Apple
+                  - generic [ref=f14e307]: Sign in with a passkey
+                  - generic [ref=f14e311]: Continue with Didit ID Wallet
+                  - generic: or
+                  - generic:
+                    - generic: Email address
+                    - generic [ref=f14e316]: you@example.com
+                  - generic:
+                    - generic: Password
+                    - generic [ref=f14e317]: ••••••••••
+                  - generic: Continue
+                  - generic:
+                    - generic [ref=f14e319]: Use a phone number
+                    - generic [ref=f14e320]: Use single sign-on
+                  - generic: Don't have an account? Sign up
+              - generic [ref=f14e321]: Updates as you turn methods on and off. Your logo and colours come from Customization.
+  - generic "AskDiditSlot" [ref=f14e323]
+  - generic "Search" [ref=f14e325]
