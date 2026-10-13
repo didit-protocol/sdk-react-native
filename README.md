@@ -2,9 +2,10 @@
 
 A React Native wrapper for the Didit Identity Verification SDK. Supports both iOS and Android with a unified TypeScript API built on React Native's New Architecture (TurboModules).
 
-Authentication is being prepared as the separate
-[`@didit-protocol/auth-react-native`](packages/auth-react-native/README.md) package.
-It is private and unavailable until the native DiditAuth integration is ready.
+Authentication is the separate
+[`@didit-protocol/auth-react-native`](packages/auth-react-native/README.md) package,
+on native DiditAuth. It is not published yet. Both packages pin the same native
+SDK release so that one app can use them together.
 
 ## Requirements
 
@@ -93,7 +94,7 @@ You do not need to request camera permission in your app code before calling `st
 
 Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
 
-> **Development preview:** these steps currently use the native integration source pinned in `diditNativeSdkVersions.source` in `package.json`. Set `DIDIT_SDK_SOURCE_PATH` to a clean checkout at that revision before building either example. A missing or different checkout fails the build instead of substituting the 4.9.1 release, which does not contain these steps. The temporary source pin must move to the released native version before the stacked push and package release.
+> **Development preview:** these steps currently use the native integration source pinned in `diditNativeSdkVersions.source` in `package.json`. Set `DIDIT_SDK_SOURCE_PATH` to a clean checkout at that revision before building either example. A missing or different checkout fails the build instead of substituting a released native SDK. The temporary source pin must move to the released native version before the stacked push and package release.
 
 For Android source builds, apply this package's `android/native-source.gradle` from the host's `settings.gradle`. First run `yarn native:android` to build the pinned native revision with its own Gradle wrapper. The settings script exclusively resolves Didit artifacts from that local Maven repository, preventing a fallback to released artifacts. Both examples already do this; Expo prebuild adds it automatically.
 
@@ -249,7 +250,7 @@ The iOS podspec URL is derived from the native SDK version this package pins (`d
 [
   "@didit-protocol/sdk-react-native",
   {
-    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.9.1/DiditSDK.podspec"
+    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.10.0/DiditSDK.podspec"
   }
 ]
 ```
@@ -288,7 +289,7 @@ didit_sdk_subspec = case $DiditSdkIosVariant
                     else
                       raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                     end
-pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.9.1/DiditSDK.podspec'
+pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.10.0/DiditSDK.podspec'
 ```
 
 ##### Swift Package Manager (optional)
