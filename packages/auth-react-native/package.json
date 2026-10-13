@@ -1,0 +1,97 @@
+{
+  "name": "@didit-protocol/auth-react-native",
+  "version": "0.0.0",
+  "private": true,
+  "diditNativeSdkVersions": {
+    "ios": "4.10.0",
+    "android": "4.10.0"
+  },
+  "description": "React Native wrapper for Didit Authentication (native DiditAuth)",
+  "main": "./lib/commonjs/index.js",
+  "module": "./lib/module/index.js",
+  "types": "./lib/typescript/commonjs/src/index.d.ts",
+  "react-native": "./src/index.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "react-native": "./src/index.ts",
+      "import": {
+        "types": "./lib/typescript/module/src/index.d.ts",
+        "default": "./lib/module/index.js"
+      },
+      "require": {
+        "types": "./lib/typescript/commonjs/src/index.d.ts",
+        "default": "./lib/commonjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "lib",
+    "android/build.gradle",
+    "android/src/main/**",
+    "ios",
+    "*.podspec",
+    "react-native.config.js",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__"
+  ],
+  "scripts": {
+    "build": "bob build",
+    "prepack": "bob build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/didit-protocol/sdk-react-native.git",
+    "directory": "packages/auth-react-native"
+  },
+  "homepage": "https://github.com/didit-protocol/sdk-react-native/tree/main/packages/auth-react-native",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": ">=0.77.0"
+  },
+  "devDependencies": {
+    "react-native-builder-bob": "^0.40.13",
+    "typescript": "^5.9.2"
+  },
+  "react-native-builder-bob": {
+    "source": "src",
+    "output": "lib",
+    "targets": [
+      [
+        "commonjs",
+        {
+          "esm": true
+        }
+      ],
+      [
+        "module",
+        {
+          "esm": true
+        }
+      ],
+      [
+        "typescript",
+        {
+          "project": "tsconfig.build.json"
+        }
+      ]
+    ]
+  },
+  "codegenConfig": {
+    "name": "DiditAuthReactNativeSpec",
+    "type": "modules",
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "me.didit.authreactnative"
+    },
+    "ios": {
+      "modulesProvider": {
+        "DiditAuthReactNative": "DiditAuthReactNative"
+      }
+    }
+  }
+}

@@ -1,0 +1,60 @@
+buildscript {
+  ext.authExtOrDefault = { prop, fallback ->
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
+
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:8.7.2"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${authExtOrDefault('kotlinVersion', '2.0.21')}"
+  }
+}
+
+apply plugin: "com.android.library"
+if (project.extensions.findByName('kotlin') == null) {
+  apply plugin: "kotlin-android"
+}
+apply plugin: "com.facebook.react"
+
+def nativePins = new groovy.json.JsonSlurper().parse(file("../package.json")).diditNativeSdkVersions
+
+android {
+  namespace "me.didit.authreactnative"
+  compileSdkVersion authExtOrDefault("compileSdkVersion", 36)
+
+  defaultConfig {
+    minSdkVersion authExtOrDefault("minSdkVersion", 24)
+    targetSdkVersion authExtOrDefault("targetSdkVersion", 36)
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+}
+
+repositories {
+  // Didit SDK Maven repository, scoped to Didit's group like the verification
+  // package's: unfiltered, Gradle would probe it for every dependency.
+  maven {
+    url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
+    content { includeGroup "me.didit" }
+  }
+}
+
+dependencies {
+  implementation "com.facebook.react:react-android"
+
+  // Didit Authentication; it brings didit-signals only, not the verification SDK.
+  implementation "me.didit:didit-auth:${nativePins.android}"
+
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+}
