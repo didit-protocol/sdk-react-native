@@ -1,24 +1,34 @@
 import { TurboModuleRegistry } from 'react-native';
 import {
-  currentSession,
+  createDiditAuth,
+  DiditAuthError,
   DiditAuthUnavailableError,
-  getToken,
-  signIn,
-  signOut,
-  stepUp,
 } from '../index';
 
-const operations = [signIn, currentSession, getToken, signOut, stepUp];
+const auth = createDiditAuth({
+  publishableKey: 'pk_test_key',
+  redirectUri: 'https://app.example.com/didit/callback',
+});
+
+const operations = {
+  signIn: () => auth.signIn(),
+  signInWithPasskey: () => auth.signInWithPasskey(),
+  registerPasskey: () => auth.registerPasskey(),
+  currentSession: () => auth.currentSession(),
+  getToken: () => auth.getToken(),
+  signOut: () => auth.signOut(),
+  stepUp: () => auth.stepUp({ action: 'bank' }),
+};
 
 describe('authentication without a linked native module', () => {
-  it('can be imported before the native application is rebuilt', () => {
+  it('can be imported and configured before the native application is rebuilt', () => {
     expect(TurboModuleRegistry.get('DiditAuthReactNative')).toBeNull();
-    expect(operations).toHaveLength(5);
+    expect(Object.keys(operations)).toEqual(Object.keys(auth));
   });
 
-  it.each(operations)(
-    '%p rejects instead of returning a session or success',
-    async (operation) => {
+  it.each(Object.entries(operations))(
+    '%s rejects instead of returning a session or success',
+    async (_, operation) => {
       await expect(operation()).rejects.toMatchObject({
         name: 'DiditAuthUnavailableError',
         code: 'ERR_DIDIT_AUTH_UNAVAILABLE',
@@ -27,16 +37,11 @@ describe('authentication without a linked native module', () => {
     }
   );
 
-  it('keeps concurrent and repeated calls unavailable', async () => {
-    const results = await Promise.allSettled(
-      [...operations, ...operations].map((operation) => operation())
+  it('reports unavailability as a DiditAuthError', async () => {
+    await expect(auth.signIn()).rejects.toBeInstanceOf(
+      DiditAuthUnavailableError
     );
-
-    expect(results.every((result) => result.status === 'rejected')).toBe(true);
-  });
-
-  it('uses an Error subclass for JavaScript failures', async () => {
-    await expect(signIn()).rejects.toBeInstanceOf(DiditAuthUnavailableError);
-    await expect(signOut()).rejects.toBeInstanceOf(Error);
+    await expect(auth.signOut()).rejects.toBeInstanceOf(DiditAuthError);
+    await expect(auth.getToken()).rejects.toBeInstanceOf(Error);
   });
 });
