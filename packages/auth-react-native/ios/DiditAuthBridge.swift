@@ -76,7 +76,7 @@ public final class DiditAuthBridge: NSObject, @unchecked Sendable {
         _ redirectUri: String,
         _ resolve: @escaping Resolve,
         _ reject: @escaping Reject,
-        _ operation: @escaping @MainActor (DiditAuth) async throws -> String?
+        _ operation: @escaping @MainActor @Sendable (DiditAuth) async throws -> String?
     ) {
         Task { @MainActor in
             do {
