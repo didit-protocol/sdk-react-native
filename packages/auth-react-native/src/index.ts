@@ -65,7 +65,9 @@ export function createDiditAuth({
     getToken: () =>
       call((native) => native.getToken(publishableKey, redirectUri)),
     signOut: () =>
-      call((native) => native.signOut(publishableKey, redirectUri)),
+      call(async (native) => {
+        await native.signOut(publishableKey, redirectUri);
+      }),
     stepUp: (options: DiditStepUpOptions) =>
       call(async (native) => {
         const payout = options.action === 'payout' ? options : undefined;
