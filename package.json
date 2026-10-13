@@ -2,11 +2,11 @@
   "name": "@didit-protocol/sdk-react-native",
   "version": "4.9.1",
   "diditNativeSdkVersions": {
-    "ios": "4.10.0",
-    "android": "4.10.0",
+    "ios": "4.9.1",
+    "android": "4.9.1",
     "source": {
-      "branch": "main",
-      "revision": "cda7fe301fbda606d4256cdd77baf2e850baba17"
+      "branch": "integration/console-v2",
+      "revision": "88259c3b2ac57520ead46579ee7c1fb56686cdb1"
     }
   },
   "description": "React Native wrapper for Didit Identity Verification SDK",

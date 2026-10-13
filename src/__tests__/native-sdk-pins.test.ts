@@ -168,7 +168,7 @@ describe('swift package manager linkage', () => {
 });
 
 describe('hand-maintained pins stay in lockstep', () => {
-  it.each(['README.md'])(
+  it.each(['README.md', 'packages/auth-react-native/README.md'])(
     '%s references only the declared iOS version',
     (relativePath) => {
       const refs = podspecUrlRefs(read(relativePath));
@@ -192,5 +192,44 @@ describe('hand-maintained pins stay in lockstep', () => {
     expect(gradle).toContain(
       'me.didit:$diditSdkAndroidArtifact:${nativePins.android}'
     );
+  });
+});
+
+describe('authentication package pins', () => {
+  const authPackage = JSON.parse(read('packages/auth-react-native/package.json'));
+
+  it('pins the native release the verification package pins', () => {
+    // One app can link both packages: Gradle, CocoaPods and SwiftPM each need
+    // a single Didit native version.
+    expect(authPackage.diditNativeSdkVersions).toEqual({
+      ios: declaredIosVersion,
+      android: declaredAndroidVersion,
+    });
+  });
+
+  it('derives the DiditSDK/Auth dependency from its package.json', () => {
+    const podspec = read(
+      'packages/auth-react-native/DiditAuthReactNative.podspec'
+    );
+
+    expect(podspec).toContain('package.dig("diditNativeSdkVersions", "ios")');
+    expect(podspec).toMatch(
+      /s\.dependency\s+"DiditSDK\/Auth"\s*,\s*didit_sdk_ios_version/
+    );
+    expect(podspec).toMatch(
+      /requirement:\s*\{\s*kind:\s*"exactVersion",\s*version:\s*didit_sdk_ios_version\s*\}/
+    );
+    expect(podspec).toContain('products: ["DiditAuth"]');
+    expect(podspec).not.toMatch(/["']\d+\.\d+\.\d+["']/);
+  });
+
+  it('depends on me.didit:didit-auth at the declared Android version', () => {
+    const gradle = read('packages/auth-react-native/android/build.gradle');
+
+    expect(gradle).toContain(
+      'parse(file("../package.json")).diditNativeSdkVersions'
+    );
+    expect(gradle).toContain('me.didit:didit-auth:${nativePins.android}');
+    expect(gradle).toContain('content { includeGroup "me.didit" }');
   });
 });

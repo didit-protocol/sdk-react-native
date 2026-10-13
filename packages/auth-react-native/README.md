@@ -1,152 +1,75 @@
 # DiditAuth for React Native
 
-`@didit-protocol/auth-react-native` signs your app's end users up and in with Didit
-Authentication. It calls native DiditAuth (`me.didit:didit-auth` on Android,
-`DiditSDK/Auth` on iOS): your application's hosted Didit page with PKCE, passkeys,
-sessions in the Keychain or Android Keystore, sign-out and step-ups before
-sensitive actions. Every request carries the device signals of DiditSignals.
+**Not ready for authentication or publication.** This private workspace prepares
+`@didit-protocol/auth-react-native` as an independent native module. Both native
+implementations currently reject every operation. There is no released native
+DiditAuth dependency or reviewed initialization/result contract to connect yet.
 
-**Not published yet.** The package is private and pins native SDK 4.10.0
-(`diditNativeSdkVersions` in its `package.json`), the first release with DiditAuth.
+## Current behavior
 
-## Requirements
+The named exports `signIn`, `currentSession`, `getToken`, `signOut` and `stepUp`
+take no arguments and return `Promise<never>` in this unavailable-only build.
+They reserve the native method names, not the final integration API. Configuration,
+options, successful session/token types and cancellation semantics must be added
+with the reviewed native contract before publication.
 
-- React Native 0.77 or later with the New Architecture. Expo Go cannot load the
-  native module; use a development build.
-- iOS 15 or later; the hosted pages (sign-in and step-up checks) need iOS 17.4.
-  Below 17.4 those calls fail with `browser_unavailable`.
-- Android: passkeys need Android 9 or later.
+Importing the package without a linked native module is safe. Calling an operation
+rejects with `code: 'ERR_DIDIT_AUTH_UNAVAILABLE'`. The native placeholders use the
+same code as the JavaScript `DiditAuthUnavailableError`. Match the `code` across
+the native boundary; native errors are not instances of the JavaScript class.
+Other native rejections propagate unchanged. An unexpected native resolution also
+rejects as unavailable, so this build never reports a successful authentication,
+signed-out session, token retrieval, logout or step-up.
 
-## Set up the redirect
+No credentials are accepted, stored, logged or sent. The package has no dependency
+on the verification wrapper or its camera, NFC and location features. It registers
+its own `DiditAuthReactNative` TurboModule and `DiditAuthReactNativeSpec` codegen
+library. It adds no screens, network calls, URL schemes or OS permissions.
 
-Didit sends the person back to your app with an HTTPS redirect; it accepts no
-custom URL schemes.
+## Local integration
 
-1. In the Didit console (Authentication, Developers), add the redirect URI, for
-   example `https://app.example.com/didit/callback`, and copy the publishable key.
-2. Android: make that address an App Link of your app and declare DiditAuth's
-   redirect activity with it in `android/app/src/main/AndroidManifest.xml` (add
-   `xmlns:tools="http://schemas.android.com/tools"` to the manifest element):
+Use React Native's New Architecture. Codegen is checked with React Native 0.77 and
+the repository's 0.83 version; platform support remains subject to native builds
+and the eventual DiditAuth dependency's minimum versions. Expo Go cannot load the
+native module; a development build will be needed for a real native integration.
 
-   ```xml
-   <activity
-       android:name="me.didit.sdk.auth.DiditAuthRedirectActivity"
-       android:exported="true"
-       android:theme="@android:style/Theme.Translucent.NoTitleBar"
-       tools:node="replace">
-       <intent-filter android:autoVerify="true">
-           <action android:name="android.intent.action.VIEW" />
-           <category android:name="android.intent.category.DEFAULT" />
-           <category android:name="android.intent.category.BROWSABLE" />
-           <data android:scheme="https" android:host="app.example.com" android:path="/didit/callback" />
-       </intent-filter>
-   </activity>
-   ```
+From the repository root:
 
-   Publish `https://app.example.com/.well-known/assetlinks.json` for your package
-   and signing certificate.
-3. iOS: add `webcredentials:app.example.com` to the app's Associated Domains and
-   serve `https://app.example.com/.well-known/apple-app-site-association` listing
-   your app under `webcredentials`.
-4. Passkeys: add your Android package and certificate fingerprints, and your iOS
-   app ID, under Native apps in the console.
-
-The native SDK guides have the details: [Android](https://github.com/didit-protocol/sdk-android)
-and [iOS](https://github.com/didit-protocol/sdk-ios).
-
-## Install the native SDK
-
-Android resolves `me.didit:didit-auth` from the Didit Maven repository. Add it to the
-project-level `settings.gradle` (the verification package needs the same entry):
-
-```groovy
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
-            content { includeGroup "me.didit" }
-        }
-    }
-}
+```sh
+yarn install --immutable
+yarn build:auth
+yarn workspace @didit-protocol/auth-react-native pack --out /tmp/didit-auth-react-native.tgz
 ```
 
-On iOS, CocoaPods is the default. DiditSDK is not on the CocoaPods trunk, so the
-Podfile names its podspec at the pinned version:
+The archive can be installed in a disposable React Native application for
+autolinking checks, either alone or alongside the verification package. `private:
+true` blocks registry publication. The root verification release does not include
+this workspace. This package uses the existing Bob toolchain for CommonJS, ESM,
+TypeScript declarations and React Native source exports.
 
-```ruby
-pod 'DiditSDK/Auth', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.10.0/DiditSDK.podspec'
-```
+## Completing the native integration
 
-To resolve it with Swift Package Manager instead, set `$DiditSdkIosLinkage = 'spm'`
-before `use_native_modules!` and leave the `pod` line out. The package then adds the
-`DiditAuth` product of `sdk-ios`.
+Before enabling or publishing the package:
 
-## Use
+1. Connect the reviewed native DiditAuth initialization and method contracts.
+   Replace the rejecting native implementations and the JavaScript success gate
+   together. Define typed session results, options and distinct cancellation,
+   signed-out, expired/revoked and failure outcomes from that contract.
+2. Add real distribution coordinates with native versions single-sourced through
+   `diditNativeSdkVersions`; never borrow the verification package's pins.
+3. Keep PKCE/state validation, callback ownership, passkeys, secure token storage,
+   serialized refresh, logout/revocation and automatic signals in native DiditAuth.
+   Treat access tokens as opaque values. Never expose refresh tokens to JavaScript.
+4. Document and test the native callback/associated-domain setup against the
+   supported backend contract before adding an Expo configuration plugin. Verify
+   app/environment isolation, process restoration and callback replay rejection.
+5. Run real native sign-in, cancel, session restore/expiry/revocation, concurrent
+   refresh, sign-out and step-up tests. Capture the launched hosted/native flows
+   in both themes and required sizes. iOS compilation and device/passkey checks
+   require a Mac. Codegen and package tests alone do not prove native runtime or
+   authentication readiness.
 
-```ts
-import { createDiditAuth, DiditAuthError } from '@didit-protocol/auth-react-native';
-
-// One per application; reuse it.
-const auth = createDiditAuth({
-  publishableKey: 'pk_live_...',
-  redirectUri: 'https://app.example.com/didit/callback',
-});
-
-const session = await auth.signIn(); // hosted page: sign-up and sign-in
-await auth.signInWithPasskey(); // a passkey of this device
-const passkeyId = await auth.registerPasskey(); // needs a session at most five minutes old
-
-await auth.currentSession(); // DiditSession or null, cached for 30 seconds
-await auth.currentSession({ force: true }); // asks Didit now
-const token = await auth.getToken(); // five-minute token for your backend, or null
-await auth.signOut();
-
-const result = await auth.stepUp({ action: 'payout', amount: '900.00', currency: 'EUR' });
-if (result.approved) {
-  // Your backend confirms with GET step-up/{result.id}/ before it pays out.
-}
-```
-
-`stepUp` also takes `{ action: 'bank' }` (adding or changing a bank account) and
-`{ action: 'contact' }` (changing the email or phone). The result's `status` is
-`not_required`, `approved`, `pending`, `review`, `declined` or `expired`.
-
-A `DiditSession` has `userId`, `sessionId`, `applicationId`, `vendorData`, `email`,
-`emailVerified`, `phone`, `methods`, `mfaVerified`, `verified`, `organizations` and
-`expiresAt`. Verify the access token on your backend against the issuer's JWKS.
-Refresh tokens stay in native storage and never reach JavaScript.
-
-## Errors
-
-Every call rejects with a `DiditAuthError` carrying native DiditAuth's `code` and
-`message` unchanged, plus `status`, `fields` and `retryAfter` when Didit sent them:
-
-- the Didit API's own codes, such as `invalid_grant`, `method_unavailable` or
-  `reauthentication_required`;
-- `cancelled`, `invalid_state`, `not_signed_in`, `passkey_cancelled`,
-  `passkey_unavailable`, `browser_unavailable`, `storage_unavailable`,
-  `invalid_publishable_key`, `invalid_redirect_uri`, `network_error`,
-  `rate_limited` (see `retryAfter`) and `server_error`.
-
-```ts
-try {
-  await auth.signIn();
-} catch (error) {
-  if (error instanceof DiditAuthError && error.code === 'cancelled') return;
-  throw error;
-}
-```
-
-Calls also fail with `browser_unavailable` when no screen of the app is in the
-foreground. In a build without the native module, such as Expo Go, importing the
-package works and every call rejects with `DiditAuthUnavailableError` (code
-`ERR_DIDIT_AUTH_UNAVAILABLE`).
-
-## With the verification package
-
-`@didit-protocol/sdk-react-native` and this package pin the same native release, so
-both can be installed in one app. On iOS the verification SDK's `DiditSDK` binary
-also contains DiditAuth; with both packages the app ships a second copy of
-DiditAuth and DiditSignals in the `DiditAuth` binary.
+The matching Flutter `didit_auth` requires its own package in `sdk-flutter`, with
+the same native dependency and acceptance checks. It is not included in this
+React Native workspace. Hosted pages, backend contracts and native DiditAuth
+remain separate dependencies; this package does not replace their implementations.

@@ -2,11 +2,7 @@
   "name": "@didit-protocol/auth-react-native",
   "version": "0.0.0",
   "private": true,
-  "diditNativeSdkVersions": {
-    "ios": "4.10.0",
-    "android": "4.10.0"
-  },
-  "description": "React Native wrapper for Didit Authentication (native DiditAuth)",
+  "description": "React Native boundary for DiditAuth (native integration pending)",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
   "types": "./lib/typescript/commonjs/src/index.d.ts",

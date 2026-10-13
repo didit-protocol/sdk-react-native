@@ -20,8 +20,6 @@ if (project.extensions.findByName('kotlin') == null) {
 }
 apply plugin: "com.facebook.react"
 
-def nativePins = new groovy.json.JsonSlurper().parse(file("../package.json")).diditNativeSdkVersions
-
 android {
   namespace "me.didit.authreactnative"
   compileSdkVersion authExtOrDefault("compileSdkVersion", 36)
@@ -41,20 +39,8 @@ android {
   }
 }
 
-repositories {
-  // Didit SDK Maven repository, scoped to Didit's group like the verification
-  // package's: unfiltered, Gradle would probe it for every dependency.
-  maven {
-    url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
-    content { includeGroup "me.didit" }
-  }
-}
-
 dependencies {
   implementation "com.facebook.react:react-android"
-
-  // Didit Authentication; it brings didit-signals only, not the verification SDK.
-  implementation "me.didit:didit-auth:${nativePins.android}"
-
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
+  // No DiditAuth artifact is released yet. Keep this unavailable-only module
+  // independent of verification and add real pins only after native review.
 }

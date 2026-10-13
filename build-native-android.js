@@ -18,8 +18,6 @@ const modules = [
   'sdk-autodetection',
   'sdk-nfc',
   'sdk-wallet',
-  'sdk-signals',
-  'sdk-auth',
 ];
 const args = [
   ...modules.map(

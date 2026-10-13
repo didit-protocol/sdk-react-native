@@ -22,7 +22,7 @@ afterEach(() => {
 });
 
 it('requires an immutable revision for the integration branch', () => {
-  expect(diditNativeSdkVersions.source.branch).toBe('integration/console-v2');
+  expect(diditNativeSdkVersions.source.branch).toBe('main');
   expect(diditNativeSdkVersions.source.revision).toMatch(/^[a-f0-9]{40}$/);
 });
 
