@@ -90,7 +90,10 @@ describe.each(versions)('authentication codegen with %s', (version) => {
     try {
       expect(generateNativeInterfaces(version, directory)).toBe(true);
       java = readFileSync(
-        join(directory, 'java/me/didit/authreactnative/NativeDiditAuthSpec.java'),
+        join(
+          directory,
+          'java/me/didit/authreactnative/NativeDiditAuthSpec.java'
+        ),
         'utf8'
       );
       objc = readFileSync(

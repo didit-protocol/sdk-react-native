@@ -196,7 +196,9 @@ describe('hand-maintained pins stay in lockstep', () => {
 });
 
 describe('authentication package pins', () => {
-  const authPackage = JSON.parse(read('packages/auth-react-native/package.json'));
+  const authPackage = JSON.parse(
+    read('packages/auth-react-native/package.json')
+  );
 
   it('pins the native release the verification package pins', () => {
     // One app can link both packages: Gradle, CocoaPods and SwiftPM each need

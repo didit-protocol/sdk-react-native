@@ -155,9 +155,7 @@ describe('step-ups', () => {
     };
     native.stepUp!.mockResolvedValue(JSON.stringify(notRequired));
 
-    await expect(auth.stepUp({ action: 'bank' })).resolves.toEqual(
-      notRequired
-    );
+    await expect(auth.stepUp({ action: 'bank' })).resolves.toEqual(notRequired);
   });
 });
 
