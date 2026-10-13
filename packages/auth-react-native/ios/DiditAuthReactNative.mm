@@ -7,8 +7,10 @@
 #import "DiditAuthReactNative-Swift.h"
 #endif
 
+typedef void (^DiditAuthRejectBlock)(NSString *code, NSString *message, NSDictionary *userInfoFields);
+
 /// Keeps DiditAuth's status, fields and retryAfter on the JavaScript error's userInfo.
-static RCTPromiseRejectBlock DiditAuthReject(RCTPromiseRejectBlock reject)
+static DiditAuthRejectBlock DiditAuthReject(RCTPromiseRejectBlock reject)
 {
     return ^(NSString *code, NSString *message, NSDictionary *userInfoFields) {
         NSMutableDictionary *userInfo = [NSMutableDictionary new];
@@ -112,8 +114,8 @@ RCT_EXPORT_MODULE(DiditAuthReactNative)
 - (void)stepUp:(NSString *)publishableKey
    redirectUri:(NSString *)redirectUri
         action:(NSString *)action
-        amount:(NSString *)amount
-      currency:(NSString *)currency
+        amount:(NSString * _Nullable)amount
+      currency:(NSString * _Nullable)currency
        resolve:(RCTPromiseResolveBlock)resolve
         reject:(RCTPromiseRejectBlock)reject
 {
