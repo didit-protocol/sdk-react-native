@@ -56,7 +56,21 @@ and [iOS](https://github.com/didit-protocol/sdk-ios).
 
 ## Install the native SDK
 
-Android resolves `me.didit:didit-auth` from the Didit Maven repository; nothing to add.
+Android resolves `me.didit:didit-auth` from the Didit Maven repository. Add it to the
+project-level `settings.gradle` (the verification package needs the same entry):
+
+```groovy
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
+            content { includeGroup "me.didit" }
+        }
+    }
+}
+```
 
 On iOS, CocoaPods is the default. DiditSDK is not on the CocoaPods trunk, so the
 Podfile names its podspec at the pinned version:
@@ -136,7 +150,3 @@ package works and every call rejects with `DiditAuthUnavailableError` (code
 both can be installed in one app. On iOS the verification SDK's `DiditSDK` binary
 also contains DiditAuth; with both packages the app ships a second copy of
 DiditAuth and DiditSignals in the `DiditAuth` binary.
-
-## Flutter
-
-The Flutter `didit_auth` package needs its own package in `sdk-flutter`.
