@@ -95,7 +95,7 @@ Workflows can include a **Bank** step (the person links a bank account) and a **
 
 ### Bank
 
-No setup. The native SDKs open the bank's page in the system browser (for Stripe, Didit's hosted Stripe page), so there is no permission, URL scheme or deep link to register.
+No setup. The native SDKs open the bank's page (or a page Didit hosts) in the system browser, so there is no permission, URL scheme or deep link to register.
 
 ### Location on iOS
 
