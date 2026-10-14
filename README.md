@@ -272,8 +272,7 @@ $DiditSdkIosLocationEnabled = false # true to enable the Location step
 didit_sdk_location_suffix = $DiditSdkIosLocationEnabled ? '-Location' : ''
 didit_sdk_subspec = case $DiditSdkIosVariant
                     when 'all'           then "DiditSDK/All#{didit_sdk_location_suffix}"
-                    when 'core'          then "DiditSDK/Core#{didit_sdk_location_suffix}"
-                    when 'autodetection' then $DiditSdkIosLocationEnabled ? 'DiditSDK/Core-Location' : 'DiditSDK/AutoDetection'
+                    when 'core', 'autodetection' then "DiditSDK/Core#{didit_sdk_location_suffix}"
                     when 'nfc'           then "DiditSDK/NFC#{didit_sdk_location_suffix}"
                     else
                       raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."

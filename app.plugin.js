@@ -159,13 +159,12 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
   }
 
   // Location ships as complete variants: one subspec, never variant + add-on.
-  // `autodetection` is deprecated and identical to `core`.
+  // `autodetection` is deprecated and identical to `core` since native 4.10.0.
   lines.push(
     "  didit_sdk_location_suffix = $DiditSdkIosLocationEnabled ? '-Location' : ''",
     '  didit_sdk_subspec = case $DiditSdkIosVariant',
     '                      when \'all\'           then "DiditSDK/All#{didit_sdk_location_suffix}"',
-    '                      when \'core\'          then "DiditSDK/Core#{didit_sdk_location_suffix}"',
-    "                      when 'autodetection' then $DiditSdkIosLocationEnabled ? 'DiditSDK/Core-Location' : 'DiditSDK/AutoDetection'",
+    "                      when 'core', 'autodetection' then \"DiditSDK/Core#{didit_sdk_location_suffix}\"",
     '                      when \'nfc\'           then "DiditSDK/NFC#{didit_sdk_location_suffix}"',
     '                      else',
     '                        raise "Invalid $DiditSdkIosVariant \'#{$DiditSdkIosVariant}\'. Supported values: all, core, autodetection, nfc."',

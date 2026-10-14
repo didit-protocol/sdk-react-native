@@ -38,14 +38,13 @@ didit_sdk_ios_location_enabled = (
 
 # Location ships as complete variants, never as an add-on: exactly one DiditSDK
 # subspec/product may be declared, or two DiditSDK.xcframeworks get vendored.
-# `autodetection` is deprecated and identical to `core`, so with Location it
-# resolves to the Core Location variant.
-didit_sdk_location_variant = didit_sdk_ios_location_enabled && didit_sdk_ios_variant == "autodetection" ? "core" : didit_sdk_ios_variant
+# `autodetection` is deprecated and identical to `core` since native 4.10.0, so
+# it resolves to Core (and to the Core Location variant with Location).
+didit_sdk_location_variant = didit_sdk_ios_variant == "autodetection" ? "core" : didit_sdk_ios_variant
 didit_sdk_location_suffix = didit_sdk_ios_location_enabled ? "-Location" : ""
 didit_sdk_subspec = case didit_sdk_location_variant
                     when "all"           then "DiditSDK/All#{didit_sdk_location_suffix}"
                     when "core"          then "DiditSDK/Core#{didit_sdk_location_suffix}"
-                    when "autodetection" then "DiditSDK/AutoDetection"
                     when "nfc"           then "DiditSDK/NFC#{didit_sdk_location_suffix}"
                     else
                       raise "Invalid DiditSdk iOS variant '#{didit_sdk_ios_variant}'. Set $DiditSdkIosVariant or DIDIT_SDK_IOS_VARIANT to one of: all, core, autodetection, nfc."
@@ -58,7 +57,6 @@ didit_sdk_spm_location_suffix = didit_sdk_ios_location_enabled ? "Location" : ""
 didit_sdk_spm_product = case didit_sdk_location_variant
                         when "all"           then "DiditSDK#{didit_sdk_spm_location_suffix}"
                         when "core"          then "DiditSDKCore#{didit_sdk_spm_location_suffix}"
-                        when "autodetection" then "DiditSDKAutoDetection"
                         when "nfc"           then "DiditSDKNFC#{didit_sdk_spm_location_suffix}"
                         end
 
@@ -111,7 +109,6 @@ Pod::Spec.new do |s|
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/All"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Core"',
-      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/AutoDetection"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/NFC"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Core-Location"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/NFC-Location"',

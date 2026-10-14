@@ -48,8 +48,11 @@ it('declares one released pod line with the mapped Location subspec', async () =
 
   expect(contents).toContain('$DiditSdkIosLocationEnabled = true');
   expect(contents).toContain('"DiditSDK/All#{didit_sdk_location_suffix}"');
-  expect(contents).toContain("'DiditSDK/Core-Location'");
+  expect(contents).toContain(
+    `when 'core', 'autodetection' then "DiditSDK/Core#{didit_sdk_location_suffix}"`
+  );
   expect(contents).toContain('"DiditSDK/NFC#{didit_sdk_location_suffix}"');
+  expect(contents).not.toContain('DiditSDK/AutoDetection');
   expect(contents.match(/^\s*pod /gm)).toHaveLength(1);
   expect(contents).toContain(`pod didit_sdk_subspec, :podspec => '`);
   expect(contents).not.toContain("pod 'DiditSDK/Location'");
