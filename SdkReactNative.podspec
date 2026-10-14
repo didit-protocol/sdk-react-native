@@ -31,11 +31,21 @@ end
 
 didit_sdk_ios_min_version = ["all", "nfc"].include?(didit_sdk_ios_variant) ? max_ios_version.call(min_ios_version_supported, "15.0") : min_ios_version_supported
 
-didit_sdk_subspec = case didit_sdk_ios_variant
-                    when "all"           then "DiditSDK/All"
-                    when "core"          then "DiditSDK/Core"
-                    when "autodetection" then "DiditSDK/AutoDetection"
-                    when "nfc"           then "DiditSDK/NFC"
+didit_sdk_ios_location_enabled = (
+  defined?($DiditSdkIosLocationEnabled) ? $DiditSdkIosLocationEnabled :
+    ENV.fetch("DIDIT_SDK_IOS_LOCATION_ENABLED", "false").downcase == "true"
+)
+
+# Location ships as complete variants, never as an add-on: exactly one DiditSDK
+# subspec/product may be declared, or two DiditSDK.xcframeworks get vendored.
+# `autodetection` is deprecated and identical to `core` since native 4.10.0, so
+# it resolves to Core (and to the Core Location variant with Location).
+didit_sdk_location_variant = didit_sdk_ios_variant == "autodetection" ? "core" : didit_sdk_ios_variant
+didit_sdk_location_suffix = didit_sdk_ios_location_enabled ? "-Location" : ""
+didit_sdk_subspec = case didit_sdk_location_variant
+                    when "all"           then "DiditSDK/All#{didit_sdk_location_suffix}"
+                    when "core"          then "DiditSDK/Core#{didit_sdk_location_suffix}"
+                    when "nfc"           then "DiditSDK/NFC#{didit_sdk_location_suffix}"
                     else
                       raise "Invalid DiditSdk iOS variant '#{didit_sdk_ios_variant}'. Set $DiditSdkIosVariant or DIDIT_SDK_IOS_VARIANT to one of: all, core, autodetection, nfc."
                     end
@@ -43,11 +53,11 @@ didit_sdk_subspec = case didit_sdk_ios_variant
 # The sdk-ios SwiftPM products, one per variant. Same binaries as the
 # CocoaPods subspecs above, resolved from the git tag instead of a raw podspec
 # URL - see issue #27.
-didit_sdk_spm_product = case didit_sdk_ios_variant
-                        when "all"           then "DiditSDK"
-                        when "core"          then "DiditSDKCore"
-                        when "autodetection" then "DiditSDKAutoDetection"
-                        when "nfc"           then "DiditSDKNFC"
+didit_sdk_spm_location_suffix = didit_sdk_ios_location_enabled ? "Location" : ""
+didit_sdk_spm_product = case didit_sdk_location_variant
+                        when "all"           then "DiditSDK#{didit_sdk_spm_location_suffix}"
+                        when "core"          then "DiditSDKCore#{didit_sdk_spm_location_suffix}"
+                        when "nfc"           then "DiditSDKNFC#{didit_sdk_spm_location_suffix}"
                         end
 
 # How the native SDK is resolved: "spm" pulls it straight from the sdk-ios
@@ -59,13 +69,6 @@ didit_sdk_ios_linkage = (
     ENV.fetch("DIDIT_SDK_IOS_LINKAGE", "cocoapods")
 ).downcase
 
-didit_sdk_ios_location_enabled = (
-  defined?($DiditSdkIosLocationEnabled) ? $DiditSdkIosLocationEnabled :
-    ENV.fetch("DIDIT_SDK_IOS_LOCATION_ENABLED", "false").downcase == "true"
-)
-if didit_sdk_ios_location_enabled && didit_sdk_ios_linkage == "spm"
-  raise "Location requires CocoaPods linkage with the optional DiditSDK/Location subspec."
-end
 if package.dig("diditNativeSdkVersions", "source")
   Pod::Executable.execute_command('node', [File.join(__dir__, 'native-sdk-source.js'), 'ios'])
   raise "The pinned native source requires CocoaPods linkage." if didit_sdk_ios_linkage == "spm"
@@ -106,8 +109,10 @@ Pod::Spec.new do |s|
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/All"',
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Core"',
-      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/AutoDetection"',
-      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/NFC"'
+      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/NFC"',
+      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/Core-Location"',
+      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/NFC-Location"',
+      '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/All-Location"'
     ].join(" ")
   }
 
@@ -119,7 +124,6 @@ Pod::Spec.new do |s|
     )
   else
     s.dependency didit_sdk_subspec, didit_sdk_ios_version
-    s.dependency "DiditSDK/Location", didit_sdk_ios_version if didit_sdk_ios_location_enabled
   end
 
   install_modules_dependencies(s)

@@ -17,7 +17,7 @@ It is private and unavailable until the native DiditAuth integration is ready.
 | Platform | Minimum Version | Notes |
 |----------|----------------|-------|
 | iOS | 13.0+ | NFC passport reading requires iOS 15.0+ |
-| Android | API 24+ (7.0) | Kotlin 1.9+, Java 17+ |
+| Android | API 24+ (7.0) | Kotlin 2.1.10+, Android Gradle Plugin 8.6.0+, Gradle 8.7+, JDK 17 |
 
 ## Permissions
 
@@ -93,17 +93,15 @@ You do not need to request camera permission in your app code before calling `st
 
 Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
 
-> **Development preview:** these steps currently use the native integration source pinned in `diditNativeSdkVersions.source` in `package.json`. Set `DIDIT_SDK_SOURCE_PATH` to a clean checkout at that revision before building either example. A missing or different checkout fails the build instead of substituting the 4.9.1 release, which does not contain these steps. The temporary source pin must move to the released native version before the stacked push and package release.
-
-For Android source builds, apply this package's `android/native-source.gradle` from the host's `settings.gradle`. First run `yarn native:android` to build the pinned native revision with its own Gradle wrapper. The settings script exclusively resolves Didit artifacts from that local Maven repository, preventing a fallback to released artifacts. Both examples already do this; Expo prebuild adds it automatically.
-
 ### Bank
 
-No setup. The SDK opens the bank's approval page in the system browser (a Custom Tab on Android, Safari in a sheet on iOS) and checks the result itself when the person comes back, so there is no permission, URL scheme or deep link to register.
+No setup. The native SDKs open the bank's page (or a page Didit hosts) in the system browser, so there is no permission, URL scheme or deep link to register.
 
 ### Location on iOS
 
-Location lives in the native SDK's optional `DiditSDK/Location` module, which is not included in the `all` variant. Use CocoaPods with `$DiditSdkIosLocationEnabled = true` before `use_native_modules!`, and declare both the selected variant and `DiditSDK/Location` with the same source path. The bare example's Podfile shows this setup. Expo users set `iosLocationEnabled: true` in this package's plugin options and run prebuild. SwiftPM linkage currently cannot opt into Location. Without the module, or without `NSLocationWhenInUseUsageDescription`, the step shows no prompt, reports that the device cannot place the person, and the workflow's own rules decide.
+Location ships in the native SDK as complete **Location variants**, not as an add-on: `Core-Location`, `NFC-Location` and `All-Location` for CocoaPods, `DiditSDKCoreLocation`, `DiditSDKNFCLocation` and `DiditSDKLocation` (all with Location) for SwiftPM. Exactly one DiditSDK variant may be declared, so this package picks it for you from your variant: `all` maps to `All-Location`, `core` and `autodetection` map to `Core-Location`, `nfc` maps to `NFC-Location`.
+
+Set `$DiditSdkIosLocationEnabled = true` before `use_native_modules!` (or `DIDIT_SDK_IOS_LOCATION_ENABLED=true`) and keep a single `pod didit_sdk_subspec` line as shown in [React Native CLI](#ios), with the Location mapping. With SwiftPM linkage the same flag selects the Location product and needs no pod line. Expo users set `iosLocationEnabled: true` in this package's plugin options and run prebuild. Without Location enabled, or without `NSLocationWhenInUseUsageDescription`, the step shows no prompt, reports that the device cannot place the person, and the workflow's own rules decide.
 
 Add the purpose strings to `Info.plist`. `NSLocationTemporaryUsageDescriptionDictionary` is optional: it lets the step ask once for precise location when the person granted only an approximate one (iOS 14+), and its key must be exactly `DiditLocationVerification`.
 
@@ -175,29 +173,18 @@ A session that still reaches the step then reports the location as unavailable, 
 
 ## Native SDK Variants
 
-NFC and auto-detection are enabled by default on both platforms.
+NFC is enabled by default on both platforms. Automatic capture is available in every variant.
 
 The React Native plugin can install the same native SDK variants exposed by the iOS and Android SDKs:
 
-| Variant | Automatic capture | NFC passport reading | Use when |
-|---------|-------------------|----------------------|----------|
-| `all` | Yes | Yes | You want the complete SDK (default) |
-| `core` | No | No | You only need manual capture and the smallest binary |
-| `autodetection` | Yes | No | You need automatic capture without NFC |
-| `nfc` | No | Yes | You need NFC passport reading without automatic capture |
+| Variant | NFC passport reading | Use when |
+|---------|----------------------|----------|
+| `all` | Yes | You want the complete SDK (default) |
+| `core` | No | You do not need NFC passport reading |
+| `nfc` | Yes | You want the NFC variant |
+| `autodetection` | No | Deprecated: identical to `core` |
 
-### Empirical iOS Sizes
-
-Measured against the React Native example app using a Release `iphoneos` build with native iOS SDK 4.0.2. `DiditSDK` is linked statically into the app executable, so the app executable is the most useful place to see the SDK's impact. Compressed values are IPA-like zips of the `.app` payload.
-
-| Variant | `.app` bundle | App executable Mach-O | OpenSSL framework | Compressed IPA-like zip |
-|---------|--------------:|----------------------:|------------------:|------------------------:|
-| `core` | 30.3 MB | 22.1 MB | - | 9.1 MB |
-| `autodetection` | 49.4 MB | 41.1 MB | - | 15.2 MB |
-| `nfc` | 41.3 MB | 23.1 MB | 9.8 MB | 14.2 MB |
-| `all` | 60.3 MB | 42.2 MB | 9.8 MB | 20.3 MB |
-
-When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, Android NFC packaging rules, or NFC-related provisioning setup. When auto-detection is disabled, the document and face capture steps fall back to a manual shutter button.
+When NFC is disabled, you do not need iOS NFC capabilities, NFC entitlements, Android NFC packaging rules, or NFC-related provisioning setup.
 
 ## Installation
 
@@ -249,7 +236,7 @@ The iOS podspec URL is derived from the native SDK version this package pins (`d
 [
   "@didit-protocol/sdk-react-native",
   {
-    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.9.1/DiditSDK.podspec"
+    "iosPodspecUrl": "https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.10.0/DiditSDK.podspec"
   }
 ]
 ```
@@ -269,7 +256,7 @@ yarn add @didit-protocol/sdk-react-native
 Add the DiditSDK pod to your `Podfile` (it's not on CocoaPods trunk). The default native variant is `all`:
 
 ```ruby
-# Pick one: 'all', 'core', 'autodetection', 'nfc'
+# Pick one: 'all', 'core', 'nfc' ('autodetection' is deprecated and identical to 'core')
 $DiditSdkIosVariant = 'all'
 
 def max_ios_version(*versions)
@@ -280,15 +267,17 @@ didit_sdk_ios_deployment_target = ['all', 'nfc'].include?($DiditSdkIosVariant) ?
 platform :ios, didit_sdk_ios_deployment_target
 
 # Inside your app target:
+# Location ships as complete variants (All-Location, Core-Location, NFC-Location)
+$DiditSdkIosLocationEnabled = false # true to enable the Location step
+didit_sdk_location_suffix = $DiditSdkIosLocationEnabled ? '-Location' : ''
 didit_sdk_subspec = case $DiditSdkIosVariant
-                    when 'all'           then 'DiditSDK/All'
-                    when 'core'          then 'DiditSDK/Core'
-                    when 'autodetection' then 'DiditSDK/AutoDetection'
-                    when 'nfc'           then 'DiditSDK/NFC'
+                    when 'all'           then "DiditSDK/All#{didit_sdk_location_suffix}"
+                    when 'core', 'autodetection' then "DiditSDK/Core#{didit_sdk_location_suffix}"
+                    when 'nfc'           then "DiditSDK/NFC#{didit_sdk_location_suffix}"
                     else
                       raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                     end
-pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.9.1/DiditSDK.podspec'
+pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.10.0/DiditSDK.podspec'
 ```
 
 ##### Swift Package Manager (optional)
