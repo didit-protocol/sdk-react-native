@@ -167,6 +167,27 @@ describe('swift package manager linkage', () => {
   });
 });
 
+describe('Location variants', () => {
+  const podspec = read('SdkReactNative.podspec');
+
+  it('declares no separate DiditSDK/Location dependency', () => {
+    expect(podspec).not.toContain('"DiditSDK/Location"');
+  });
+
+  it.each(['Core-Location', 'NFC-Location', 'All-Location'])(
+    'searches the %s framework folder',
+    (variant) => {
+      expect(podspec).toContain(
+        `\${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/${variant}`
+      );
+    }
+  );
+
+  it('pins no leftover development source', () => {
+    expect(pkg.diditNativeSdkVersions.source).toBeUndefined();
+  });
+});
+
 describe('hand-maintained pins stay in lockstep', () => {
   it.each(['README.md'])(
     '%s references only the declared iOS version',

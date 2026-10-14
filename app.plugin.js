@@ -148,13 +148,8 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
     `  $DiditSdkIosLocationEnabled = ${options.iosLocationEnabled}`,
   ];
 
-  if (
-    options.iosLinkage === 'spm' &&
-    (options.iosLocationEnabled || pkg.diditNativeSdkVersions.source)
-  ) {
-    throw new Error(
-      'Location and native source builds require cocoapods iosLinkage.'
-    );
+  if (options.iosLinkage === 'spm' && pkg.diditNativeSdkVersions.source) {
+    throw new Error('Native source builds require cocoapods iosLinkage.');
   }
 
   if (options.iosLinkage === 'spm') {
@@ -163,12 +158,15 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
     return lines.join('\n');
   }
 
+  // Location ships as complete variants: one subspec, never variant + add-on.
+  // `autodetection` is deprecated and identical to `core`.
   lines.push(
+    "  didit_sdk_location_suffix = $DiditSdkIosLocationEnabled ? '-Location' : ''",
     '  didit_sdk_subspec = case $DiditSdkIosVariant',
-    "                      when 'all'           then 'DiditSDK/All'",
-    "                      when 'core'          then 'DiditSDK/Core'",
-    "                      when 'autodetection' then 'DiditSDK/AutoDetection'",
-    "                      when 'nfc'           then 'DiditSDK/NFC'",
+    '                      when \'all\'           then "DiditSDK/All#{didit_sdk_location_suffix}"',
+    '                      when \'core\'          then "DiditSDK/Core#{didit_sdk_location_suffix}"',
+    "                      when 'autodetection' then $DiditSdkIosLocationEnabled ? 'DiditSDK/Core-Location' : 'DiditSDK/AutoDetection'",
+    '                      when \'nfc\'           then "DiditSDK/NFC#{didit_sdk_location_suffix}"',
     '                      else',
     '                        raise "Invalid $DiditSdkIosVariant \'#{$DiditSdkIosVariant}\'. Supported values: all, core, autodetection, nfc."',
     '                      end'
@@ -178,13 +176,11 @@ function diditPodBlock(iosVariant, options, isRubyExpression = false) {
     lines.push(
       `  didit_source_script = Pod::Executable.execute_command('node', ['--print', "require.resolve('@didit-protocol/sdk-react-native/native-sdk-source')"]).strip`,
       `  didit_source_path = Pod::Executable.execute_command('node', [didit_source_script, 'ios']).strip`,
-      '  pod didit_sdk_subspec, :path => didit_source_path',
-      "  pod 'DiditSDK/Location', :path => didit_source_path if $DiditSdkIosLocationEnabled"
+      '  pod didit_sdk_subspec, :path => didit_source_path'
     );
   } else {
     lines.push(
-      `  pod didit_sdk_subspec, :podspec => '${options.iosPodspecUrl}'`,
-      `  pod 'DiditSDK/Location', :podspec => '${options.iosPodspecUrl}' if $DiditSdkIosLocationEnabled`
+      `  pod didit_sdk_subspec, :podspec => '${options.iosPodspecUrl}'`
     );
   }
 

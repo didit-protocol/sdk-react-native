@@ -21,22 +21,20 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 prepare_react_native_project!
 
 target 'DiditExpoExample' do
-# @generated begin didit-sdk-react-native-pod - expo prebuild (DO NOT MODIFY) sync-d257bf333a2351b6f6bdf0abd31a5390f878696b
+# @generated begin didit-sdk-react-native-pod - expo prebuild (DO NOT MODIFY) sync-3b2ae22d68929c05112be279a7f6ad8ec7f7db6d
   $DiditSdkIosVariant = podfile_properties.fetch('didit.iosVariant', 'all')
   $DiditSdkIosLinkage = 'cocoapods'
   $DiditSdkIosLocationEnabled = true
+  didit_sdk_location_suffix = $DiditSdkIosLocationEnabled ? '-Location' : ''
   didit_sdk_subspec = case $DiditSdkIosVariant
-                      when 'all'           then 'DiditSDK/All'
-                      when 'core'          then 'DiditSDK/Core'
-                      when 'autodetection' then 'DiditSDK/AutoDetection'
-                      when 'nfc'           then 'DiditSDK/NFC'
+                      when 'all'           then "DiditSDK/All#{didit_sdk_location_suffix}"
+                      when 'core'          then "DiditSDK/Core#{didit_sdk_location_suffix}"
+                      when 'autodetection' then $DiditSdkIosLocationEnabled ? 'DiditSDK/Core-Location' : 'DiditSDK/AutoDetection'
+                      when 'nfc'           then "DiditSDK/NFC#{didit_sdk_location_suffix}"
                       else
                         raise "Invalid $DiditSdkIosVariant '#{$DiditSdkIosVariant}'. Supported values: all, core, autodetection, nfc."
                       end
-  didit_source_script = Pod::Executable.execute_command('node', ['--print', "require.resolve('@didit-protocol/sdk-react-native/native-sdk-source')"]).strip
-  didit_source_path = Pod::Executable.execute_command('node', [didit_source_script, 'ios']).strip
-  pod didit_sdk_subspec, :path => didit_source_path
-  pod 'DiditSDK/Location', :path => didit_source_path if $DiditSdkIosLocationEnabled
+  pod didit_sdk_subspec, :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.10.0/DiditSDK.podspec'
 # @generated end didit-sdk-react-native-pod
   use_expo_modules!
 
