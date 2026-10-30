@@ -1,0 +1,136 @@
+import {
+  TurboModuleRegistry,
+  type CodegenTypes,
+  type TurboModule,
+} from 'react-native';
+
+type EventEmitter<T> = CodegenTypes.EventEmitter<T>;
+
+/**
+ * Configuration for the Didit verification SDK.
+ * All types must be plain objects for React Native Codegen compatibility.
+ */
+export type VerificationConfig = {
+  /** ISO 639-1 language code (e.g. "en", "fr", "ar"). Maps to SupportedLanguage on native. */
+  languageCode?: string;
+  /** Show the language selector on the welcome screen. Default: false. */
+  showLanguageSelector?: boolean;
+  /** Custom font family name. Must be registered by the host app. */
+  fontFamily?: string;
+  /** Enable SDK logging for debugging. Default: false. */
+  loggingEnabled?: boolean;
+  /** Show close (X) button on verification step screens. Default: true. */
+  showCloseButton?: boolean;
+  /** Show confirmation dialog when user attempts to exit. Default: true. */
+  showExitConfirmation?: boolean;
+  /** Automatically dismiss verification UI when complete. Default: false. */
+  closeOnComplete?: boolean;
+  /** Lens used when first entering the document capture screen: "front" or "back". */
+  defaultDocumentCamera?: string;
+  /** Lens used when first entering the liveness capture screen: "front" or "back". */
+  defaultLivenessCamera?: string;
+  /** Show the in-capture camera switcher on the document screen. Default: true. */
+  showDocumentCameraSwitchButton?: boolean;
+  /** Show the in-capture camera switcher on the liveness screen. Default: true. */
+  showLivenessCameraSwitchButton?: boolean;
+};
+
+/**
+ * Contact details for session creation.
+ */
+export type ContactDetails = {
+  email?: string;
+  sendNotificationEmails?: boolean;
+  emailLang?: string;
+  phone?: string;
+};
+
+/**
+ * Expected identity details for session creation.
+ */
+export type ExpectedDetails = {
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  nationality?: string;
+  country?: string;
+  address?: string;
+  identificationNumber?: string;
+  ipAddress?: string;
+  portraitImage?: string;
+};
+
+/**
+ * Raw verification result returned from native side.
+ * The public TypeScript API maps this to a strongly-typed discriminated union.
+ */
+export type VerificationResultJS = {
+  /** The result type: "completed", "cancelled", or "failed" */
+  type: string;
+  /** The session identifier (if available) */
+  sessionId?: string;
+  /** The verification status: "Approved", "Pending", or "Declined" */
+  status?: string;
+  /** The error type identifier (e.g. "sessionExpired", "networkError") */
+  errorType?: string;
+  /** Human-readable error message */
+  errorMessage?: string;
+};
+
+/**
+ * TurboModule specification for the Didit SDK native module.
+ * This is the Codegen input that generates native interfaces on both platforms.
+ */
+export interface Spec extends TurboModule {
+  /**
+   * Start verification with an existing session token.
+   * Launches the native verification UI and returns the result when complete.
+   */
+  startVerification(
+    token: string,
+    config: VerificationConfig | null
+  ): Promise<VerificationResultJS>;
+
+  /**
+   * Start verification by creating a new session with a workflow ID.
+   * Creates the session on the backend, then launches the native verification UI.
+   */
+  startVerificationWithWorkflow(
+    workflowId: string,
+    vendorData: string | null,
+    metadata: string | null,
+    contactDetails: ContactDetails | null,
+    expectedDetails: ExpectedDetails | null,
+    config: VerificationConfig | null
+  ): Promise<VerificationResultJS>;
+
+  /**
+   * Submit a transaction from the device using a transaction SDK token.
+   * The transaction payload and options cross the bridge as JSON strings;
+   * the resolved value is the transaction result as a JSON string.
+   */
+  submitTransaction(
+    transactionToken: string,
+    transactionJson: string,
+    optionsJson: string
+  ): Promise<string>;
+
+  /**
+   * Fetch a transaction previously submitted with the same token.
+   * The resolved value is the transaction result as a JSON string.
+   */
+  getTransaction(
+    transactionToken: string,
+    transactionId: string,
+    optionsJson: string
+  ): Promise<string>;
+
+  /**
+   * Fired after an auto-launched action completes and the transaction has
+   * been refreshed. Payload is a JSON string: { callId, result }.
+   */
+  readonly onTransactionUpdated: EventEmitter<string>;
+}
+
+export default TurboModuleRegistry.getEnforcing<Spec>('SdkReactNative');

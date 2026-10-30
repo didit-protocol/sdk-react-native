@@ -1,0 +1,46 @@
+buildscript {
+  ext.authExtOrDefault = { prop, fallback ->
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+  }
+
+  repositories {
+    google()
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:8.7.2"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${authExtOrDefault('kotlinVersion', '2.0.21')}"
+  }
+}
+
+apply plugin: "com.android.library"
+if (project.extensions.findByName('kotlin') == null) {
+  apply plugin: "kotlin-android"
+}
+apply plugin: "com.facebook.react"
+
+android {
+  namespace "me.didit.authreactnative"
+  compileSdkVersion authExtOrDefault("compileSdkVersion", 36)
+
+  defaultConfig {
+    minSdkVersion authExtOrDefault("minSdkVersion", 24)
+    targetSdkVersion authExtOrDefault("targetSdkVersion", 36)
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  kotlinOptions {
+    jvmTarget = "17"
+  }
+}
+
+dependencies {
+  implementation "com.facebook.react:react-android"
+  // No DiditAuth artifact is released yet. Keep this unavailable-only module
+  // independent of verification and add real pins only after native review.
+}
