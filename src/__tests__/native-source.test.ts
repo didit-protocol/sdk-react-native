@@ -7,7 +7,16 @@ jest.mock('fs', () => ({
   readFileSync: jest.fn(),
 }));
 
-const { diditNativeSdkVersions } = require('../../package.json');
+// The released package has no source pin; the mechanism is exercised with a fixture.
+const mockPin = { branch: 'dev', revision: 'b'.repeat(40) };
+jest.mock('../../package.json', () => ({
+  diditNativeSdkVersions: {
+    ios: '0.0.0',
+    android: '0.0.0',
+    source: { branch: 'dev', revision: 'b'.repeat(40) },
+  },
+}));
+const diditNativeSdkVersions = { source: mockPin };
 const {
   resolveNativeSdkSource,
   resolveAndroidRepository,
@@ -21,8 +30,19 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-it('requires an immutable revision for the integration branch', () => {
-  expect(diditNativeSdkVersions.source.branch).toBe('integration/console-v2');
+it('is a no-op without a source pin', () => {
+  jest.resetModules();
+  jest.doMock('../../package.json', () => ({
+    diditNativeSdkVersions: { ios: '0.0.0', android: '0.0.0' },
+  }));
+  const unpinned = require('../../native-sdk-source');
+
+  expect(unpinned.resolveNativeSdkSource('ios')).toBe('');
+  expect(unpinned.resolveAndroidRepository()).toBe('');
+  expect(git).not.toHaveBeenCalled();
+});
+
+it('requires an immutable revision for the pin', () => {
   expect(diditNativeSdkVersions.source.revision).toMatch(/^[a-f0-9]{40}$/);
 });
 
