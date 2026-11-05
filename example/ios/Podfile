@@ -60,6 +60,20 @@ target 'SdkReactNativeExample' do
   end
 
   post_install do |installer|
+    # CocoaPods numbers the Pods project's objects with a counter and, once the
+    # last batch of 100 is used up, restarts it at 0 for the objects added
+    # afterwards. React Native's `spm_dependency` adds the SwiftPM package
+    # reference there, so it can take the UUID of an existing object (the
+    # project root, a target dependency): Xcode then reads Pods.xcodeproj as
+    # damaged and the build stops with "module map file ... not found" and
+    # "no such module 'React'". Whether it happens depends only on how many
+    # objects the pods create, so adding a Swift source file can trigger it.
+    # Random UUIDs cannot collide with the counter's.
+    installer.pods_project.instance_variable_set(
+      :@available_uuids,
+      Array.new(100) { SecureRandom.hex(12).upcase }
+    )
+
     react_native_post_install(
       installer,
       config[:reactNativePath],

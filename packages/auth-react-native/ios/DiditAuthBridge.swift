@@ -19,6 +19,9 @@ public final class DiditAuthBridge: NSObject, @unchecked Sendable {
     // One DiditAuth per application, created and read on the main actor only.
     @MainActor private var instances: [String: DiditAuth] = [:]
 
+    // Swift drops "With" after a trailing preposition ("signInPublishableKey:"), so the
+    // Objective-C name the TurboModule calls is spelled out.
+    @objc(signInWithPublishableKey:redirectUri:resolve:reject:)
     public func signIn(publishableKey: String, redirectUri: String, resolve: @escaping Resolve, reject: @escaping Reject) {
         forward(publishableKey, redirectUri, resolve, reject) { auth in
             try Self.json(Self.session(try await auth.signIn(from: try Self.presenter())))
