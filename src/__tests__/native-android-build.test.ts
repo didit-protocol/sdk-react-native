@@ -8,6 +8,13 @@ jest.mock('fs', () => ({
   rmSync: jest.fn(),
   writeFileSync: jest.fn(),
 }));
+jest.mock('../../package.json', () => ({
+  diditNativeSdkVersions: {
+    ios: '0.0.0',
+    android: '0.0.0',
+    source: { branch: 'main', revision: 'a'.repeat(40) },
+  },
+}));
 jest.mock('../../native-sdk-source', () => ({
   resolveNativeSdkSource: jest.fn(() => '/native/android'),
   androidRepositoryPath: jest.fn(() => '/native-repository'),
