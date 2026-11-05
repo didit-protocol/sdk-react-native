@@ -138,6 +138,8 @@ The wrapper version (`version` in `package.json`) and the native Didit SDK versi
 
 This one field drives both iOS resolution paths: the CocoaPods raw-podspec URL and the SwiftPM `exactVersion` requirement (`$DiditSdkIosLinkage = 'spm'`). A bump must therefore have both a matching git tag **and** the SPM release assets (`DiditSDK*.xcframework.zip`) published on that `sdk-ios` release, or SwiftPM consumers fail to resolve.
 
+The private `packages/auth-react-native` package declares the same pins in its own `package.json`; bump both files together, because `src/__tests__/native-sdk-pins.test.ts` fails when they differ and one app can link both packages.
+
 `SdkReactNative.podspec` and `app.plugin.js` derive the iOS pin from `diditNativeSdkVersions.ios`; `android/build.gradle` reads `diditNativeSdkVersions.android`. The README's release URL is checked by `src/__tests__/native-sdk-pins.test.ts`. Only bump release pins once the matching native artifacts exist.
 
 During Bank and Location integration, `diditNativeSdkVersions.source` selects a branch at an immutable revision. Set `DIDIT_SDK_SOURCE_PATH` to that clean native checkout. Run `yarn native:android` to publish local Maven artifacts with the native project's own Gradle wrapper. Both examples consume that repository and the source CocoaPod; they reject missing, modified, or mismatched source. No native source is copied into this package. Run both Android examples sequentially, plus the native Bank and Location unit and JVM screenshot suites using that checkout's Gradle wrapper.

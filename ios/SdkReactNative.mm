@@ -28,6 +28,9 @@
     if (config.languageCode()) {
         dict[@"languageCode"] = config.languageCode();
     }
+    if (config.showLanguageSelector().has_value()) {
+        dict[@"showLanguageSelector"] = @(config.showLanguageSelector().value());
+    }
     if (config.fontFamily()) {
         dict[@"fontFamily"] = config.fontFamily();
     }
