@@ -1,0 +1,21 @@
+pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenCentral()
+        // Didit SDK Maven repository
+        maven { url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository" }
+        // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum)
+        maven { url "https://jitpack.io" }
+    }
+}
+
+rootProject.name = 'sdkreactnative.example'
+include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
+
+apply from: file("../../android/native-source.gradle")
