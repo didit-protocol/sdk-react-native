@@ -57,6 +57,13 @@ jobs:
       - name: Build package
         run: yarn prepare
 
+      # Host apps only get the R8 rules if the published archive carries them.
+      - name: Check package contents
+        run: |
+          mkdir -p "$RUNNER_TEMP/pack"
+          npm pack --pack-destination "$RUNNER_TEMP/pack"
+          tar -tzf "$RUNNER_TEMP"/pack/*.tgz | grep -Fx package/android/consumer-rules.pro
+
       - name: Build authentication package
         run: yarn build:auth
 
@@ -133,6 +140,89 @@ jobs:
           JAVA_OPTS: "-XX:MaxHeapSize=6g"
         run: |
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+
+  android-release-minified:
+    name: Minified Android release launches
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Select released native SDK for compatibility check
+        run: |
+          node - <<'JS'
+          const fs = require('fs');
+          const pkg = require('./package.json');
+          delete pkg.diditNativeSdkVersions.source;
+          fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          JS
+
+      - name: Install JDK
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Finalize Android SDK
+        run: |
+          /bin/bash -c "yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null"
+
+      - name: Cache Gradle
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+        with:
+          path: |
+            ~/.gradle/wrapper
+            ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('example/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # The example's release build type runs R8 with
+      # proguard-android-optimize.txt, the configuration that crashed host
+      # apps at launch (issue #61).
+      - name: Build minified release APK
+        working-directory: example/android
+        run: |
+          ./gradlew :app:assembleRelease --no-daemon --console=plain \
+            -PreactNativeArchitectures=x86_64 \
+            -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g"
+
+      - name: Check the library's R8 rules reached the app
+        run: |
+          CONFIGURATION=example/android/app/build/outputs/mapping/release/configuration.txt
+          test -f "$CONFIGURATION" || { ls -R example/android/app/build/outputs; exit 1; }
+          grep -F -- '-keep class com.facebook.react.module.model.ReactModuleInfo { public <init>(...); }' "$CONFIGURATION"
+          mkdir -p "$RUNNER_TEMP/android-release-smoke"
+          cp "$CONFIGURATION" "$RUNNER_TEMP/android-release-smoke/r8-configuration.txt"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Launch the minified release on an emulator
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          script: bash .github/scripts/android-release-smoke.sh example/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/android-release-smoke"
+
+      - name: Upload screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-release-smoke
+          path: ${{ runner.temp }}/android-release-smoke
+          if-no-files-found: ignore
 
   build-ios:
     name: Released iOS compatibility and bridge tests

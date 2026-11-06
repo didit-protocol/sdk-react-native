@@ -15,23 +15,15 @@ class SdkReactNativePackage : BaseReactPackage() {
     }
   }
 
+  // Direct call, never a reflective lookup: R8's optimizing pass rewrites
+  // ReactModuleInfo's constructors, so counting their parameters at runtime
+  // crashed minified apps on launch (issue #61). This 6-parameter constructor
+  // exists in every supported React Native release (0.76+), and the library
+  // compiles inside the host build, so a React Native that dropped it fails
+  // that build instead of the app.
   override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
-    val constructors = ReactModuleInfo::class.java.constructors
-    val sevenParamCtor = constructors.firstOrNull { it.parameterTypes.size == 7 }
-    val info = if (sevenParamCtor != null) {
-      // RN 0.76–0.78: constructor includes hasConstants parameter
-      sevenParamCtor.newInstance(
-        SdkReactNativeModule.NAME,
-        SdkReactNativeModule.NAME,
-        false, // canOverrideExistingModule
-        false, // needsEagerInit
-        false, // hasConstants
-        false, // isCxxModule
-        true   // isTurboModule
-      )
-    } else {
-      // RN 0.79+: hasConstants was removed
-      constructors.first { it.parameterTypes.size == 6 }.newInstance(
+    mapOf(
+      SdkReactNativeModule.NAME to ReactModuleInfo(
         SdkReactNativeModule.NAME,
         SdkReactNativeModule.NAME,
         false, // canOverrideExistingModule
@@ -39,7 +31,6 @@ class SdkReactNativePackage : BaseReactPackage() {
         false, // isCxxModule
         true   // isTurboModule
       )
-    } as ReactModuleInfo
-    mapOf(SdkReactNativeModule.NAME to info)
+    )
   }
 }
