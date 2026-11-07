@@ -57,13 +57,6 @@ jobs:
       - name: Build package
         run: yarn prepare
 
-      # Host apps only get the R8 rules if the published archive carries them.
-      - name: Check package contents
-        run: |
-          mkdir -p "$RUNNER_TEMP/pack"
-          npm pack --pack-destination "$RUNNER_TEMP/pack"
-          tar -tzf "$RUNNER_TEMP"/pack/*.tgz | grep -Fx package/android/consumer-rules.pro
-
       - name: Build authentication package
         run: yarn build:auth
 
@@ -212,6 +205,7 @@ jobs:
           api-level: 34
           target: google_apis
           arch: x86_64
+          profile: Nexus 6
           disable-animations: true
           emulator-options: -no-snapshot -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
           script: bash .github/scripts/android-release-smoke.sh example/android/app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/android-release-smoke"

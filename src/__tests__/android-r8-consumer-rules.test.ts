@@ -1,3 +1,4 @@
+import { execFileSync } from 'child_process';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -7,7 +8,7 @@ import { join } from 'path';
  * parameter count then threw during React Native startup, so every minified
  * host app crashed at launch (issue #61). These tests pin the direct
  * constructor call in both packages and the consumer rule every host app
- * receives (CI checks that `npm pack` includes the rules file).
+ * receives from the published archive.
  */
 
 const root = join(__dirname, '..', '..');
@@ -21,6 +22,25 @@ const PACKAGE_SOURCES = [
   'packages/auth-react-native/android/src/main/java/me/didit/authreactnative/DiditAuthPackage.kt',
 ];
 
+function packedFiles(): string[] {
+  const output = execFileSync(
+    process.execPath,
+    [
+      join(root, '.yarn/releases/yarn-4.11.0.cjs'),
+      'pack',
+      '--dry-run',
+      '--json',
+    ],
+    { cwd: root, encoding: 'utf8' }
+  );
+
+  return output
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line).location)
+    .filter((location): location is string => typeof location === 'string');
+}
+
 describe('Android R8 safety', () => {
   it('ships the ReactModuleInfo keep rule as a consumer rule', () => {
     const rules = read('android/consumer-rules.pro')
@@ -31,6 +51,7 @@ describe('Android R8 safety', () => {
     expect(read('android/build.gradle')).toMatch(
       /defaultConfig\s*\{[^}]*consumerProguardFiles\s+"consumer-rules\.pro"/
     );
+    expect(packedFiles()).toContain('android/consumer-rules.pro');
   });
 
   it.each(PACKAGE_SOURCES)('%s constructs ReactModuleInfo directly', (path) => {
