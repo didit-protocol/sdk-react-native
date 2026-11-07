@@ -35,7 +35,8 @@ dump_ui() {
 wait_for_text() {
   local deadline=$((SECONDS + $2))
   while ((SECONDS < deadline)); do
-    if dump_ui | grep -qF "text=\"$1\""; then
+    # Not grep -q: exiting early would fail the pipe under pipefail.
+    if dump_ui | grep -F "text=\"$1\"" >/dev/null; then
       return 0
     fi
     sleep 2
@@ -62,7 +63,7 @@ tap() {
 # Only crashes of the example count; other emulator processes may crash.
 assert_running() {
   adb shell pidof "$PACKAGE" >/dev/null || fail "$PACKAGE is not running $1"
-  if adb logcat -b crash -d | grep -qF "$PACKAGE"; then
+  if adb logcat -b crash -d | grep -F "$PACKAGE" >/dev/null; then
     adb logcat -b crash -d
     fail "$PACKAGE crashed $1"
   fi
