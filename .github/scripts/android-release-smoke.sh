@@ -43,20 +43,26 @@ wait_for_text() {
   return 1
 }
 
-# Taps the center of the first element whose attributes contain the match.
+# Taps the center of the first element whose attributes contain the match,
+# retrying while the view hierarchy dump comes back empty.
 tap() {
-  local bounds
-  bounds=$(dump_ui | tr '>' '\n' | grep -F "$1" | head -n 1 |
-    sed -nE 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/p')
+  local bounds=""
+  for _ in 1 2 3 4 5; do
+    bounds=$(dump_ui | tr '>' '\n' | grep -m 1 -F "$1" |
+      sed -nE 's/.*bounds="\[([0-9]+),([0-9]+)\]\[([0-9]+),([0-9]+)\]".*/\1 \2 \3 \4/p' || true)
+    [ -n "$bounds" ] && break
+    sleep 2
+  done
   [ -n "$bounds" ] || fail "No element matching $1 on screen"
   # shellcheck disable=SC2086
   set -- $bounds
   adb shell input tap $((($1 + $3) / 2)) $((($2 + $4) / 2))
 }
 
+# Only crashes of the example count; other emulator processes may crash.
 assert_running() {
   adb shell pidof "$PACKAGE" >/dev/null || fail "$PACKAGE is not running $1"
-  if [ -n "$(adb logcat -b crash -d)" ]; then
+  if adb logcat -b crash -d | grep -qF "$PACKAGE"; then
     adb logcat -b crash -d
     fail "$PACKAGE crashed $1"
   fi
