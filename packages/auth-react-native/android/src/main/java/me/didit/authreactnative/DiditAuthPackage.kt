@@ -10,23 +10,13 @@ class DiditAuthPackage : BaseReactPackage() {
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? =
     if (name == DiditAuthModule.NAME) DiditAuthModule(reactContext) else null
 
+  // Direct call, never a reflective lookup: R8's optimizing pass rewrites
+  // ReactModuleInfo's constructors, so counting their parameters at runtime
+  // crashed minified apps on launch. This 6-parameter constructor exists in
+  // every React Native release this package supports.
   override fun getReactModuleInfoProvider() = ReactModuleInfoProvider {
-    val constructors = ReactModuleInfo::class.java.constructors
-    val sevenParamCtor = constructors.firstOrNull { it.parameterTypes.size == 7 }
-    val info = if (sevenParamCtor != null) {
-      // RN 0.77-0.78 includes hasConstants; newer versions may retain this overload.
-      sevenParamCtor.newInstance(
-        DiditAuthModule.NAME,
-        DiditAuthModule::class.java.name,
-        false, // canOverrideExistingModule
-        false, // needsEagerInit
-        false, // hasConstants
-        false, // isCxxModule
-        true   // isTurboModule
-      )
-    } else {
-      // RN 0.79+ also supports registration without hasConstants.
-      constructors.first { it.parameterTypes.size == 6 }.newInstance(
+    mapOf(
+      DiditAuthModule.NAME to ReactModuleInfo(
         DiditAuthModule.NAME,
         DiditAuthModule::class.java.name,
         false, // canOverrideExistingModule
@@ -34,7 +24,6 @@ class DiditAuthPackage : BaseReactPackage() {
         false, // isCxxModule
         true   // isTurboModule
       )
-    } as ReactModuleInfo
-    mapOf(DiditAuthModule.NAME to info)
+    )
   }
 }
