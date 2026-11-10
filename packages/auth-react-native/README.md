@@ -7,7 +7,7 @@ sessions in the Keychain or Android Keystore, sign-out and step-ups before
 sensitive actions. Every request carries the device signals of DiditSignals.
 
 **Not published yet.** The package is private and pins the native SDK release in
-`diditNativeSdkVersions` in its `package.json` (4.14.1), which includes DiditAuth.
+`diditNativeSdkVersions` in its `package.json` (4.14.2), which includes DiditAuth.
 
 ## Requirements
 
@@ -76,7 +76,7 @@ On iOS, CocoaPods is the default. DiditSDK is not on the CocoaPods trunk, so the
 Podfile names its podspec at the pinned version:
 
 ```ruby
-pod 'DiditSDK/Auth', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.14.1/DiditSDK.podspec'
+pod 'DiditSDK/Auth', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.14.2/DiditSDK.podspec'
 ```
 
 To resolve it with Swift Package Manager instead, set `$DiditSdkIosLinkage = 'spm'`
