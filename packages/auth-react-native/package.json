@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "diditNativeSdkVersions": {
-    "ios": "4.14.3",
-    "android": "4.14.3"
+    "ios": "4.14.4",
+    "android": "4.14.4"
   },
   "description": "React Native wrapper for Didit Authentication (native DiditAuth)",
   "main": "./lib/commonjs/index.js",
