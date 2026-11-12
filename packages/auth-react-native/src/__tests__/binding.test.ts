@@ -97,13 +97,20 @@ describe('calls native DiditAuth with the application', () => {
     ]);
   });
 
-  it('reports a signed-out person as null, not as an error', async () => {
-    native.currentSession!.mockResolvedValue(null);
-    native.getToken!.mockResolvedValue(null);
+  it.each([
+    ['null (Android)', null],
+    ['undefined (iOS)', undefined],
+  ])(
+    'reports a signed-out person as null, not as an error, when the bridge resolves %s',
+    async (_bridge, nothing) => {
+      native.currentSession!.mockResolvedValue(nothing);
+      native.getToken!.mockResolvedValue(nothing);
 
-    await expect(auth.currentSession()).resolves.toBeNull();
-    await expect(auth.getToken()).resolves.toBeNull();
-  });
+      await expect(auth.currentSession()).resolves.toBeNull();
+      await expect(auth.currentSession({ force: true })).resolves.toBeNull();
+      await expect(auth.getToken()).resolves.toBeNull();
+    }
+  );
 
   it('getToken resolves with the native access token', async () => {
     native.getToken!.mockResolvedValue('access-token');

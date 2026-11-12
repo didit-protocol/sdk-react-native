@@ -1,6 +1,6 @@
 {
   "name": "@didit-protocol/auth-react-native",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "diditNativeSdkVersions": {
     "ios": "4.15.1",
     "android": "4.15.1"

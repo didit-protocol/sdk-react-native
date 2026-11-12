@@ -323,23 +323,10 @@ bundle exec pod install
 
 #### Android
 
-Add the Didit Maven repository to your project-level `settings.gradle`:
-
-```groovy
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
-            // Scope to Didit's group: unfiltered, Gradle probes this host for
-            // every dependency and a 429 disables the repo mid-build (issue #40).
-            content { includeGroup "me.didit" }
-        }
-        maven { url "https://jitpack.io" }
-    }
-}
-```
+Nothing to add for the Didit SDK itself: the package adds Didit's Maven repository
+(the `me.didit` group only) to your build. Its wallet dependencies come from JitPack,
+which React Native's Gradle plugin already gives every app. An app whose `settings.gradle` sets `repositoriesMode` to `PREFER_SETTINGS` lists the same repository there
+(`https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository`, group `me.didit`), because that mode ignores repositories added by a build file.
 
 By default, the React Native plugin depends on the full Android SDK (`all`). To choose another variant, add this to `android/gradle.properties`:
 

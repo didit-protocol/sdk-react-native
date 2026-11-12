@@ -68,10 +68,15 @@ export function createDiditAuth({
           options?.force ?? false
         );
 
-        return session === null ? null : parse<DiditSession>(session);
+        // iOS's bridge resolves a signed-out person as `undefined`, Android's as
+        // `null`: both are no session, never JSON to parse.
+        return session == null ? null : parse<DiditSession>(session);
       }),
     getToken: () =>
-      call((native) => native.getToken(publishableKey, redirectUri)),
+      call(
+        async (native) =>
+          (await native.getToken(publishableKey, redirectUri)) ?? null
+      ),
     signOut: () =>
       call(async (native) => {
         await native.signOut(publishableKey, redirectUri);

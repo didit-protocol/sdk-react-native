@@ -66,21 +66,9 @@ and [iOS quickstart](https://docs.didit.me/authentication/quickstarts/ios).
 
 ## Install the native SDK
 
-Android resolves `me.didit:didit-auth` from the Didit Maven repository. Add it to the
-project-level `settings.gradle` (the verification package needs the same entry):
-
-```groovy
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
-            content { includeGroup "me.didit" }
-        }
-    }
-}
-```
+Android needs nothing else: the package adds Didit's Maven repository (the `me.didit`
+group only) to your build, and Gradle resolves `me.didit:didit-auth` from it. An app whose `settings.gradle` sets `repositoriesMode` to `PREFER_SETTINGS` lists the same repository there
+(`https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository`, group `me.didit`), because that mode ignores repositories added by a build file.
 
 On iOS, CocoaPods is the default. DiditSDK is not on the CocoaPods trunk, so the
 Podfile names its podspec at the pinned version:
