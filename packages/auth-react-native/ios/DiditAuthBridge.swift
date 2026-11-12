@@ -74,6 +74,13 @@ public final class DiditAuthBridge: NSObject, @unchecked Sendable {
         }
     }
 
+    public func reauthenticate(publishableKey: String, redirectUri: String, method: String, resolve: @escaping Resolve, reject: @escaping Reject) {
+        forward(publishableKey, redirectUri, resolve, reject) { auth in
+            let reauthMethod = try Self.reauthMethod(method)
+            return try Self.json(Self.session(try await auth.reauthenticate(method: reauthMethod, from: try Self.presenter())))
+        }
+    }
+
     private func forward(
         _ publishableKey: String,
         _ redirectUri: String,
@@ -129,6 +136,17 @@ public final class DiditAuthBridge: NSObject, @unchecked Sendable {
             return .contactChange
         default:
             throw DiditAuthError("invalid_request", "Unknown step-up action: \(action).")
+        }
+    }
+
+    private static func reauthMethod(_ method: String) throws -> DiditReauthMethod {
+        switch method {
+        case "hosted":
+            return .hosted
+        case "passkey":
+            return .passkey
+        default:
+            throw DiditAuthError("invalid_request", "Unknown reauthentication method: \(method).")
         }
     }
 

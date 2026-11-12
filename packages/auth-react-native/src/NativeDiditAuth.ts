@@ -31,6 +31,12 @@ export interface Spec extends TurboModule {
     amount: string | null,
     currency: string | null
   ): Promise<string>;
+  /** `method` is "hosted" or "passkey"; resolves with the new session. */
+  reauthenticate(
+    publishableKey: string,
+    redirectUri: string,
+    method: string
+  ): Promise<string>;
 }
 
 // Importing the package must also work before a native rebuild, or in Expo Go.

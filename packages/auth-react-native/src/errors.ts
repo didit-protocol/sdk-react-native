@@ -4,6 +4,10 @@
  * - "cancelled": the person closed the sign-in or step-up page
  * - "invalid_state": the page returned for a sign-in this app did not start
  * - "not_signed_in": the call needs a signed-in person
+ * - "step_up_user_mismatch": `reauthenticate` ended with a different person; the new
+ *   session is ended at Didit and the stored session stays untouched
+ * - "invalid_request": an argument is not one the call accepts (for example an unknown
+ *   `reauthenticate` method)
  * - "passkey_cancelled": the person dismissed the passkey prompt
  * - "passkey_unavailable": the device cannot run a passkey for this app
  * - "browser_unavailable": the page cannot be shown (iOS hosted pages need 17.4)
@@ -15,6 +19,8 @@ export type DiditAuthErrorCode =
   | 'cancelled'
   | 'invalid_state'
   | 'not_signed_in'
+  | 'step_up_user_mismatch'
+  | 'invalid_request'
   | 'passkey_cancelled'
   | 'passkey_unavailable'
   | 'browser_unavailable'

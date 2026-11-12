@@ -13,6 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import me.didit.sdk.auth.DiditAuth
 import me.didit.sdk.auth.DiditAuthException
+import me.didit.sdk.auth.DiditReauthMethod
 import me.didit.sdk.auth.DiditSession
 import me.didit.sdk.auth.DiditStepUpAction
 import me.didit.sdk.auth.DiditStepUpResult
@@ -57,6 +58,11 @@ class DiditAuthModule(context: ReactApplicationContext) : NativeDiditAuthSpec(co
   ) = forward(publishableKey, redirectUri, promise) { auth ->
     json(stepUpResult(auth.stepUp(activity(), stepUpAction(action, amount, currency))))
   }
+
+  override fun reauthenticate(publishableKey: String, redirectUri: String, method: String, promise: Promise) =
+    forward(publishableKey, redirectUri, promise) { auth ->
+      json(session(auth.reauthenticate(activity(), reauthMethod(method))))
+    }
 
   override fun invalidate() {
     scope.cancel()
@@ -105,6 +111,13 @@ class DiditAuthModule(context: ReactApplicationContext) : NativeDiditAuthSpec(co
       "bank" -> DiditStepUpAction.BankAccount
       "contact" -> DiditStepUpAction.ContactChange
       else -> throw DiditAuthException("invalid_request", "Unknown step-up action: $action.")
+    }
+
+  private fun reauthMethod(method: String): DiditReauthMethod =
+    when (method) {
+      "hosted" -> DiditReauthMethod.HOSTED
+      "passkey" -> DiditReauthMethod.PASSKEY
+      else -> throw DiditAuthException("invalid_request", "Unknown reauthentication method: $method.")
     }
 
   private fun userInfo(e: DiditAuthException) = Arguments.createMap().apply {

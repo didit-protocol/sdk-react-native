@@ -128,6 +128,19 @@ RCT_EXPORT_MODULE(DiditAuthReactNative)
                                reject:DiditAuthReject(reject)];
 }
 
+- (void)reauthenticate:(NSString *)publishableKey
+           redirectUri:(NSString *)redirectUri
+                method:(NSString *)method
+               resolve:(RCTPromiseResolveBlock)resolve
+                reject:(RCTPromiseRejectBlock)reject
+{
+    [_bridge reauthenticateWithPublishableKey:publishableKey
+                                  redirectUri:redirectUri
+                                       method:method
+                                      resolve:^(NSString *result) { resolve(result); }
+                                       reject:DiditAuthReject(reject)];
+}
+
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
     (const facebook::react::ObjCTurboModule::InitParams &)params
 {
