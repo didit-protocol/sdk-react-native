@@ -21,7 +21,7 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 prepare_react_native_project!
 
 target 'DiditExpoExample' do
-# @generated begin didit-sdk-react-native-pod - expo prebuild (DO NOT MODIFY) sync-3b2ae22d68929c05112be279a7f6ad8ec7f7db6d
+# @generated begin didit-sdk-react-native-pod - expo prebuild (DO NOT MODIFY) sync-21ebb6451d8270aaf68e2dc9d59cd58af0494047
   $DiditSdkIosVariant = podfile_properties.fetch('didit.iosVariant', 'all')
   $DiditSdkIosLinkage = 'cocoapods'
   $DiditSdkIosLocationEnabled = true
