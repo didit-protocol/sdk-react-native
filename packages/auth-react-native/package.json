@@ -58,7 +58,7 @@
   "bugs": {
     "url": "https://github.com/didit-protocol/sdk-react-native/issues"
   },
-  "author": "https://didit.me <support@didit.me> (https://didit.me)",
+  "author": "Didit (https://didit.me)",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
