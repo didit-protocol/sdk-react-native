@@ -121,15 +121,24 @@ android {
   }
 }
 
-repositories {
-  // Didit SDK Maven repository. Scoped to Didit's group: unfiltered, Gradle
-  // probes this host for this project's every dependency (React, coroutines),
-  // and a 429 disables the repository mid-build (issue #40).
-  maven {
-    url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
-    content { includeGroup "me.didit" }
+// Didit SDK Maven repository. Scoped to Didit's group: unfiltered, Gradle probes
+// this host for every dependency (React, coroutines), and a 429 disables the
+// repository mid-build (issue #40). It is added to every project of the build, the
+// app included, because the app resolves this module's dependencies with its own
+// repositories, and React Native's Gradle plugin declares those on each project,
+// which makes Gradle ignore repositories an app lists in settings.gradle.
+rootProject.allprojects {
+  repositories {
+    maven {
+      url "https://raw.githubusercontent.com/didit-protocol/sdk-android/main/repository"
+      content { includeGroup "me.didit" }
+    }
   }
-  // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum)
+}
+
+repositories {
+  // Transitive wallet dependencies of the Didit SDK (Reown/WalletConnect, KEthereum).
+  // React Native's Gradle plugin already gives the app JitPack.
   maven {
     url "https://jitpack.io"
   }
