@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { readFileSync } from 'fs';
 import { join, resolve } from 'path';
 import manifest from '../../package.json';
 
@@ -57,13 +58,34 @@ describe('independent authentication distribution', () => {
     );
   });
 
-  it('blocks publication and has no verification or credential storage dependency', () => {
-    expect(manifest.private).toBe(true);
+  it('is publishable with no verification or credential storage dependency', () => {
+    expect(manifest).not.toHaveProperty('private');
+    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/);
+    expect(manifest.publishConfig).toEqual({
+      registry: 'https://registry.npmjs.org/',
+      access: 'public',
+    });
     expect(manifest).not.toHaveProperty('dependencies');
     expect(Object.keys(manifest.peerDependencies)).toEqual([
       'react',
       'react-native',
     ]);
+  });
+
+  it('releases on the tag the podspec points at, independent of the verification package', () => {
+    const podspec = readFileSync(
+      join(packageRoot, 'DiditAuthReactNative.podspec'),
+      'utf8'
+    );
+    const workflow = readFileSync(
+      join(root, '.github/workflows/release-auth-react-native.yml'),
+      'utf8'
+    );
+
+    expect(podspec).toContain(':tag => "auth-react-native-v#{s.version}"');
+    expect(workflow).toContain("tags: ['auth-react-native-v*']");
+    expect(workflow).toContain('@didit-protocol/auth-react-native');
+    expect(workflow).not.toMatch(/tags: \['v\*'\]/);
   });
 
   it('autolinks beside verification with distinct native module names', () => {

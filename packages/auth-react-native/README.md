@@ -6,8 +6,15 @@ Authentication. It calls native DiditAuth (`me.didit:didit-auth` on Android,
 sessions in the Keychain or Android Keystore, sign-out and step-ups before
 sensitive actions. Every request carries the device signals of DiditSignals.
 
-**Not published yet.** The package is private and pins the native SDK release in
-`diditNativeSdkVersions` in its `package.json` (4.14.7), which includes DiditAuth.
+```sh
+npm install @didit-protocol/auth-react-native
+# or
+yarn add @didit-protocol/auth-react-native
+```
+
+The package pins the native SDK release in `diditNativeSdkVersions` in its
+`package.json` (4.14.7), which includes DiditAuth. Rebuild the native app after
+installing (`cd ios && pod install`, then run the app).
 
 ## Requirements
 
@@ -51,8 +58,8 @@ custom URL schemes.
 4. Passkeys: add your Android package and certificate fingerprints, and your iOS
    app ID, under Native apps in the console.
 
-The native SDK guides have the details: [Android](https://github.com/didit-protocol/sdk-android)
-and [iOS](https://github.com/didit-protocol/sdk-ios).
+Step-by-step guides with the details: [Android quickstart](https://docs.didit.me/authentication/quickstarts/android)
+and [iOS quickstart](https://docs.didit.me/authentication/quickstarts/ios).
 
 ## Install the native SDK
 

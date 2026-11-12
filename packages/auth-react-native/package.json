@@ -1,12 +1,19 @@
 {
   "name": "@didit-protocol/auth-react-native",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "diditNativeSdkVersions": {
     "ios": "4.14.7",
     "android": "4.14.7"
   },
   "description": "React Native wrapper for Didit Authentication (native DiditAuth)",
+  "keywords": [
+    "react-native",
+    "ios",
+    "android",
+    "authentication",
+    "passkeys",
+    "didit"
+  ],
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
   "types": "./lib/typescript/commonjs/src/index.d.ts",
@@ -48,6 +55,14 @@
     "directory": "packages/auth-react-native"
   },
   "homepage": "https://github.com/didit-protocol/sdk-react-native/tree/main/packages/auth-react-native",
+  "bugs": {
+    "url": "https://github.com/didit-protocol/sdk-react-native/issues"
+  },
+  "author": "https://didit.me <support@didit.me> (https://didit.me)",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "license": "MIT",
   "peerDependencies": {
     "react": "*",
