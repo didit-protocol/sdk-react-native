@@ -16,6 +16,7 @@ jest.mock('../NativeDiditAuth', () => ({
     getToken: jest.fn(),
     signOut: jest.fn(),
     stepUp: jest.fn(),
+    reauthenticate: jest.fn(),
   },
 }));
 
@@ -56,6 +57,8 @@ const codes = [
   'server_error',
   'invalid_grant',
   'reauthentication_required',
+  'step_up_user_mismatch',
+  'invalid_request',
 ];
 
 afterEach(() => jest.resetAllMocks());
@@ -156,6 +159,50 @@ describe('step-ups', () => {
     native.stepUp!.mockResolvedValue(JSON.stringify(notRequired));
 
     await expect(auth.stepUp({ action: 'bank' })).resolves.toEqual(notRequired);
+  });
+});
+
+describe('reauthentication', () => {
+  it.each([
+    [undefined, 'hosted'],
+    [{}, 'hosted'],
+    [{ method: 'hosted' }, 'hosted'],
+    [{ method: 'passkey' }, 'passkey'],
+  ] as const)('passes %j to native as %s', async (options, method) => {
+    native.reauthenticate!.mockResolvedValue(JSON.stringify(session));
+
+    await expect(auth.reauthenticate(options)).resolves.toEqual(session);
+    expect(native.reauthenticate).toHaveBeenCalledWith(
+      publishableKey,
+      redirectUri,
+      method
+    );
+  });
+
+  it.each(['not_signed_in', 'step_up_user_mismatch'])(
+    'rejects with %s as native reported it',
+    async (code) => {
+      native.reauthenticate!.mockRejectedValue(
+        Object.assign(new Error(`${code} message`), { code, userInfo: null })
+      );
+
+      const error = await auth.reauthenticate().catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(DiditAuthError);
+      expect(error).toMatchObject({ code, message: `${code} message` });
+    }
+  );
+
+  it('rejects an unknown method with invalid_request before calling native', async () => {
+    const options = { method: 'redirect' } as unknown as {
+      method: 'hosted';
+    };
+
+    await expect(auth.reauthenticate(options)).rejects.toMatchObject({
+      name: 'DiditAuthError',
+      code: 'invalid_request',
+    });
+    expect(native.reauthenticate).not.toHaveBeenCalled();
   });
 });
 

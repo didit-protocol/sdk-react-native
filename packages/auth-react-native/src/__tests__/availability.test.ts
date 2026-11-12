@@ -18,6 +18,7 @@ const operations = {
   getToken: () => auth.getToken(),
   signOut: () => auth.signOut(),
   stepUp: () => auth.stepUp({ action: 'bank' }),
+  reauthenticate: () => auth.reauthenticate(),
 };
 
 describe('authentication without a linked native module', () => {

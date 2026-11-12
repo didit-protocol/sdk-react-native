@@ -60,6 +60,18 @@ export interface DiditStepUpResult {
   method: string | null;
 }
 
+/** How `reauthenticate` signs the person in again. */
+export type DiditReauthMethod =
+  /** The hosted sign-in page, with every method your application turned on. */
+  | 'hosted'
+  /** A passkey of this device; the hosted page opens only when Didit needs a further step. */
+  | 'passkey';
+
+export interface DiditReauthenticateOptions {
+  /** Defaults to "hosted". */
+  method?: DiditReauthMethod;
+}
+
 export interface DiditAuth {
   /** Signs the person up or in on the application's hosted Didit page. */
   signIn(): Promise<DiditSession>;
@@ -78,4 +90,11 @@ export interface DiditAuth {
   signOut(): Promise<void>;
   /** Runs the identity check a step-up rule asks for, and returns what Didit recorded. */
   stepUp(options: DiditStepUpOptions): Promise<DiditStepUpResult>;
+  /**
+   * Signs the signed-in person in again and returns their new session, for actions that need
+   * a session at most five minutes old. Rejects with "not_signed_in" when nobody is signed in,
+   * and with "step_up_user_mismatch" when a different person signs in (that new session is
+   * ended at Didit and the stored session stays untouched).
+   */
+  reauthenticate(options?: DiditReauthenticateOptions): Promise<DiditSession>;
 }

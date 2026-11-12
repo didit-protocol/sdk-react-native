@@ -1,5 +1,9 @@
 import NativeDiditAuth, { type Spec } from './NativeDiditAuth';
-import { DiditAuthUnavailableError, toDiditAuthError } from './errors';
+import {
+  DiditAuthError,
+  DiditAuthUnavailableError,
+  toDiditAuthError,
+} from './errors';
 import type {
   DiditAuth,
   DiditAuthOptions,
@@ -14,6 +18,8 @@ export type {
   DiditAuth,
   DiditAuthOptions,
   DiditOrganization,
+  DiditReauthenticateOptions,
+  DiditReauthMethod,
   DiditSession,
   DiditStepUpOptions,
   DiditStepUpResult,
@@ -27,6 +33,8 @@ async function call<T>(operation: (native: Spec) => Promise<T>): Promise<T> {
     throw toDiditAuthError(error);
   }
 }
+
+const reauthMethods = ['hosted', 'passkey'];
 
 const parse = <T>(json: string): T => JSON.parse(json) as T;
 
@@ -80,6 +88,20 @@ export function createDiditAuth({
         );
 
         return parse<DiditStepUpResult>(result);
+      }),
+    reauthenticate: (options) =>
+      call(async (native) => {
+        const method = options?.method ?? 'hosted';
+        if (!reauthMethods.includes(method)) {
+          throw new DiditAuthError(
+            'invalid_request',
+            `Unknown reauthentication method: ${String(method)}.`
+          );
+        }
+
+        return parse<DiditSession>(
+          await native.reauthenticate(publishableKey, redirectUri, method)
+        );
       }),
   };
 }

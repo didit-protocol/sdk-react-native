@@ -113,6 +113,9 @@ await auth.currentSession({ force: true }); // asks Didit now
 const token = await auth.getToken(); // five-minute token for your backend, or null
 await auth.signOut();
 
+const renewed = await auth.reauthenticate(); // signs the same person in again, returns the new session
+await auth.reauthenticate({ method: 'passkey' }); // with a passkey of this device
+
 const result = await auth.stepUp({ action: 'payout', amount: '900.00', currency: 'EUR' });
 if (result.approved) {
   // Your backend confirms with GET step-up/{result.id}/ before it pays out.
@@ -122,6 +125,14 @@ if (result.approved) {
 `stepUp` also takes `{ action: 'bank' }` (adding or changing a bank account) and
 `{ action: 'contact' }` (changing the email or phone). The result's `status` is
 `not_required`, `approved`, `pending`, `review`, `declined` or `expired`.
+
+`reauthenticate` asks the signed-in person to sign in again, for actions that need a
+session at most five minutes old, and resolves with their new session. `method` is
+`'hosted'` (the default, the hosted sign-in page) or `'passkey'` (a passkey of this
+device; the page opens only when Didit needs a further step). It rejects with
+`not_signed_in` when nobody is signed in, and with `step_up_user_mismatch` when a
+different person signs in: that new session is ended at Didit and the stored session
+stays untouched. An unknown `method` rejects with `invalid_request`.
 
 A `DiditSession` has `userId`, `sessionId`, `applicationId`, `vendorData`, `email`,
 `emailVerified`, `phone`, `methods`, `mfaVerified`, `verified`, `organizations` and
@@ -136,7 +147,8 @@ Every call rejects with a `DiditAuthError` carrying native DiditAuth's `code` an
 - the Didit API's own codes, such as `invalid_grant`, `method_unavailable` or
   `reauthentication_required`;
 - `cancelled`, `invalid_state`, `not_signed_in`, `passkey_cancelled`,
-  `passkey_unavailable`, `browser_unavailable`, `storage_unavailable`,
+  `passkey_unavailable`, `step_up_user_mismatch` (see `reauthenticate`),
+  `invalid_request`, `browser_unavailable`, `storage_unavailable`,
   `invalid_publishable_key`, `invalid_redirect_uri`, `network_error`,
   `rate_limited` (see `retryAfter`) and `server_error`.
 

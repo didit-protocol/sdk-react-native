@@ -14,6 +14,7 @@ const methods = [
   'getToken',
   'signOut',
   'stepUp',
+  'reauthenticate',
 ];
 
 const kotlinModule = readFileSync(
@@ -118,6 +119,12 @@ describe.each(versions)('authentication codegen with %s', (version) => {
     );
     expect(java).toContain(
       'void stepUp(String publishableKey, String redirectUri, String action, @Nullable String amount, @Nullable String currency, Promise promise)'
+    );
+  });
+
+  it('passes the reauthentication method to native', () => {
+    expect(java).toContain(
+      'void reauthenticate(String publishableKey, String redirectUri, String method, Promise promise)'
     );
   });
 
