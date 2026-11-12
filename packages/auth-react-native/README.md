@@ -13,7 +13,7 @@ yarn add @didit-protocol/auth-react-native
 ```
 
 The package pins the native SDK release in `diditNativeSdkVersions` in its
-`package.json` (4.14.7), which includes DiditAuth. Rebuild the native app after
+`package.json` (4.15.0), which includes DiditAuth. Rebuild the native app after
 installing (`cd ios && pod install`, then run the app).
 
 ## Requirements
@@ -86,7 +86,7 @@ On iOS, CocoaPods is the default. DiditSDK is not on the CocoaPods trunk, so the
 Podfile names its podspec at the pinned version:
 
 ```ruby
-pod 'DiditSDK/Auth', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.14.7/DiditSDK.podspec'
+pod 'DiditSDK/Auth', :podspec => 'https://raw.githubusercontent.com/didit-protocol/sdk-ios/4.15.0/DiditSDK.podspec'
 ```
 
 To resolve it with Swift Package Manager instead, set `$DiditSdkIosLinkage = 'spm'`
