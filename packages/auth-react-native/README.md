@@ -54,7 +54,10 @@ custom URL schemes.
    and signing certificate.
 3. iOS: add `webcredentials:app.example.com` to the app's Associated Domains and
    serve `https://app.example.com/.well-known/apple-app-site-association` listing
-   your app under `webcredentials`.
+   your app under `webcredentials`. iOS opens the HTTPS callback of the hosted
+   page through a web authentication session, which checks the `webcredentials`
+   association (not `applinks`) before it opens the page. For passkeys, also add
+   `webcredentials:` for your application's Didit host.
 4. Passkeys: add your Android package and certificate fingerprints, and your iOS
    app ID, under Native apps in the console.
 
