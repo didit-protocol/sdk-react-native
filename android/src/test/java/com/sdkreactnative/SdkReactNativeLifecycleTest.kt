@@ -131,7 +131,7 @@ class SdkReactNativeLifecycleTest {
     println("DEBUG listeners=" + listeners.size + " lifecycle=" + reactContext.lifecycleState + " jobActive=" + job.isActive)
     listeners.single().onHostDestroy()
     Thread.sleep(200)
-    println("DEBUG after destroy listeners=" + listeners.size + " jobActive=" + job.isActive + " exception=" + job.getCompletionExceptionOrNull())
+    println("DEBUG after destroy listeners=" + listeners.size + " jobActive=" + job.isActive)
 
     verify(activity, never()).startActivity(any())
     verify(promise, times(1)).resolve(any())
