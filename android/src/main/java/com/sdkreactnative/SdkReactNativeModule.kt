@@ -1,20 +1,16 @@
 package com.sdkreactnative
 
 import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.common.LifecycleState
 import android.util.Log
-import kotlin.coroutines.resume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import me.didit.sdk.CameraLens
 import me.didit.sdk.Configuration
@@ -132,7 +128,11 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
             DiditSdk.state.first { state ->
                 logDebug("awaitReadyAndLaunchUI: SDK state = ${state::class.simpleName}")
                 when (state) {
-                    is DiditSdkState.Ready -> true
+                    is DiditSdkState.Ready -> {
+                        logDebug("awaitReadyAndLaunchUI: launching verification UI")
+                        DiditSdk.launchVerificationUI(activity)
+                        true
+                    }
                     is DiditSdkState.Error -> {
                         logDebugError("awaitReadyAndLaunchUI: SDK entered Error state")
                         val errorResult = mapVerificationResult(
@@ -158,47 +158,6 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                 )
             )
             promise.resolve(errorResult)
-        }
-
-        if (stateReached is DiditSdkState.Ready) {
-            if (!awaitHostResumed()) {
-                logDebugError("awaitReadyAndLaunchUI: host was destroyed before the UI could launch")
-                promise.resolve(
-                    mapVerificationResult(
-                        VerificationResult.Failed(
-                            error = VerificationError.Unknown("The host Activity was destroyed before verification UI could be presented."),
-                            session = null
-                        )
-                    )
-                )
-                return
-            }
-            logDebug("awaitReadyAndLaunchUI: launching verification UI")
-            DiditSdk.launchVerificationUI(reactApplicationContext.currentActivity ?: activity)
-        }
-    }
-
-    private suspend fun awaitHostResumed(): Boolean {
-        if (reactApplicationContext.lifecycleState == LifecycleState.RESUMED) return true
-        logDebug("awaitHostResumed: host is not resumed, deferring verification UI")
-        return suspendCancellableCoroutine { continuation ->
-            val listener = object : LifecycleEventListener {
-                override fun onHostResume() {
-                    reactApplicationContext.removeLifecycleEventListener(this)
-                    continuation.resume(true)
-                }
-
-                override fun onHostPause() = Unit
-
-                override fun onHostDestroy() {
-                    reactApplicationContext.removeLifecycleEventListener(this)
-                    continuation.resume(false)
-                }
-            }
-            continuation.invokeOnCancellation {
-                reactApplicationContext.removeLifecycleEventListener(listener)
-            }
-            reactApplicationContext.addLifecycleEventListener(listener)
         }
     }
 
