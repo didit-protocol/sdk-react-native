@@ -67,7 +67,7 @@ class SdkReactNativeLifecycleTest {
   fun setUp() {
     // React Native's native map cannot be constructed in a JVM test.
     arguments = mockStatic(Arguments::class.java)
-    arguments.`when` { Arguments.createMap() }.thenAnswer { mock(WritableMap::class.java) }
+    arguments.`when`<WritableMap> { Arguments.createMap() }.thenAnswer { mock(WritableMap::class.java) }
 
     reactContext = mock(ReactApplicationContext::class.java)
     `when`(reactContext.currentActivity).thenReturn(null)
