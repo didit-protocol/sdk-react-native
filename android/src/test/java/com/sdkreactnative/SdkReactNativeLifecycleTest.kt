@@ -129,6 +129,7 @@ class SdkReactNativeLifecycleTest {
     val job = awaitLaunch()
 
     listeners.single().onHostDestroy()
+    Thread.sleep(200)
 
     verify(activity, never()).startActivity(any())
     verify(promise, times(1)).resolve(any())
