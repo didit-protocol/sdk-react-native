@@ -1,9 +1,11 @@
 package com.sdkreactnative
 
 import android.app.Activity
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.common.LifecycleState
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.Continuation
@@ -15,11 +17,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import me.didit.sdk.DiditSdk
 import me.didit.sdk.DiditSdkState
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.MockedStatic
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -41,6 +46,7 @@ import org.mockito.Mockito.`when`
  */
 class SdkReactNativeLifecycleTest {
 
+  private lateinit var arguments: MockedStatic<Arguments>
   private lateinit var reactContext: ReactApplicationContext
   private lateinit var module: SdkReactNativeModule
   private lateinit var promise: Promise
@@ -59,6 +65,10 @@ class SdkReactNativeLifecycleTest {
 
   @Before
   fun setUp() {
+    // React Native's native map cannot be constructed in a JVM test.
+    arguments = mockStatic(Arguments::class.java)
+    arguments.`when` { Arguments.createMap() }.thenAnswer { mock(WritableMap::class.java) }
+
     reactContext = mock(ReactApplicationContext::class.java)
     `when`(reactContext.currentActivity).thenReturn(null)
     `when`(reactContext.lifecycleState).thenReturn(LifecycleState.BEFORE_RESUME)
@@ -74,6 +84,11 @@ class SdkReactNativeLifecycleTest {
     module = SdkReactNativeModule(reactContext)
     promise = mock(Promise::class.java)
     activity = mock(Activity::class.java)
+  }
+
+  @After
+  fun tearDown() {
+    arguments.close()
   }
 
   private fun setSdkState(state: DiditSdkState) {
@@ -128,10 +143,7 @@ class SdkReactNativeLifecycleTest {
 
     val job = awaitLaunch()
 
-    println("DEBUG listeners=" + listeners.size + " lifecycle=" + reactContext.lifecycleState + " jobActive=" + job.isActive)
     listeners.single().onHostDestroy()
-    Thread.sleep(200)
-    println("DEBUG after destroy listeners=" + listeners.size + " jobActive=" + job.isActive)
 
     verify(activity, never()).startActivity(any())
     verify(promise, times(1)).resolve(any())
