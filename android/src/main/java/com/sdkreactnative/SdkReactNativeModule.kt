@@ -1,16 +1,21 @@
 package com.sdkreactnative
 
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.facebook.react.common.LifecycleState
 import android.util.Log
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.resume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import me.didit.sdk.CameraLens
 import me.didit.sdk.Configuration
@@ -48,6 +53,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     ) {
         logDebug("startVerification: started")
         val activity = reactApplicationContext.currentActivity
+        val outcome = SingleOutcome(promise)
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
@@ -57,13 +63,13 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                     configuration = configuration
                 ) { result ->
                     logDebug("startVerification: onResult callback fired, type=${result::class.simpleName}")
-                    promise.resolve(mapVerificationResult(result))
+                    outcome.resolve(mapVerificationResult(result))
                 }
 
-                awaitReadyAndLaunchUI(promise, activity)
+                awaitReadyAndLaunchUI(outcome, activity)
             } catch (e: Exception) {
                 logDebugError("startVerification: exception", e)
-                rejectWithError(promise, e)
+                if (outcome.claim()) rejectWithError(promise, e)
             }
         }
     }
@@ -81,6 +87,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     ) {
         logDebug("startVerificationWithWorkflow: started")
         val activity = reactApplicationContext.currentActivity
+        val outcome = SingleOutcome(promise)
         scope.launch {
             try {
                 val configuration = parseConfiguration(config)
@@ -91,13 +98,13 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                     configuration = configuration
                 ) { result ->
                     logDebug("startVerificationWithWorkflow: onResult callback fired, type=${result::class.simpleName}")
-                    promise.resolve(mapVerificationResult(result))
+                    outcome.resolve(mapVerificationResult(result))
                 }
 
-                awaitReadyAndLaunchUI(promise, activity)
+                awaitReadyAndLaunchUI(outcome, activity)
             } catch (e: Exception) {
                 logDebugError("startVerificationWithWorkflow: exception", e)
-                rejectWithError(promise, e)
+                if (outcome.claim()) rejectWithError(promise, e)
             }
         }
     }
@@ -109,7 +116,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
      * If the state becomes Error, resolves the promise with a failure result.
      * Includes a timeout to prevent the promise from hanging indefinitely.
      */
-    private suspend fun awaitReadyAndLaunchUI(promise: Promise, activity: android.app.Activity?) {
+    private suspend fun awaitReadyAndLaunchUI(outcome: SingleOutcome, activity: android.app.Activity?) {
         if (activity == null) {
             logDebugError("awaitReadyAndLaunchUI: no active Activity at call time")
             val errorResult = mapVerificationResult(
@@ -118,7 +125,7 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                     session = null
                 )
             )
-            promise.resolve(errorResult)
+            outcome.resolve(errorResult)
             return
         }
 
@@ -127,26 +134,29 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
         val stateReached = withTimeoutOrNull(TIMEOUT_MS) {
             DiditSdk.state.first { state ->
                 logDebug("awaitReadyAndLaunchUI: SDK state = ${state::class.simpleName}")
-                when (state) {
-                    is DiditSdkState.Ready -> {
-                        logDebug("awaitReadyAndLaunchUI: launching verification UI")
-                        DiditSdk.launchVerificationUI(activity)
-                        true
-                    }
-                    is DiditSdkState.Error -> {
-                        logDebugError("awaitReadyAndLaunchUI: SDK entered Error state")
-                        val errorResult = mapVerificationResult(
-                            VerificationResult.Failed(
-                                error = VerificationError.Unknown(state.message ?: "SDK entered error state."),
-                                session = null
-                            )
-                        )
-                        promise.resolve(errorResult)
-                        true
-                    }
-                    else -> false
-                }
+                state is DiditSdkState.Ready || state is DiditSdkState.Error
             }
+        }
+
+        if (stateReached is DiditSdkState.Ready) {
+            awaitHostResumed()
+            val host = reactApplicationContext.currentActivity ?: activity
+            logDebug("awaitReadyAndLaunchUI: launching verification UI")
+            DiditSdk.launchVerificationUI(host)
+            cancelWhenHostReturnsFirst(outcome)
+            return
+        }
+
+        if (stateReached is DiditSdkState.Error) {
+            logDebugError("awaitReadyAndLaunchUI: SDK entered Error state")
+            val errorResult = mapVerificationResult(
+                VerificationResult.Failed(
+                    error = VerificationError.Unknown(stateReached.message ?: "SDK entered error state."),
+                    session = null
+                )
+            )
+            outcome.resolve(errorResult)
+            return
         }
 
         if (stateReached == null) {
@@ -157,7 +167,72 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                     session = null
                 )
             )
-            promise.resolve(errorResult)
+            outcome.resolve(errorResult)
+        }
+    }
+
+    private fun cancelWhenHostReturnsFirst(outcome: SingleOutcome) {
+        val listener = object : LifecycleEventListener {
+            private var hostLeft = false
+
+            override fun onHostPause() {
+                hostLeft = true
+            }
+
+            override fun onHostResume() {
+                if (!hostLeft || reactApplicationContext.lifecycleState != LifecycleState.RESUMED) return
+                reactApplicationContext.removeLifecycleEventListener(this)
+                logDebug("cancelWhenHostReturnsFirst: host resumed without a result, resolving cancelled")
+                outcome.resolve(mapVerificationResult(VerificationResult.Cancelled(session = null)))
+            }
+
+            override fun onHostDestroy() {
+                reactApplicationContext.removeLifecycleEventListener(this)
+            }
+        }
+        outcome.onSettled { reactApplicationContext.removeLifecycleEventListener(listener) }
+        reactApplicationContext.addLifecycleEventListener(listener)
+    }
+
+    private class SingleOutcome(private val promise: Promise) {
+        private val settled = AtomicBoolean(false)
+        private var settledListener: (() -> Unit)? = null
+
+        fun claim(): Boolean {
+            if (!settled.compareAndSet(false, true)) return false
+            settledListener?.invoke()
+            settledListener = null
+            return true
+        }
+
+        fun resolve(value: WritableMap) {
+            if (claim()) promise.resolve(value)
+        }
+
+        fun onSettled(listener: () -> Unit) {
+            if (settled.get()) listener() else settledListener = listener
+        }
+    }
+
+    private suspend fun awaitHostResumed() {
+        if (reactApplicationContext.lifecycleState == LifecycleState.RESUMED) return
+        logDebug("awaitHostResumed: host is not resumed, deferring verification UI")
+        suspendCancellableCoroutine<Unit> { continuation ->
+            val listener = object : LifecycleEventListener {
+                override fun onHostResume() {
+                    reactApplicationContext.removeLifecycleEventListener(this)
+                    if (continuation.isActive) continuation.resume(Unit)
+                }
+
+                override fun onHostPause() = Unit
+
+                override fun onHostDestroy() {
+                    reactApplicationContext.removeLifecycleEventListener(this)
+                    continuation.cancel()
+                }
+            }
+            continuation.invokeOnCancellation { reactApplicationContext.removeLifecycleEventListener(listener) }
+            reactApplicationContext.addLifecycleEventListener(listener)
         }
     }
 
