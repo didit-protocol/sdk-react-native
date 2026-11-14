@@ -18,10 +18,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import me.didit.sdk.DiditSdk
 import me.didit.sdk.DiditSdkState
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.MockedStatic
 import org.mockito.ArgumentMatchers.any
+import org.mockito.MockedStatic
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.mockStatic
@@ -129,6 +130,9 @@ class SdkReactNativeLifecycleTest {
 
     val job = awaitLaunch()
 
+    verify(activity, never()).startActivity(any())
+    assertEquals("the bridge must observe the host lifecycle", 1, listeners.size)
+
     // A second resume cannot reach a listener the bridge already removed.
     repeat(2) { listeners.toList().forEach(LifecycleEventListener::onHostResume) }
 
@@ -143,6 +147,7 @@ class SdkReactNativeLifecycleTest {
 
     val job = awaitLaunch()
 
+    assertEquals("the bridge must observe the host lifecycle", 1, listeners.size)
     listeners.single().onHostDestroy()
 
     verify(activity, never()).startActivity(any())
