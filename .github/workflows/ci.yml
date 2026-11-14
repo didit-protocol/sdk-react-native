@@ -134,6 +134,12 @@ jobs:
         run: |
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
 
+      - name: Run Android bridge unit tests
+        working-directory: example/android
+        run: |
+          ./gradlew :didit-protocol_sdk-react-native:testDebugUnitTest \
+            --no-daemon --console=plain
+
   android-release-minified:
     name: Minified Android release launches
     runs-on: ubuntu-latest
