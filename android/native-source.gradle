@@ -1,0 +1,18 @@
+// Apply from the host's settings.gradle before resolving Didit dependencies.
+def sourceResolver = new File(buildscript.sourceFile.parentFile.parentFile, 'native-sdk-source.js')
+def nativeRepository = providers.exec {
+  commandLine('node', sourceResolver.absolutePath, 'android-repository')
+}.standardOutput.asText.get().trim()
+
+if (nativeRepository) {
+  gradle.ext.diditNativeSourceRepository = nativeRepository
+  // Cover both React Native's settings repositories and Expo's project repositories.
+  def configureRepository = { repositories ->
+    repositories.exclusiveContent {
+      forRepository { repositories.maven { url = uri(nativeRepository) } }
+      filter { includeGroup('me.didit') }
+    }
+  }
+  configureRepository(dependencyResolutionManagement.repositories)
+  gradle.beforeProject { project -> configureRepository(project.repositories) }
+}
