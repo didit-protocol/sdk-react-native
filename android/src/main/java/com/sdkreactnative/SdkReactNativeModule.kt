@@ -109,17 +109,9 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     // ─── State Observation & UI Launching ────────────────────────────────────
 
     /**
-     * Waits for the SDK to become Ready, then for the host to be resumable, and
-     * only then launches the verification UI.
-     *
-     * Launching while the host is backgrounded looks successful here: Android
-     * 10+ refuses the activity start in the platform and never tells the SDK,
-     * so no result callback arrives and the JS promise waits forever. The host
-     * is therefore an explicit part of readiness.
-     *
-     * The 30-second bound covers the SDK wait only. Waiting for the host to
-     * come back is unbounded by design - the person may stay away - but a host
-     * that is destroyed while waiting settles the promise with a failure.
+     * Waits for the SDK state to become Ready, then launches the verification UI.
+     * If the state becomes Error, resolves the promise with a failure result.
+     * Includes a timeout to prevent the promise from hanging indefinitely.
      */
     private suspend fun awaitReadyAndLaunchUI(promise: Promise, activity: android.app.Activity?) {
         if (activity == null) {
@@ -136,14 +128,28 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
 
         val TIMEOUT_MS = 30_000L
 
-        val reachedState = withTimeoutOrNull(TIMEOUT_MS) {
+        val stateReached = withTimeoutOrNull(TIMEOUT_MS) {
             DiditSdk.state.first { state ->
                 logDebug("awaitReadyAndLaunchUI: SDK state = ${state::class.simpleName}")
-                state is DiditSdkState.Ready || state is DiditSdkState.Error
+                when (state) {
+                    is DiditSdkState.Ready -> true
+                    is DiditSdkState.Error -> {
+                        logDebugError("awaitReadyAndLaunchUI: SDK entered Error state")
+                        val errorResult = mapVerificationResult(
+                            VerificationResult.Failed(
+                                error = VerificationError.Unknown(state.message ?: "SDK entered error state."),
+                                session = null
+                            )
+                        )
+                        promise.resolve(errorResult)
+                        true
+                    }
+                    else -> false
+                }
             }
         }
 
-        if (reachedState == null) {
+        if (stateReached == null) {
             logDebugError("awaitReadyAndLaunchUI: timed out waiting for SDK state after ${TIMEOUT_MS}ms")
             val errorResult = mapVerificationResult(
                 VerificationResult.Failed(
@@ -152,49 +158,28 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                 )
             )
             promise.resolve(errorResult)
-            return
         }
 
-        if (reachedState is DiditSdkState.Error) {
-            logDebugError("awaitReadyAndLaunchUI: SDK entered Error state")
-            val errorResult = mapVerificationResult(
-                VerificationResult.Failed(
-                    error = VerificationError.Unknown(reachedState.message ?: "SDK entered error state."),
-                    session = null
+        if (stateReached is DiditSdkState.Ready) {
+            if (!awaitHostResumed()) {
+                logDebugError("awaitReadyAndLaunchUI: host was destroyed before the UI could launch")
+                promise.resolve(
+                    mapVerificationResult(
+                        VerificationResult.Failed(
+                            error = VerificationError.Unknown("The host Activity was destroyed before verification UI could be presented."),
+                            session = null
+                        )
+                    )
                 )
-            )
-            promise.resolve(errorResult)
-            return
+                return
+            }
+            logDebug("awaitReadyAndLaunchUI: launching verification UI")
+            DiditSdk.launchVerificationUI(reactApplicationContext.currentActivity ?: activity)
         }
-
-        if (!awaitHostResumed()) {
-            logDebugError("awaitReadyAndLaunchUI: host destroyed before the verification UI could be presented")
-            val errorResult = mapVerificationResult(
-                VerificationResult.Failed(
-                    error = VerificationError.Unknown(
-                        "The host Activity was destroyed before the verification UI could be presented."
-                    ),
-                    session = null
-                )
-            )
-            promise.resolve(errorResult)
-            return
-        }
-
-        logDebug("awaitReadyAndLaunchUI: launching verification UI")
-        DiditSdk.launchVerificationUI(reactApplicationContext.currentActivity ?: activity)
     }
 
-    /**
-     * Suspends until the React host is resumed. Returns false when the host is
-     * destroyed first, so the caller can settle the promise instead of leaving
-     * it pending. Runs on the main dispatcher, the thread React delivers
-     * lifecycle callbacks on, so the state check and listener registration
-     * cannot miss a resume between them.
-     */
     private suspend fun awaitHostResumed(): Boolean {
         if (reactApplicationContext.lifecycleState == LifecycleState.RESUMED) return true
-
         logDebug("awaitHostResumed: host is not resumed, deferring verification UI")
         return suspendCancellableCoroutine { continuation ->
             val listener = object : LifecycleEventListener {
