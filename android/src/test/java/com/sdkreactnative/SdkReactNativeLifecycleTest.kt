@@ -180,6 +180,21 @@ class SdkReactNativeLifecycleTest {
   }
 
   @Test
+  fun `launches from the current Activity, not the one captured at call time`() {
+    setSdkState(DiditSdkState.Ready)
+    val recreated = mock(Activity::class.java)
+    // The host was recreated while the app was in the background.
+    `when`(reactContext.currentActivity).thenReturn(recreated)
+
+    val job = awaitLaunch()
+    listeners.single().onHostResume()
+
+    verify(recreated, times(1)).startActivity(any())
+    verify(activity, never()).startActivity(any())
+    job.cancel()
+  }
+
+  @Test
   fun `a resumed host launches the verification UI once`() {
     setSdkState(DiditSdkState.Ready)
     `when`(reactContext.lifecycleState).thenReturn(LifecycleState.RESUMED)
