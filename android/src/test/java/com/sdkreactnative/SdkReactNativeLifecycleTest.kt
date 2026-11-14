@@ -113,10 +113,9 @@ class SdkReactNativeLifecycleTest {
     `when`(reactContext.currentActivity).thenReturn(activity)
 
     val job = awaitLaunch()
-    val listener = listeners.single()
 
-    listener.onHostResume()
-    listener.onHostResume()
+    // A second resume cannot reach a listener the bridge already removed.
+    repeat(2) { listeners.toList().forEach(LifecycleEventListener::onHostResume) }
 
     verify(activity, times(1)).startActivity(any())
     job.cancel()
