@@ -104,21 +104,21 @@ jobs:
             echo "turbo_cache_hit=1" >> $GITHUB_ENV
           fi
 
+      # The Gradle bridge unit tests below run on every pull request, so the
+      # toolchain and the Gradle cache can no longer depend on the turborepo
+      # cache hit: a hit skips the example build but still needs both.
       - name: Install JDK
-        if: env.turbo_cache_hit != 1
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: 'zulu'
           java-version: '17'
 
       - name: Finalize Android SDK
-        if: env.turbo_cache_hit != 1
         run: |
           /bin/bash -c "yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null"
 
 
       - name: Cache Gradle
-        if: env.turbo_cache_hit != 1
         uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: |

@@ -100,10 +100,10 @@ class SdkReactNativeLifecycleTest {
   }
 
   /** Runs the bridge's suspend launch helper without blocking the test thread. */
-  private fun awaitLaunch(): Job =
+  private fun awaitLaunch(target: Promise = promise): Job =
     CoroutineScope(Dispatchers.Unconfined).launch {
       suspendCancellableCoroutine<Unit> { continuation ->
-        awaitReadyAndLaunchUI.invoke(module, promise, activity, continuation)
+        awaitReadyAndLaunchUI.invoke(module, target, activity, continuation)
       }
     }
 
@@ -120,6 +120,7 @@ class SdkReactNativeLifecycleTest {
     listeners.single().onHostResume()
 
     verify(activity, times(1)).startActivity(any())
+    assertEquals("a resumed host must not leave a lifecycle listener behind", 0, listeners.size)
     job.cancel()
   }
 
@@ -152,6 +153,44 @@ class SdkReactNativeLifecycleTest {
 
     verify(activity, never()).startActivity(any())
     verify(promise, times(1)).resolve(any())
+    assertEquals("a destroyed host must not leave a lifecycle listener behind", 0, listeners.size)
+    job.cancel()
+  }
+
+  @Test
+  fun `a later verification call launches after an earlier host was destroyed`() {
+    setSdkState(DiditSdkState.Ready)
+    `when`(reactContext.currentActivity).thenReturn(activity)
+
+    val firstCall = awaitLaunch()
+    listeners.single().onHostDestroy()
+    verify(promise, times(1)).resolve(any())
+    firstCall.cancel()
+
+    // The next call starts from a fresh listener; it must not inherit the
+    // destroyed host's pending state.
+    val secondPromise = mock(Promise::class.java)
+    val secondCall = awaitLaunch(secondPromise)
+    assertEquals("the second call must observe the host lifecycle", 1, listeners.size)
+    listeners.single().onHostResume()
+
+    verify(activity, times(1)).startActivity(any())
+    verify(secondPromise, never()).resolve(any())
+    secondCall.cancel()
+  }
+
+  @Test
+  fun `launches from the current Activity, not the one captured at call time`() {
+    setSdkState(DiditSdkState.Ready)
+    val recreated = mock(Activity::class.java)
+    // The host was recreated while the app was in the background.
+    `when`(reactContext.currentActivity).thenReturn(recreated)
+
+    val job = awaitLaunch()
+    listeners.single().onHostResume()
+
+    verify(recreated, times(1)).startActivity(any())
+    verify(activity, never()).startActivity(any())
     job.cancel()
   }
 
