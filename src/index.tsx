@@ -118,6 +118,43 @@ function mapErrorType(errorType?: string) {
   }
 }
 
+let activeVerification: {
+  key: string;
+  result: Promise<VerificationResult>;
+} | null = null;
+
+function alreadyInProgressResult(): VerificationResult {
+  return {
+    type: 'failed',
+    error: {
+      type: 'unknown',
+      message: 'A verification is already in progress.',
+    },
+  };
+}
+
+function runExclusively(
+  key: string,
+  start: () => Promise<VerificationResultJS>
+): Promise<VerificationResult> {
+  if (activeVerification) {
+    return activeVerification.key === key
+      ? activeVerification.result
+      : Promise.resolve(alreadyInProgressResult());
+  }
+
+  const result = (async () => mapNativeResult(await start()))();
+  const entry = { key, result };
+  activeVerification = entry;
+  const release = () => {
+    if (activeVerification === entry) {
+      activeVerification = null;
+    }
+  };
+  result.then(release, release);
+  return result;
+}
+
 // ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
@@ -161,8 +198,9 @@ export async function startVerification(
       }
     : {};
 
-  const raw = await NativeSdkReactNative.startVerification(token, nativeConfig);
-  return mapNativeResult(raw);
+  return runExclusively(JSON.stringify(['token', token, nativeConfig]), () =>
+    NativeSdkReactNative.startVerification(token, nativeConfig)
+  );
 }
 
 /**
@@ -232,16 +270,29 @@ export async function startVerificationWithWorkflow(
       }
     : {};
 
-  const raw = await NativeSdkReactNative.startVerificationWithWorkflow(
-    workflowId,
-    options?.vendorData ?? null,
-    options?.metadata ?? null,
-    nativeContactDetails,
-    nativeExpectedDetails,
-    nativeConfig
-  );
+  const vendorData = options?.vendorData ?? null;
+  const metadata = options?.metadata ?? null;
 
-  return mapNativeResult(raw);
+  return runExclusively(
+    JSON.stringify([
+      'workflow',
+      workflowId,
+      vendorData,
+      metadata,
+      nativeContactDetails,
+      nativeExpectedDetails,
+      nativeConfig,
+    ]),
+    () =>
+      NativeSdkReactNative.startVerificationWithWorkflow(
+        workflowId,
+        vendorData,
+        metadata,
+        nativeContactDetails,
+        nativeExpectedDetails,
+        nativeConfig
+      )
+  );
 }
 
 // ─── Transactions ────────────────────────────────────────────────────────────
