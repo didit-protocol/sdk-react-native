@@ -1,0 +1,102 @@
+name: Release Authentication
+
+# Releases @didit-protocol/auth-react-native on its own tags, independent of the
+# verification package (release.yml, tags v*). The tag scheme is the one the
+# package's podspec already points at (s.source tag auth-react-native-v<version>).
+on:
+  push:
+    tags: ['auth-react-native-v*']
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify tag, build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Verify the tag matches the package version
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#auth-react-native-v}"
+          PKG_VERSION=$(python3 -c 'import json; print(json.load(open("packages/auth-react-native/package.json"))["version"])')
+          if [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "packages/auth-react-native/package.json has version $PKG_VERSION but the tag says $VERSION" >&2
+            exit 1
+          fi
+          if [ "$(python3 -c 'import json; print(json.load(open("packages/auth-react-native/package.json")).get("private", False))')" != "False" ]; then
+            echo "The package is still private." >&2
+            exit 1
+          fi
+
+      - name: Run the package tests
+        run: yarn jest packages/auth-react-native --maxWorkers=2
+
+      - name: Build the package
+        run: yarn build:auth
+
+      - name: Check the package contents
+        run: yarn workspace @didit-protocol/auth-react-native pack --dry-run
+
+  publish-npm:
+    name: Publish to npm
+    # DISABLED until the npm trusted publisher is configured for
+    # @didit-protocol/auth-react-native (npmjs.com -> package -> Settings ->
+    # Trusted Publisher: GitHub Actions, organization didit-protocol,
+    # repository sdk-react-native, workflow release-auth-react-native.yml),
+    # then set the repository variable NPM_TRUSTED_PUBLISHING=true (the same
+    # variable release.yml uses). No token secrets involved; publishes with
+    # provenance.
+    if: vars.NPM_TRUSTED_PUBLISHING == 'true'
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # A job-level permissions block REPLACES the workflow-level one, so
+    # contents: read must be restated or checkout loses repository access.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # Trusted publishing needs npm >= 11.5.1 (OIDC support). Pinned to the
+      # npm 11 line like release.yml.
+      - name: Update npm
+        run: npm install -g npm@^11.5.1
+
+      # Idempotent: a re-run after a partial failure skips an already
+      # published version. `npm publish` runs the package's prepack script
+      # (bob build) on the packed tree.
+      - name: Publish
+        working-directory: packages/auth-react-native
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF_NAME#auth-react-native-v}"
+          if [ -n "$(npm view "@didit-protocol/auth-react-native@$VERSION" version 2>/dev/null)" ]; then
+            echo "@didit-protocol/auth-react-native $VERSION is already on npm - skipping."
+            exit 0
+          fi
+          # npm requires --tag for prereleases, and publishing an older stable
+          # version without one would repoint `latest` at it. Only the highest
+          # stable auth-react-native-v* tag publishes as latest.
+          git fetch --quiet origin '+refs/tags/*:refs/tags/*'
+          case "${VERSION%%+*}" in
+            *-*)
+              TAG_FLAG="--tag next"
+              ;;
+            *)
+              CORE="${VERSION%%+*}"
+              HIGHEST=$(git tag -l 'auth-react-native-v*' | grep -E '^auth-react-native-v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^auth-react-native-v//' | sort -uV | tail -1)
+              if [ "$CORE" = "$HIGHEST" ]; then TAG_FLAG=""; else TAG_FLAG="--tag previous"; fi
+              ;;
+          esac
+          npm publish $TAG_FLAG
