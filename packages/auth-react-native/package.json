@@ -1,9 +1,9 @@
 {
   "name": "@didit-protocol/auth-react-native",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "diditNativeSdkVersions": {
-    "ios": "4.15.4",
-    "android": "4.15.4"
+    "ios": "4.15.5",
+    "android": "4.15.5"
   },
   "description": "React Native wrapper for Didit Authentication (native DiditAuth)",
   "keywords": [
