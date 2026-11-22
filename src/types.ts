@@ -389,3 +389,152 @@ export class DiditTransactionError extends Error {
     this.fieldErrors = fieldErrors;
   }
 }
+
+// ─── Bank Link ───────────────────────────────────────────────────────────────
+
+/**
+ * Why a Bank Link ended without success (`exit.reason` of the link contract).
+ */
+export type BankLinkExitReason =
+  /** The person closed the screen. */
+  | 'closed'
+  /** The person, or the server, cancelled the link. */
+  | 'cancelled'
+  /** The bank cannot take part right now. */
+  | 'bank_unavailable'
+  /** The link expired. */
+  | 'expired'
+  /** Any other failure. */
+  | 'failed';
+
+/**
+ * The poll step the person was on when the flow ended, or `null` before the
+ * first poll. `unknown` is a step a newer server introduced.
+ */
+export type BankLinkStep =
+  | 'consent'
+  | 'segment'
+  | 'institution'
+  | 'unsupported'
+  | 'email'
+  | 'email_verify'
+  | 'bank_hop'
+  | 'accounts'
+  | 'confirm_reuse'
+  | 'confirm_one_time_fallback'
+  | 'renew'
+  | 'reconfirm'
+  | 'collecting'
+  | 'done'
+  | 'ended'
+  | 'unknown';
+
+/**
+ * The names of the `onBankLinkEvent` events, identical on native and web.
+ */
+export type BankLinkEventName =
+  | 'opened'
+  | 'consent_shown'
+  | 'consent_accepted'
+  | 'institution_selected'
+  | 'bank_redirect'
+  | 'bank_returned'
+  | 'accounts_selected'
+  | 'success'
+  | 'exit'
+  | 'error';
+
+/**
+ * The payload of a {@link BankLinkEvent}. Keys are snake_case as on native and
+ * web, and carry ids only: never a person's name, an account number, a token
+ * or an email. Optional keys native has no value for arrive as `null`, and a
+ * key a given event does not carry is absent.
+ */
+export interface BankLinkEventPayload {
+  /** The link id; carried by every event. */
+  link_id?: string;
+  /** `opened`: `connect` or `renew`. */
+  mode?: 'connect' | 'renew';
+  /** `opened` and the steps it words: the access the link effectively has. */
+  access?: 'one_time' | 'ongoing';
+  /** `opened`: `ios`, `android` or `rn`. */
+  presentation?: string;
+  /** `consent_shown` and `consent_accepted`: the consent version the server sent. */
+  consent_version?: string;
+  /** `institution_selected`: the public id of the bank. */
+  institution_id?: string;
+  /** `institution_selected`: the bank's country. */
+  country?: string;
+  /** `bank_redirect`: `popup` (the native browser sheet included) or `redirect`. */
+  via?: 'popup' | 'redirect';
+  /** `bank_returned`: how the bank hop ended. */
+  result?: 'ok' | 'cancelled' | 'failed' | 'timeout' | 'unsupported';
+  /** `accounts_selected`: how many accounts were shared. */
+  count?: number;
+  /** `success`: the connection the link produced. Never trusted by a server. */
+  connection_id?: string | null;
+  /** `success`: the check the link produced. */
+  check_id?: string | null;
+  /** `exit`: why the flow ended. */
+  reason?: BankLinkExitReason;
+  /** `exit`: the step the person was on. */
+  step?: BankLinkStep | null;
+  /** `error`: the error code of a non-terminal client or transport error. */
+  code?: string;
+}
+
+/**
+ * One Bank Link event, as delivered to an `onBankLinkEvent` listener.
+ */
+export interface BankLinkEvent {
+  name: BankLinkEventName;
+  payload: BankLinkEventPayload;
+}
+
+/**
+ * Called for every Bank Link event while a listener is subscribed.
+ */
+export type BankLinkEventListener = (event: BankLinkEvent) => void;
+
+/**
+ * A link that completed: the ids the host needs, and nothing about the person.
+ */
+export interface BankLinkSuccess {
+  type: 'success';
+  /** The link id. */
+  linkId: string;
+  /** The connection the link produced. A server learns the outcome from its webhook. */
+  connectionId?: string;
+  /** The check the link produced, when the flow created one. */
+  checkId?: string;
+  /** The result was replayed by `resumeBankLink` after the app was closed. */
+  resumed?: boolean;
+}
+
+/**
+ * A link that ended without success.
+ */
+export interface BankLinkExit {
+  type: 'exit';
+  reason: BankLinkExitReason;
+  /** The step the person was on when the flow ended, or `null` before the first poll. */
+  step?: BankLinkStep | null;
+  /** The result was replayed by `resumeBankLink` after the app was closed. */
+  resumed?: boolean;
+}
+
+/**
+ * The result of a Bank Link. Use the `type` field to discriminate.
+ */
+export type BankLinkResult = BankLinkSuccess | BankLinkExit;
+
+/**
+ * Options for {@link presentBankLink}.
+ */
+export interface BankLinkOptions {
+  /**
+   * SDK configuration (language, font, logging) so the link matches the rest
+   * of the app's Didit flow.
+   */
+  config?: DiditConfig;
+}

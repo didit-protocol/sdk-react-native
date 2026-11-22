@@ -93,6 +93,55 @@ You do not need to request camera permission in your app code before calling `st
 
 Workflows can include a **Bank** step (the person links a bank account) and a **Location** step (the device position is read once, with the person's consent). Both screens are drawn by the native SDKs, so this package needs no new API: they run inside `startVerification()` / `startVerificationWithWorkflow()`, and the outcome comes back as the same `VerificationResult`.
 
+### Bank Link
+
+Bank Link is the standalone bank product: it opens the connection flow on its own, outside a verification session, and keeps reading balances and transactions for as long as the person allows (or reads once, for a one-time link). Every screen, state and string is native; this package only carries the result and the events, under the same names, events and payload keys as native and the web SDK.
+
+Create the link on your backend with `POST /v3/bank/links/` and pass its `client_token` (`blt_...`) to the app. **The API key stays on the server: it never reaches your app.**
+
+```tsx
+import {
+  presentBankLink,
+  onBankLinkEvent,
+  type BankLinkResult,
+} from '@didit-protocol/sdk-react-native';
+
+const stop = onBankLinkEvent(({ name, payload }) => {
+  console.log(name, payload.link_id);
+});
+
+const result: BankLinkResult = await presentBankLink(clientToken);
+stop();
+
+if (result.type === 'success') {
+  console.log('Linked', result.connectionId);
+} else {
+  console.log('Ended', result.reason, result.step);
+}
+```
+
+Resume after relaunch, when the person was at their bank while the app was closed:
+
+```tsx
+import { resumeBankLink } from '@didit-protocol/sdk-react-native';
+
+const resumed = await resumeBankLink(); // null when nothing is pending
+if (resumed?.type === 'success') {
+  console.log('Linked', resumed.connectionId, 'resumed:', resumed.resumed);
+}
+```
+
+If your bank return is an app link or universal link, hand every address the app is opened with to the SDK; it decides whether the address is a link return, and the server decides the screen:
+
+```tsx
+import { handleBankLinkReturn } from '@didit-protocol/sdk-react-native';
+
+// onOpenURL / onNewIntent
+handleBankLinkReturn(url);
+```
+
+`presentBankLink` presents from the current view controller or activity, so a second call while a link is open rejects instead of replacing the first one's result.
+
 ### Bank
 
 No setup. The native SDKs open the bank's page (or a page Didit hosts) in the system browser, so there is no permission, URL scheme or deep link to register.
@@ -826,6 +875,60 @@ Fetch the current state of a transaction previously submitted with the same toke
 
 Returns: `Promise<DiditTransactionResult>`
 
+### `presentBankLink(token, options?)`
+
+Open a Bank Link. Every screen, state and string is native.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `token` | `string` | Yes | The link's `client_token` (`blt_...`) from `POST /v3/bank/links/` |
+| `options` | `BankLinkOptions` | No | `config` (`DiditConfig`) for language, font and logging |
+
+Returns: `Promise<BankLinkResult>`, resolved once, as `{ type: 'success', linkId, connectionId?, checkId?, resumed? }` or `{ type: 'exit', reason, step?, resumed? }`. `reason` is one of `closed`, `cancelled`, `bank_unavailable`, `expired`, `failed`.
+
+Throws: when a link is already open, or when the native result cannot be read.
+
+### `resumeBankLink()`
+
+Pick up a link whose bank hop outlived the app, for example after the app was killed in the background. Call it once at start-up.
+
+Returns: `Promise<BankLinkResult | null>` - the result with `resumed: true`, or `null` when nothing is pending.
+
+### `onBankLinkEvent(listener)`
+
+Listen to the events of a Bank Link. Subscribe before `presentBankLink` to see `opened` and every step after it.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `listener` | `(event: BankLinkEvent) => void` | Yes | Called once per event |
+
+Returns: `() => void` - the unsubscribe function.
+
+| Event | Payload keys |
+|-------|--------------|
+| `opened` | `link_id`, `mode`, `access`, `presentation` |
+| `consent_shown` | `link_id`, `consent_version` |
+| `consent_accepted` | `link_id`, `consent_version` |
+| `institution_selected` | `institution_id`, `country` |
+| `bank_redirect` | `via` |
+| `bank_returned` | `result` |
+| `accounts_selected` | `count` |
+| `success` | `link_id`, `connection_id?`, `check_id?` |
+| `exit` | `reason`, `step` |
+| `error` | `code` |
+
+Payloads carry ids only: never a name, an account number, a token or an email. `success` and `exit` fire at most once each, and never both for one link.
+
+### `handleBankLinkReturn(url)`
+
+Hand an address the app was opened with to the SDK, for hosts whose bank return is an app link or universal link. Call it from `onOpenURL`/`onNewIntent` with every address: native decides whether it is a link return.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `url` | `string` | Yes | The address the app was opened with |
+
+Returns: `void`.
+
 ## Exported Types
 
 ```tsx
@@ -835,6 +938,10 @@ import {
   startVerificationWithWorkflow,
   submitTransaction,
   getTransaction,
+  presentBankLink,
+  resumeBankLink,
+  onBankLinkEvent,
+  handleBankLinkReturn,
 
   // Enum
   VerificationStatus,
@@ -863,6 +970,16 @@ import {
   type DiditTransactionResult,
   type DiditTransactionOptions,
   type DiditTransactionErrorCode,
+  type BankLinkOptions,
+  type BankLinkResult,
+  type BankLinkSuccess,
+  type BankLinkExit,
+  type BankLinkExitReason,
+  type BankLinkStep,
+  type BankLinkEvent,
+  type BankLinkEventName,
+  type BankLinkEventPayload,
+  type BankLinkEventListener,
 } from '@didit-protocol/sdk-react-native';
 ```
 

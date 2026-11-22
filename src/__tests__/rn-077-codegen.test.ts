@@ -13,6 +13,7 @@ describe('React Native 0.77 codegen compatibility', () => {
     const schema = new TypeScriptParser().parseString(spec, specPath);
 
     expect(schema.modules.NativeSdkReactNative.spec.eventEmitters).toEqual([
+      expect.objectContaining({ name: 'onBankLinkEvent' }),
       expect.objectContaining({ name: 'onTransactionUpdated' }),
     ]);
   });
