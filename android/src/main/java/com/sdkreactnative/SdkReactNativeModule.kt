@@ -407,14 +407,18 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
             promise.reject("no_activity", "No active Activity available to present Bank Link.")
             return
         }
+        if (!BankLinkSupport.available) {
+            promise.reject("not_available", "This native SDK version does not include Bank Link.")
+            return
+        }
         scope.launch {
             try {
-                DiditSdk.presentBankLink(
+                BankLinkSupport.present(
                     activity = activity,
                     token = token,
                     configuration = parseConfiguration(config),
-                    onEvent = { event -> emitOnBankLinkEvent(BankLinkJson.event(event)) },
-                    onResult = { result -> promise.resolve(BankLinkJson.result(result)) }
+                    onEvent = { eventJson -> emitOnBankLinkEvent(eventJson) },
+                    onResult = { resultJson -> promise.resolve(resultJson) }
                 )
             } catch (e: Exception) {
                 logDebugError("presentBankLink: exception", e)
@@ -424,6 +428,10 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     override fun resumeBankLink(promise: Promise) {
+        if (!BankLinkSupport.available) {
+            promise.reject("not_available", "This native SDK version does not include Bank Link.")
+            return
+        }
         scope.launch {
             // A host calls this once at start-up, before its Activity is
             // attached: wait for it, as startVerification waits for the SDK,
@@ -437,13 +445,13 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                 return@launch
             }
             try {
-                val resumed = DiditSdk.resumeBankLink(
+                val resumed = BankLinkSupport.resume(
                     activity = activity,
-                    onEvent = { event -> emitOnBankLinkEvent(BankLinkJson.event(event)) },
-                    onResult = { result -> promise.resolve(BankLinkJson.result(result)) }
+                    onEvent = { eventJson -> emitOnBankLinkEvent(eventJson) },
+                    onResult = { resultJson -> promise.resolve(resultJson) }
                 )
                 if (!resumed) {
-                    promise.resolve(BankLinkJson.NONE)
+                    promise.resolve(BankLinkSupport.NONE)
                 }
             } catch (e: Exception) {
                 logDebugError("resumeBankLink: exception", e)
@@ -496,12 +504,15 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     override fun handleBankLinkReturn(url: String) {
+        if (!BankLinkSupport.available) {
+            return
+        }
         // Native decides whether the address is a Bank Link return. The address
         // is never parsed here: a resume code arrives in a query parameter and
         // contains a dot, so nothing may split or normalise it.
         val uri = Uri.parse(url)
         reactApplicationContext.runOnUiQueueThread {
-            DiditSdk.handleBankLinkReturn(uri)
+            BankLinkSupport.handle(uri)
         }
     }
 

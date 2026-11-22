@@ -14,15 +14,11 @@ import org.json.JSONObject
  * a presentation travels as one result object. JavaScript maps both, so the
  * keys here are the ones `src/bankLink.ts` reads and nothing else.
  *
- * Native Bank Link is not released yet: this file and the module's three Bank
- * Link overrides are the only place that touches it, and they are reconciled
- * with the native Android API of the Bank Link issue when the version that
- * carries it is pinned.
+ * This file, [BankLinkSupport] and the module's three Bank Link overrides are
+ * the only places that touch the native Bank Link API; they are reconciled
+ * with that API when the native version that carries it is pinned.
  */
 internal object BankLinkJson {
-
-    /** The JSON `null` a resume answers when nothing is pending. */
-    const val NONE = "null"
 
     fun event(event: BankLinkEvent): String = try {
         JSONObject()
