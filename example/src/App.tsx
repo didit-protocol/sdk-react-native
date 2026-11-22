@@ -372,8 +372,13 @@ export default function App() {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.button, styles.buttonSecondary]}
+            style={[
+              styles.button,
+              styles.buttonSecondary,
+              bankLinkLoading && styles.buttonDisabled,
+            ]}
             onPress={handleResumeBankLink}
+            disabled={bankLinkLoading}
           >
             <Text style={styles.buttonText}>Resume after relaunch</Text>
           </TouchableOpacity>

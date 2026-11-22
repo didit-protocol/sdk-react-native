@@ -206,7 +206,7 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
                               onEvent:^(NSString *eventJson) {
         [weakSelf emitOnBankLinkEvent:eventJson];
     }
-                           completion:^(NSString *resultJson) {
+                       completion:^(NSString *resultJson) {
         resolve(resultJson);
     }];
 }
@@ -220,7 +220,7 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
     }
     __weak SdkReactNative *weakSelf = self;
 
-    [_bridge resumeBankLinkWithOnEvent:^(NSString *eventJson) {
+    [_bridge resumeBankLinkOnEvent:^(NSString *eventJson) {
         [weakSelf emitOnBankLinkEvent:eventJson];
     }
                            completion:^(NSString *resultJson) {
