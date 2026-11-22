@@ -13,8 +13,7 @@ jest.mock('../NativeSdkReactNative', () => ({
     presentBankLink: jest.fn(),
     resumeBankLink: jest.fn(),
     handleBankLinkReturn: jest.fn(),
-    addListener: jest.fn(),
-    removeListeners: jest.fn(),
+    onBankLinkEvent: jest.fn(),
   },
 }));
 
@@ -78,9 +77,37 @@ const CONTRACT_PAYLOAD_KEYS = [
   'code',
 ];
 
+/**
+ * The Codegen `EventEmitter` is a function property of the TurboModule: native
+ * `emitOnBankLinkEvent` reaches only the handler registered on the module, so
+ * the fake keeps it and every test emits through it.
+ */
+let nativeHandler: ((raw: string) => void) | null = null;
+
+beforeEach(() => {
+  nativeHandler = null;
+  (NativeSdkReactNative.onBankLinkEvent as jest.Mock).mockImplementation(
+    (handler: (raw: string) => void) => {
+      nativeHandler = handler;
+      return {
+        remove: () => {
+          if (nativeHandler === handler) {
+            nativeHandler = null;
+          }
+        },
+      };
+    }
+  );
+});
+
 /** Emits one native event, exactly as the native modules do: a JSON string. */
 function emit(event: unknown): void {
-  DeviceEventEmitter.emit('onBankLinkEvent', JSON.stringify(event));
+  nativeHandler?.(JSON.stringify(event));
+}
+
+/** Emits one raw native payload, for a payload that is not valid JSON. */
+function emitRaw(raw: string): void {
+  nativeHandler?.(raw);
 }
 
 describe('presentBankLink', () => {
@@ -206,6 +233,27 @@ describe('presentBankLink', () => {
     expect(present).toHaveBeenCalledTimes(2);
   });
 
+  it('refuses a resume while a link is open, without calling native', async () => {
+    let finish: (value: string) => void = () => {};
+    present.mockReturnValueOnce(
+      new Promise<string>((resolve) => {
+        finish = resolve;
+      })
+    );
+
+    const presented = presentBankLink('blt_first');
+
+    await expect(resumeBankLink()).rejects.toThrow(/already open/);
+    expect(resume).not.toHaveBeenCalled();
+
+    // The presented promise still settles: its native callbacks were kept.
+    finish(JSON.stringify({ type: 'exit', reason: 'closed' }));
+    await expect(presented).resolves.toEqual({
+      type: 'exit',
+      reason: 'closed',
+    });
+  });
+
   it('rejects when native answers a result it cannot read', async () => {
     present.mockResolvedValue(JSON.stringify({ type: 'success' }));
 
@@ -237,6 +285,56 @@ describe('resumeBankLink', () => {
     await expect(resumeBankLink()).resolves.toBeNull();
   });
 
+  it('refuses a presentation while a resume is in flight, and frees the slot after', async () => {
+    let finish: (value: string) => void = () => {};
+    resume.mockReturnValueOnce(
+      new Promise<string>((resolve) => {
+        finish = resolve;
+      })
+    );
+
+    const resuming = resumeBankLink();
+
+    await expect(presentBankLink('blt_second')).rejects.toThrow(/already open/);
+    expect(present).not.toHaveBeenCalled();
+
+    finish('null');
+    await expect(resuming).resolves.toBeNull();
+
+    // The resume released the single-link slot, so the next link can open.
+    present.mockResolvedValueOnce(
+      JSON.stringify({ type: 'exit', reason: 'closed' })
+    );
+    await expect(presentBankLink('blt_third')).resolves.toEqual({
+      type: 'exit',
+      reason: 'closed',
+    });
+  });
+
+  it('frees the slot when native refuses the resume', async () => {
+    resume.mockRejectedValueOnce(new Error('no activity'));
+    resume.mockResolvedValueOnce('null');
+
+    await expect(resumeBankLink()).rejects.toThrow('no activity');
+    await expect(resumeBankLink()).resolves.toBeNull();
+  });
+
+  it('maps a step it does not know to unknown', async () => {
+    resume.mockResolvedValueOnce(
+      JSON.stringify({
+        type: 'exit',
+        reason: 'cancelled',
+        step: 'a_step_from_a_newer_server',
+      })
+    );
+
+    await expect(resumeBankLink()).resolves.toEqual({
+      type: 'exit',
+      reason: 'cancelled',
+      step: 'unknown',
+    });
+  });
+
   it('returns the replayed result with resumed: true', async () => {
     resume.mockResolvedValue(
       JSON.stringify({
@@ -259,6 +357,49 @@ describe('resumeBankLink', () => {
 describe('onBankLinkEvent', () => {
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('subscribes through the module event property, the only route native emits on', () => {
+    const listener = jest.fn();
+    const stop = onBankLinkEvent(listener);
+
+    expect(NativeSdkReactNative.onBankLinkEvent).toHaveBeenCalledTimes(1);
+    expect(NativeSdkReactNative.onBankLinkEvent).toHaveBeenCalledWith(
+      expect.any(Function)
+    );
+
+    // A `NativeEventEmitter` would listen on the device emitter; the
+    // TurboModule `EventEmitter` never emits there.
+    DeviceEventEmitter.emit(
+      'onBankLinkEvent',
+      JSON.stringify({ name: 'opened', payload: {} })
+    );
+    expect(listener).not.toHaveBeenCalled();
+
+    emit({ name: 'opened', payload: {} });
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    stop();
+  });
+
+  it('keeps delivering when one listener throws', () => {
+    const failing = jest.fn(() => {
+      throw new Error('listener failed');
+    });
+    const healthy = jest.fn();
+    const stopFailing = onBankLinkEvent(failing);
+    const stopHealthy = onBankLinkEvent(healthy);
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+
+    expect(() => emit({ name: 'opened', payload: {} })).not.toThrow();
+    expect(healthy).toHaveBeenCalledTimes(1);
+    expect(consoleError).toHaveBeenCalled();
+
+    consoleError.mockRestore();
+    stopFailing();
+    stopHealthy();
   });
 
   it.each([
@@ -334,7 +475,7 @@ describe('onBankLinkEvent', () => {
       name: 'a_name_from_a_newer_server',
       payload: { link_id: 'link-1' },
     });
-    DeviceEventEmitter.emit('onBankLinkEvent', 'not json');
+    emitRaw('not json');
     stop();
 
     expect(listener).not.toHaveBeenCalled();

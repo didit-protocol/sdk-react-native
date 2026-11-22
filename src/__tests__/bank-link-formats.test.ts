@@ -23,14 +23,12 @@ jest.mock('../NativeSdkReactNative', () => ({
     presentBankLink: jest.fn(),
     resumeBankLink: jest.fn(),
     handleBankLinkReturn: jest.fn(),
-    addListener: jest.fn(),
-    removeListeners: jest.fn(),
+    onBankLinkEvent: jest.fn(),
   },
 }));
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { DeviceEventEmitter } from 'react-native';
 import NativeSdkReactNative from '../NativeSdkReactNative';
 import {
   presentBankLink,
@@ -90,8 +88,27 @@ function payloadKey(format: Format): keyof BankLinkEventPayload {
   return (format.fields?.[0] ?? 'link_id') as keyof BankLinkEventPayload;
 }
 
+/**
+ * The Codegen `EventEmitter` is a function property of the TurboModule, so the
+ * fake keeps the handler the wrapper registers and the test emits through it.
+ */
+let nativeHandler: ((raw: string) => void) | null = null;
+
 beforeEach(() => {
   jest.clearAllMocks();
+  nativeHandler = null;
+  (NativeSdkReactNative.onBankLinkEvent as jest.Mock).mockImplementation(
+    (handler: (raw: string) => void) => {
+      nativeHandler = handler;
+      return {
+        remove: () => {
+          if (nativeHandler === handler) {
+            nativeHandler = null;
+          }
+        },
+      };
+    }
+  );
   present.mockResolvedValue(JSON.stringify({ type: 'exit', reason: 'closed' }));
 });
 
@@ -182,8 +199,7 @@ describe('every example of the contract file', () => {
       const listener = jest.fn();
       const stop = onBankLinkEvent(listener);
 
-      DeviceEventEmitter.emit(
-        'onBankLinkEvent',
+      nativeHandler?.(
         JSON.stringify({
           name: 'opened',
           payload: { link_id: 'link-1', [payloadKey(format)]: format.example },
