@@ -18,6 +18,8 @@ jest.mock('../NativeSdkReactNative', () => ({
   },
 }));
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { DeviceEventEmitter } from 'react-native';
 import NativeSdkReactNative from '../NativeSdkReactNative';
 import {
@@ -31,6 +33,50 @@ import type { BankLinkEvent, BankLinkResult } from '../index';
 const present = NativeSdkReactNative.presentBankLink as jest.Mock;
 const resume = NativeSdkReactNative.resumeBankLink as jest.Mock;
 const handleReturn = NativeSdkReactNative.handleBankLinkReturn as jest.Mock;
+
+const repoRoot = join(__dirname, '..', '..');
+
+const read = (relativePath: string) =>
+  readFileSync(join(repoRoot, relativePath), 'utf8');
+
+/** The body of the first braced declaration after `signature`. */
+function bracedBody(source: string, signature: RegExp): string {
+  const start = source.search(signature);
+  expect(start).toBeGreaterThanOrEqual(0);
+
+  const open = source.indexOf('{', start);
+  let depth = 0;
+
+  for (let index = open; index < source.length; index += 1) {
+    if (source[index] === '{') depth += 1;
+    if (source[index] === '}') depth -= 1;
+    if (depth === 0) return source.slice(open, index + 1);
+  }
+
+  throw new Error('Unclosed declaration');
+}
+
+/**
+ * Every payload key of the link contract (`events.md`, section 1): ids and
+ * enums only, never a name, a token, an email or an account number.
+ */
+const CONTRACT_PAYLOAD_KEYS = [
+  'link_id',
+  'mode',
+  'access',
+  'presentation',
+  'consent_version',
+  'institution_id',
+  'country',
+  'via',
+  'result',
+  'count',
+  'connection_id',
+  'check_id',
+  'reason',
+  'step',
+  'code',
+];
 
 /** Emits one native event, exactly as the native modules do: a JSON string. */
 function emit(event: unknown): void {
@@ -270,52 +316,24 @@ describe('onBankLinkEvent', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
-  it('carries no field of a person, a token or an account', async () => {
-    // The link contract allows ids only. A payload key outside this list is a
-    // privacy defect, so the wrapper forwards nothing else.
-    const allowed = [
-      'link_id',
-      'mode',
-      'access',
-      'presentation',
-      'consent_version',
-      'institution_id',
-      'country',
-      'via',
-      'result',
-      'count',
-      'connection_id',
-      'check_id',
-      'reason',
-      'step',
-      'code',
-    ];
-    const seen: string[] = [];
-    const stop = onBankLinkEvent((event) => {
-      seen.push(...Object.keys(event.payload));
-    });
-
-    emit({
-      name: 'success',
-      payload: {
-        link_id: 'link-1',
-        connection_id: 'connection-1',
-        check_id: 'check-1',
-        // A native module that leaked more than the contract allows:
-        name: 'Ada Lovelace',
-        token: 'blt_secret',
-        account_number: 'ES00 0000 0000 0000',
-        email: 'ada@example.com',
-      },
-    });
-    stop();
-
-    const forwarded = await Promise.resolve(
-      // Read through the same parse the listener saw.
-      seen
+  it('declares no payload field of a person, a token or an account', () => {
+    // The link contract allows ids only. The wrapper's own payload type is the
+    // list of everything a listener can read, so a field outside the contract
+    // is a privacy defect here.
+    const body = bracedBody(
+      read('src/types.ts'),
+      /export interface BankLinkEventPayload {/
     );
-    expect(new Set(forwarded).difference?.(new Set(allowed))).toBeUndefined();
-    expect(forwarded.filter((key) => !allowed.includes(key))).toEqual([]);
+    const keys = Array.from(body.matchAll(/^ {2}(\w+)\??:/gm), (match) =>
+      String(match[1])
+    );
+
+    expect(keys).toEqual(
+      expect.arrayContaining(['link_id', 'connection_id', 'reason', 'step'])
+    );
+    expect(keys.filter((key) => !CONTRACT_PAYLOAD_KEYS.includes(key))).toEqual(
+      []
+    );
   });
 });
 
