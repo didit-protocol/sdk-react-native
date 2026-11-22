@@ -413,6 +413,140 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         }
     }
 
+    // MARK: - Bank Link
+
+    /// Opens a Bank Link with the link's `client_token`.
+    ///
+    /// Every screen, state and string is native; the bridge carries the events
+    /// and the one result to JS, as JSON. Presentation starts on the main
+    /// queue, from the topmost view controller, like verification does.
+    public func presentBankLink(
+        token: String,
+        config: NSDictionary?,
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void
+    ) {
+        let parsed = ParsedConfig(config)
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                DiditSdk.shared.presentBankLink(
+                    token: token,
+                    from: Self.findRootViewController(),
+                    configuration: parsed.toConfiguration(),
+                    onEvent: { event in
+                        onEvent(Self.bankLinkEventJson(event))
+                    },
+                    onResult: { result in
+                        completion(Self.bankLinkResultJson(result))
+                    }
+                )
+            }
+        }
+    }
+
+    /// Picks up a link whose bank hop outlived the app. Resolves the JSON
+    /// `null` when native has nothing to resume, and the replayed or continued
+    /// result otherwise, with `resumed` set.
+    public func resumeBankLink(
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void
+    ) {
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                let resumed = DiditSdk.shared.resumeBankLink(
+                    from: Self.findRootViewController(),
+                    onEvent: { event in
+                        onEvent(Self.bankLinkEventJson(event))
+                    },
+                    onResult: { result in
+                        completion(Self.bankLinkResultJson(result))
+                    }
+                )
+                if !resumed {
+                    completion("null")
+                }
+            }
+        }
+    }
+
+    /// Hands the address the app was opened with to native, which decides
+    /// whether it is a Bank Link return. The address is never read here: a
+    /// resume code arrives as a query parameter and contains a dot, so nothing
+    /// in this bridge may split or normalise it.
+    public func handleBankLinkReturn(url: String) {
+        guard let address = URL(string: url) else { return }
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                _ = DiditSdk.shared.handleBankLinkReturn(address)
+            }
+        }
+    }
+
+    // MARK: - Bank Link JSON Mapping
+
+    /// One event: its wire name and its ids-only payload.
+    private static func bankLinkEventJson(_ event: BankLinkEvent) -> String {
+        jsonString([
+            "name": event.name.rawValue,
+            "payload": jsonSafe(event.payload)
+        ])
+    }
+
+    /// The one result of a presentation, in the shape the JS layer maps.
+    private static func bankLinkResultJson(_ result: BankLinkResult) -> String {
+        switch result {
+        case .success(let success):
+            var json: [String: Any] = [
+                "type": "success",
+                "linkId": success.linkId,
+                "resumed": success.resumed
+            ]
+            if let connectionId = success.connectionId {
+                json["connectionId"] = connectionId
+            }
+            if let checkId = success.checkId {
+                json["checkId"] = checkId
+            }
+            return jsonString(json)
+
+        case .exit(let exit):
+            return jsonString([
+                "type": "exit",
+                "reason": exit.reason.rawValue,
+                "step": exit.step?.rawValue ?? NSNull(),
+                "resumed": exit.resumed
+            ])
+
+        @unknown default:
+            return jsonString([
+                "type": "exit",
+                "reason": "failed",
+                "step": NSNull(),
+                "resumed": false
+            ])
+        }
+    }
+
+    /// Event payloads carry ids, enums and numbers. A value that is not one of
+    /// those becomes `null` instead of travelling through `String(describing:)`,
+    /// which could carry a name, a token or an account number to JS.
+    private static func jsonSafe(_ value: Any) -> Any {
+        switch value {
+        case let string as String:
+            return string
+        case let number as NSNumber:
+            return number
+        case is NSNull:
+            return NSNull()
+        case let array as [Any]:
+            return array.map(jsonSafe)
+        case let dictionary as [String: Any]:
+            return dictionary.mapValues(jsonSafe)
+        default:
+            return NSNull()
+        }
+    }
+
     // MARK: - Transaction JSON Mapping
 
     private static func jsonObject(from raw: String) throws -> [String: Any] {
