@@ -127,6 +127,36 @@ export interface Spec extends TurboModule {
   ): Promise<string>;
 
   /**
+   * Open a Bank Link: the native flow behind the link's `client_token`.
+   * The resolved value is the result as a JSON string, mapped by the public
+   * `presentBankLink`; it settles exactly once, with `success` or `exit`.
+   */
+  presentBankLink(
+    token: string,
+    config: VerificationConfig | null
+  ): Promise<string>;
+
+  /**
+   * Pick up a link whose bank hop outlived the app. The resolved value is the
+   * result as a JSON string, or the JSON `null` when nothing is pending.
+   */
+  resumeBankLink(): Promise<string>;
+
+  /**
+   * Hand a Bank Link return address (an app link or universal link) to native,
+   * called from the host's `onOpenURL`/`onNewIntent`. Native decides whether
+   * the address is a link return; it is never parsed here.
+   */
+  handleBankLinkReturn(url: string): void;
+
+  /**
+   * Fired for every Bank Link event. Payload is a JSON string:
+   * `{ name, payload }`, with the names and snake_case keys of the link
+   * contract, and ids only.
+   */
+  readonly onBankLinkEvent: EventEmitter<string>;
+
+  /**
    * Fired after an auto-launched action completes and the transaction has
    * been refreshed. Payload is a JSON string: { callId, result }.
    */

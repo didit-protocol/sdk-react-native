@@ -187,6 +187,44 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
     }];
 }
 
+// MARK: - Bank Link
+
+- (void)presentBankLink:(NSString *)token
+                 config:(JS::NativeSdkReactNative::VerificationConfig &)config
+                resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject
+{
+    NSDictionary *configDict = (&config != nullptr) ? [self configDictFrom:config] : nil;
+    __weak SdkReactNative *weakSelf = self;
+
+    [_bridge presentBankLinkWithToken:token
+                               config:configDict
+                              onEvent:^(NSString *eventJson) {
+        [weakSelf emitOnBankLinkEvent:eventJson];
+    }
+                           completion:^(NSString *resultJson) {
+        resolve(resultJson);
+    }];
+}
+
+- (void)resumeBankLink:(RCTPromiseResolveBlock)resolve
+                reject:(RCTPromiseRejectBlock)reject
+{
+    __weak SdkReactNative *weakSelf = self;
+
+    [_bridge resumeBankLinkWithOnEvent:^(NSString *eventJson) {
+        [weakSelf emitOnBankLinkEvent:eventJson];
+    }
+                           completion:^(NSString *resultJson) {
+        resolve(resultJson);
+    }];
+}
+
+- (void)handleBankLinkReturn:(NSString *)url
+{
+    [_bridge handleBankLinkReturnWithUrl:url];
+}
+
 // MARK: - TurboModule Registration
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
