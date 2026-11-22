@@ -15,6 +15,9 @@ internal object BankLinkSupport {
 
     const val available = false
 
+    /** The JSON `null` a resume answers when nothing is pending. */
+    const val NONE = "null"
+
     fun present(
         activity: Activity,
         token: String,

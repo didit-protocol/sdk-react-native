@@ -21,9 +21,6 @@ import org.json.JSONObject
  */
 internal object BankLinkJson {
 
-    /** The JSON `null` a resume answers when nothing is pending. */
-    const val NONE = "null"
-
     fun event(event: BankLinkEvent): String = try {
         JSONObject()
             .put("name", event.name)
