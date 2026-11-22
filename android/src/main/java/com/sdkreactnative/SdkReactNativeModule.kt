@@ -424,14 +424,18 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     }
 
     override fun resumeBankLink(promise: Promise) {
-        val activity = reactApplicationContext.currentActivity
-        if (activity == null) {
-            // Never reported as "nothing to resume": a link may well be pending.
-            logDebugError("resumeBankLink: no active Activity at call time")
-            promise.reject("no_activity", "No active Activity available to resume Bank Link.")
-            return
-        }
         scope.launch {
+            // A host calls this once at start-up, before its Activity is
+            // attached: wait for it, as startVerification waits for the SDK,
+            // instead of refusing a call that may well have a link pending.
+            val activity = awaitActivity()
+            if (activity == null) {
+                // Never reported as "nothing to resume": a link may well be
+                // pending, so the host is told the call could not run.
+                logDebugError("resumeBankLink: no Activity within ${ACTIVITY_TIMEOUT_MS}ms")
+                promise.reject("no_activity", "No active Activity available to resume Bank Link.")
+                return@launch
+            }
             try {
                 val resumed = DiditSdk.resumeBankLink(
                     activity = activity,
@@ -444,6 +448,49 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
             } catch (e: Exception) {
                 logDebugError("resumeBankLink: exception", e)
                 promise.reject("bank_link", e.message, e)
+            }
+        }
+    }
+
+    /**
+     * The Activity a Bank Link is presented from, waiting for the host to
+     * attach one when the call arrives first (a host calls `resumeBankLink`
+     * once at start-up). `null` when none arrives within
+     * [ACTIVITY_TIMEOUT_MS], so the call fails with `no_activity` instead of
+     * waiting forever.
+     */
+    private suspend fun awaitActivity(): android.app.Activity? {
+        reactApplicationContext.currentActivity?.let { return it }
+
+        return withTimeoutOrNull(ACTIVITY_TIMEOUT_MS) {
+            suspendCancellableCoroutine<android.app.Activity?> { continuation ->
+                val listener = object : LifecycleEventListener {
+                    override fun onHostResume() {
+                        val activity = reactApplicationContext.currentActivity
+                        if (activity != null && continuation.isActive) {
+                            reactApplicationContext.removeLifecycleEventListener(this)
+                            continuation.resume(activity)
+                        }
+                    }
+
+                    override fun onHostPause() = Unit
+
+                    override fun onHostDestroy() {
+                        reactApplicationContext.removeLifecycleEventListener(this)
+                        if (continuation.isActive) continuation.resume(null)
+                    }
+                }
+                reactApplicationContext.addLifecycleEventListener(listener)
+                continuation.invokeOnCancellation {
+                    reactApplicationContext.removeLifecycleEventListener(listener)
+                }
+                // The Activity may have appeared between the read above and
+                // the listener being added.
+                val activity = reactApplicationContext.currentActivity
+                if (activity != null && continuation.isActive) {
+                    reactApplicationContext.removeLifecycleEventListener(listener)
+                    continuation.resume(activity)
+                }
             }
         }
     }
@@ -478,5 +525,8 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     companion object {
         const val NAME = NativeSdkReactNativeSpec.NAME
         private const val TAG = "DiditSdkRN"
+
+        /** How long a Bank Link call waits for the host Activity. */
+        private const val ACTIVITY_TIMEOUT_MS = 30_000L
     }
 }

@@ -140,7 +140,7 @@ import { handleBankLinkReturn } from '@didit-protocol/sdk-react-native';
 handleBankLinkReturn(url);
 ```
 
-`presentBankLink` presents from the current view controller or activity, so a second call while a link is open rejects instead of replacing the first one's result.
+`presentBankLink` presents from the current view controller or activity, and `resumeBankLink` takes the same single-link slot, so a second call of either while a link is open rejects instead of replacing the first one's result.
 
 ### Bank
 
@@ -894,6 +894,8 @@ Pick up a link whose bank hop outlived the app, for example after the app was ki
 
 Returns: `Promise<BankLinkResult | null>` - the result with `resumed: true`, or `null` when nothing is pending.
 
+On Android it waits up to 30 seconds for the host activity when the call arrives before it is attached, then rejects with `no_activity`; it also rejects while a link is already open, so it never replaces the callbacks of a presentation in flight.
+
 ### `onBankLinkEvent(listener)`
 
 Listen to the events of a Bank Link. Subscribe before `presentBankLink` to see `opened` and every step after it.
@@ -909,13 +911,13 @@ Returns: `() => void` - the unsubscribe function.
 | `opened` | `link_id`, `mode`, `access`, `presentation` |
 | `consent_shown` | `link_id`, `consent_version` |
 | `consent_accepted` | `link_id`, `consent_version` |
-| `institution_selected` | `institution_id`, `country` |
-| `bank_redirect` | `via` |
-| `bank_returned` | `result` |
-| `accounts_selected` | `count` |
+| `institution_selected` | `link_id`, `institution_id`, `country` |
+| `bank_redirect` | `link_id`, `via` |
+| `bank_returned` | `link_id`, `result` |
+| `accounts_selected` | `link_id`, `count` |
 | `success` | `link_id`, `connection_id?`, `check_id?` |
-| `exit` | `reason`, `step` |
-| `error` | `code` |
+| `exit` | `link_id`, `reason`, `step` |
+| `error` | `link_id`, `code` |
 
 Payloads carry ids only: never a name, an account number, a token or an email. `success` and `exit` fire at most once each, and never both for one link.
 
