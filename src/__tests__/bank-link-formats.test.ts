@@ -52,7 +52,12 @@ interface Address {
   name: string;
   address: string;
   where: string;
-  params: { name: string; required: boolean; format?: string; pattern?: string }[];
+  params: {
+    name: string;
+    required: boolean;
+    format?: string;
+    pattern?: string;
+  }[];
 }
 
 interface Formats {
@@ -164,9 +169,8 @@ describe('every example of the contract file', () => {
 
         expect(handleReturn).toHaveBeenLastCalledWith(url);
         // The dot is what a stricter parser splits on and loses the rest of.
-        const [forwarded] = handleReturn.mock.calls[
-          handleReturn.mock.calls.length - 1
-        ];
+        const [forwarded] =
+          handleReturn.mock.calls[handleReturn.mock.calls.length - 1];
         expect(forwarded).toContain(encodeURIComponent(format.example));
       }
     }

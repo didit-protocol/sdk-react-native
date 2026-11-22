@@ -155,7 +155,9 @@ describe('presentBankLink', () => {
   });
 
   it('forwards the token and the configuration to native', async () => {
-    present.mockResolvedValue(JSON.stringify({ type: 'exit', reason: 'closed' }));
+    present.mockResolvedValue(
+      JSON.stringify({ type: 'exit', reason: 'closed' })
+    );
 
     await presentBankLink('blt_token', {
       config: { languageCode: 'es', loggingEnabled: true },
@@ -186,9 +188,7 @@ describe('presentBankLink', () => {
 
     const first = presentBankLink('blt_first');
 
-    await expect(presentBankLink('blt_second')).rejects.toThrow(
-      /already open/
-    );
+    await expect(presentBankLink('blt_second')).rejects.toThrow(/already open/);
     expect(present).toHaveBeenCalledTimes(1);
 
     finish(JSON.stringify({ type: 'exit', reason: 'closed' }));
@@ -196,7 +196,9 @@ describe('presentBankLink', () => {
   });
 
   it('presents again once the first link settled', async () => {
-    present.mockResolvedValue(JSON.stringify({ type: 'exit', reason: 'closed' }));
+    present.mockResolvedValue(
+      JSON.stringify({ type: 'exit', reason: 'closed' })
+    );
 
     await presentBankLink('blt_first');
     await presentBankLink('blt_second');
@@ -212,7 +214,9 @@ describe('presentBankLink', () => {
 
   it('releases the wrapper when native rejects, so the next link can open', async () => {
     present.mockRejectedValueOnce(new Error('native failed'));
-    present.mockResolvedValueOnce(JSON.stringify({ type: 'exit', reason: 'closed' }));
+    present.mockResolvedValueOnce(
+      JSON.stringify({ type: 'exit', reason: 'closed' })
+    );
 
     await expect(presentBankLink('blt_first')).rejects.toThrow('native failed');
     await expect(presentBankLink('blt_second')).resolves.toEqual({
@@ -258,14 +262,31 @@ describe('onBankLinkEvent', () => {
   });
 
   it.each([
-    ['opened', { link_id: 'link-1', mode: 'connect', access: 'ongoing', presentation: 'rn' }],
+    [
+      'opened',
+      {
+        link_id: 'link-1',
+        mode: 'connect',
+        access: 'ongoing',
+        presentation: 'rn',
+      },
+    ],
     ['consent_shown', { link_id: 'link-1', consent_version: '2026-11-22.1' }],
-    ['consent_accepted', { link_id: 'link-1', consent_version: '2026-11-22.1' }],
-    ['institution_selected', { institution_id: 'es-banco-norte', country: 'ES' }],
+    [
+      'consent_accepted',
+      { link_id: 'link-1', consent_version: '2026-11-22.1' },
+    ],
+    [
+      'institution_selected',
+      { institution_id: 'es-banco-norte', country: 'ES' },
+    ],
     ['bank_redirect', { via: 'popup' }],
     ['bank_returned', { result: 'ok' }],
     ['accounts_selected', { count: 2 }],
-    ['success', { link_id: 'link-1', connection_id: 'connection-1', check_id: 'check-1' }],
+    [
+      'success',
+      { link_id: 'link-1', connection_id: 'connection-1', check_id: 'check-1' },
+    ],
     ['exit', { reason: 'closed', step: 'bank_hop' }],
     ['error', { code: 'network' }],
   ])('delivers %s once with its payload as sent', (name, payload) => {
@@ -309,7 +330,10 @@ describe('onBankLinkEvent', () => {
     const listener = jest.fn();
     const stop = onBankLinkEvent(listener);
 
-    emit({ name: 'a_name_from_a_newer_server', payload: { link_id: 'link-1' } });
+    emit({
+      name: 'a_name_from_a_newer_server',
+      payload: { link_id: 'link-1' },
+    });
     DeviceEventEmitter.emit('onBankLinkEvent', 'not json');
     stop();
 

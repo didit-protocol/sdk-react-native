@@ -15,7 +15,12 @@ import type {
 
 // Re-export all public types
 export { VerificationStatus, CameraLens, DiditTransactionError } from './types';
-export { presentBankLink, resumeBankLink, onBankLinkEvent, handleBankLinkReturn } from './bankLink';
+export {
+  presentBankLink,
+  resumeBankLink,
+  onBankLinkEvent,
+  handleBankLinkReturn,
+} from './bankLink';
 export type {
   VerificationResult,
   VerificationCompleted,
