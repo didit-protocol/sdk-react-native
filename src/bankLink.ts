@@ -55,6 +55,16 @@ interface BankLinkResultJS {
 
 // ─── Events ──────────────────────────────────────────────────────────────────
 
+/**
+ * What `NativeEventEmitter` needs of the module: the listener counter the
+ * Codegen base class provides on both platforms, which the spec it generates
+ * does not declare.
+ */
+interface NativeEventEmitterModule {
+  addListener: (eventType: string) => void;
+  removeListeners: (count: number) => void;
+}
+
 const listeners = new Set<BankLinkEventListener>();
 let emitter: NativeEventEmitter | null = null;
 let nativeSubscription: EventSubscription | null = null;
@@ -105,10 +115,12 @@ function subscribeNative(): void {
     return;
   }
   if (!emitter) {
-    emitter = new NativeEventEmitter(NativeSdkReactNative);
+    emitter = new NativeEventEmitter(
+      NativeSdkReactNative as unknown as NativeEventEmitterModule
+    );
   }
-  nativeSubscription = emitter.addListener(EVENT_NAME, (raw: string) =>
-    dispatch(raw)
+  nativeSubscription = emitter.addListener(EVENT_NAME, (raw: unknown) =>
+    dispatch(String(raw))
   );
 }
 
