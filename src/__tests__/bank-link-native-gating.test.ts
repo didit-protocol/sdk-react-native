@@ -72,4 +72,27 @@ describe('native Bank Link compile gate', () => {
     );
     expect(objc).toContain('_bridge.bankLinkAvailable');
   });
+
+  it('calls the Bank Link selectors Swift exports for both bridge variants', () => {
+    // `@objcMembers` derives the Objective-C names. Swift adds `With` before a
+    // first label like `token`, but not before one that starts with a
+    // preposition like `onEvent`, so `resumeBankLink(onEvent:completion:)`
+    // is `resumeBankLinkOnEvent:completion:`. The `With` spelling fails the
+    // iOS build for every app, Bank Link or not.
+    const bridge = read('ios/DiditSdkBridge.swift');
+    const objc = read('ios/SdkReactNative.mm');
+
+    const swiftCount = (signature: string) =>
+      bridge.split(signature).length - 1;
+    expect(
+      swiftCount('public func presentBankLink(\n        token: String,')
+    ).toBe(2);
+    expect(swiftCount('public func resumeBankLink(\n        onEvent:')).toBe(2);
+    expect(swiftCount('public func handleBankLinkReturn(url: String)')).toBe(2);
+
+    expect(objc).toContain('[_bridge presentBankLinkWithToken:');
+    expect(objc).toContain('[_bridge resumeBankLinkOnEvent:');
+    expect(objc).not.toContain('resumeBankLinkWithOnEvent');
+    expect(objc).toContain('[_bridge handleBankLinkReturnWithUrl:');
+  });
 });

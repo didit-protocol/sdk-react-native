@@ -453,8 +453,8 @@ export type BankLinkEventName =
 export interface BankLinkEventPayload {
   /** The link id; carried by every event. */
   link_id?: string;
-  /** `opened`: `connect` or `renew`. */
-  mode?: 'connect' | 'renew';
+  /** `opened`: `connect`, `renew` or `manage`. */
+  mode?: 'connect' | 'renew' | 'manage';
   /** `opened` and the steps it words: the access the link effectively has. */
   access?: 'one_time' | 'ongoing';
   /** `opened`: `ios`, `android` or `rn`. */
