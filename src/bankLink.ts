@@ -1,4 +1,3 @@
-import { NativeEventEmitter } from 'react-native';
 import type { EventSubscription } from 'react-native';
 import NativeSdkReactNative from './NativeSdkReactNative';
 import { toNativeConfig } from './nativeConfig';
@@ -15,12 +14,6 @@ import type {
   BankLinkSuccess,
 } from './types';
 
-/**
- * The event name the native modules emit on: the name of the TurboModule
- * `EventEmitter` property, shared by every platform.
- */
-const EVENT_NAME = 'onBankLinkEvent';
-
 const EVENT_NAMES: readonly BankLinkEventName[] = [
   'opened',
   'consent_shown',
@@ -32,6 +25,25 @@ const EVENT_NAMES: readonly BankLinkEventName[] = [
   'success',
   'exit',
   'error',
+];
+
+const STEPS: readonly BankLinkStep[] = [
+  'consent',
+  'segment',
+  'institution',
+  'unsupported',
+  'email',
+  'email_verify',
+  'bank_hop',
+  'accounts',
+  'confirm_reuse',
+  'confirm_one_time_fallback',
+  'renew',
+  'reconfirm',
+  'collecting',
+  'done',
+  'ended',
+  'unknown',
 ];
 
 const EXIT_REASONS: readonly BankLinkExitReason[] = [
@@ -55,18 +67,7 @@ interface BankLinkResultJS {
 
 // ─── Events ──────────────────────────────────────────────────────────────────
 
-/**
- * What `NativeEventEmitter` needs of the module: the listener counter the
- * Codegen base class provides on both platforms, which the spec it generates
- * does not declare.
- */
-interface NativeEventEmitterModule {
-  addListener: (eventType: string) => void;
-  removeListeners: (count: number) => void;
-}
-
 const listeners = new Set<BankLinkEventListener>();
-let emitter: NativeEventEmitter | null = null;
 let nativeSubscription: EventSubscription | null = null;
 
 function parseEvent(raw: string): BankLinkEvent | null {
@@ -106,7 +107,13 @@ function dispatch(raw: string): void {
   // Copied, so a listener that unsubscribes while being called does not make
   // the loop skip the next one.
   for (const listener of Array.from(listeners)) {
-    listener(event);
+    try {
+      listener(event);
+    } catch (error) {
+      // One listener must never starve the others, nor the native flow that
+      // emitted the event. The failure is reported, not rethrown into native.
+      console.error('A Bank Link event listener threw:', error);
+    }
   }
 }
 
@@ -114,12 +121,12 @@ function subscribeNative(): void {
   if (nativeSubscription || listeners.size === 0) {
     return;
   }
-  if (!emitter) {
-    emitter = new NativeEventEmitter(
-      NativeSdkReactNative as unknown as NativeEventEmitterModule
-    );
-  }
-  nativeSubscription = emitter.addListener(EVENT_NAME, (raw: unknown) =>
+  // The Bank Link events are a Codegen `EventEmitter`, which is a function
+  // property of the TurboModule: native delivers `emitOnBankLinkEvent` only to
+  // the handler registered here. A `NativeEventEmitter` listens on
+  // `RCTDeviceEventEmitter`, which this module never emits on, so subscribing
+  // that way would silently deliver nothing.
+  nativeSubscription = NativeSdkReactNative.onBankLinkEvent((raw: string) =>
     dispatch(String(raw))
   );
 }
@@ -163,6 +170,17 @@ export function onBankLinkEvent(listener: BankLinkEventListener): () => void {
 
 // ─── Results ─────────────────────────────────────────────────────────────────
 
+/**
+ * The step a flow ended on: a member of the union, `null` before the first
+ * poll, and `unknown` for a step a newer server introduced.
+ */
+function mapStep(step: string | null): BankLinkStep | null {
+  if (typeof step === 'string' && STEPS.includes(step as BankLinkStep)) {
+    return step as BankLinkStep;
+  }
+  return step === null ? null : 'unknown';
+}
+
 function mapResult(raw: BankLinkResultJS): BankLinkResult {
   if (raw.type === 'success') {
     if (typeof raw.linkId !== 'string' || raw.linkId.length === 0) {
@@ -189,7 +207,7 @@ function mapResult(raw: BankLinkResultJS): BankLinkResult {
       : 'failed';
     const exit: BankLinkExit = { type: 'exit', reason };
     if (raw.step !== undefined) {
-      exit.step = raw.step as BankLinkStep | null;
+      exit.step = mapStep(raw.step);
     }
     if (raw.resumed != null) {
       exit.resumed = raw.resumed;
@@ -211,10 +229,35 @@ function parseResult(raw: string): BankLinkResult {
 // ─── Presentation ────────────────────────────────────────────────────────────
 
 /**
- * The link being presented, so a second `presentBankLink` cannot replace the
- * result of the first one.
+ * The link being presented or resumed, so a second call cannot replace the
+ * native callbacks of the first one and orphan its promise.
  */
-let activeBankLink: Promise<BankLinkResult> | null = null;
+let activeBankLink: Promise<unknown> | null = null;
+
+/**
+ * Runs one presentation or resume in the single-link slot. While it runs,
+ * every other presentation or resume is refused: native keeps one coordinator,
+ * so a second call would take over its callbacks and the first promise would
+ * never settle.
+ */
+function runAsActiveBankLink<T>(
+  refusal: string,
+  work: () => Promise<T>
+): Promise<T> {
+  if (activeBankLink) {
+    return Promise.reject(new Error(refusal));
+  }
+
+  const result = work();
+  activeBankLink = result;
+  const release = () => {
+    if (activeBankLink === result) {
+      activeBankLink = null;
+    }
+  };
+  result.then(release, release);
+  return result;
+}
 
 /**
  * Open a Bank Link.
@@ -241,30 +284,16 @@ export function presentBankLink(
   token: string,
   options?: BankLinkOptions
 ): Promise<BankLinkResult> {
-  if (activeBankLink) {
-    return Promise.reject(
-      new Error(
-        'A Bank Link is already open. Await its result before presenting another one.'
-      )
-    );
-  }
-
-  const result = (async () => {
-    const raw = await NativeSdkReactNative.presentBankLink(
-      token,
-      toNativeConfig(options?.config)
-    );
-    return parseResult(raw);
-  })();
-
-  activeBankLink = result;
-  const release = () => {
-    if (activeBankLink === result) {
-      activeBankLink = null;
+  return runAsActiveBankLink(
+    'A Bank Link is already open. Await its result before presenting another one.',
+    async () => {
+      const raw = await NativeSdkReactNative.presentBankLink(
+        token,
+        toNativeConfig(options?.config)
+      );
+      return parseResult(raw);
     }
-  };
-  result.then(release, release);
-  return result;
+  );
 }
 
 /**
@@ -275,12 +304,22 @@ export function presentBankLink(
  * closed, and otherwise carries on at the step the server says, with
  * `resumed: true` on the result.
  *
+ * A resume takes the single-link slot, so it is refused while a link is open
+ * (and a presentation is refused while a resume is in flight): native keeps
+ * one coordinator, and the second call would take over its callbacks.
+ *
  * @returns The result, or `null` when nothing is pending.
+ * @throws When a Bank Link is already open, or the native result is unusable.
  */
-export async function resumeBankLink(): Promise<BankLinkResult | null> {
-  const raw = await NativeSdkReactNative.resumeBankLink();
-  const parsed = JSON.parse(raw) as BankLinkResultJS | null;
-  return parsed ? mapResult(parsed) : null;
+export function resumeBankLink(): Promise<BankLinkResult | null> {
+  return runAsActiveBankLink(
+    'A Bank Link is already open. Await its result before resuming one.',
+    async () => {
+      const raw = await NativeSdkReactNative.resumeBankLink();
+      const parsed = JSON.parse(raw) as BankLinkResultJS | null;
+      return parsed ? mapResult(parsed) : null;
+    }
+  );
 }
 
 /**
