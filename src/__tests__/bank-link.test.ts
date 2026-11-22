@@ -313,6 +313,7 @@ describe('resumeBankLink', () => {
 
   it('frees the slot when native refuses the resume', async () => {
     resume.mockRejectedValueOnce(new Error('no activity'));
+    resume.mockResolvedValueOnce('null');
 
     await expect(resumeBankLink()).rejects.toThrow('no activity');
     await expect(resumeBankLink()).resolves.toBeNull();
