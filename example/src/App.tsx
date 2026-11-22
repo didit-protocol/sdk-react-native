@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
+  Linking,
   Text,
   View,
   StyleSheet,
@@ -17,6 +18,7 @@ import {
   submitTransaction,
   presentBankLink,
   resumeBankLink,
+  handleBankLinkReturn,
   onBankLinkEvent,
   DiditTransactionError,
   VerificationStatus,
@@ -27,6 +29,33 @@ import {
 } from '@didit-protocol/sdk-react-native';
 
 const DEMO_WALLET_ADDRESS = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
+
+export function listenForBankReturns(
+  onResult: (result: BankLinkResult) => void
+) {
+  let mounted = true;
+  const subscription = Linking.addEventListener('url', ({ url }) => {
+    handleBankLinkReturn(url);
+  });
+
+  async function resumeLaunch() {
+    try {
+      const url = await Linking.getInitialURL();
+      if (!mounted || !url) return;
+      handleBankLinkReturn(url);
+      const result = await resumeBankLink();
+      if (mounted && result) onResult(result);
+    } catch (error) {
+      if (mounted) Alert.alert('Error', `Bank Link not resumed: ${error}`);
+    }
+  }
+
+  resumeLaunch();
+  return () => {
+    mounted = false;
+    subscription.remove();
+  };
+}
 
 export default function App() {
   const [token, setToken] = useState('');
@@ -57,6 +86,8 @@ export default function App() {
       }),
     []
   );
+
+  useEffect(() => listenForBankReturns(setBankLinkResult), []);
 
   const handlePresentBankLink = useCallback(async () => {
     if (!bankLinkToken.trim()) {
