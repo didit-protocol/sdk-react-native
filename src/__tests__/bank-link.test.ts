@@ -4,37 +4,18 @@
  * requires: no flow of its own is tested, only the bridge contract.
  */
 
-jest.mock('../NativeSdkReactNative', () => {
-  // The Codegen `EventEmitter` is a function property of the TurboModule:
-  // native `emitOnBankLinkEvent` reaches only the handler registered here, so
-  // the fake keeps the handlers and the test emits through them.
-  const handlers = new Set<(raw: string) => void>();
-
-  return {
-    __esModule: true,
-    default: {
-      startVerification: jest.fn(),
-      startVerificationWithWorkflow: jest.fn(),
-      onTransactionUpdated: jest.fn(() => ({ remove: jest.fn() })),
-      presentBankLink: jest.fn(),
-      resumeBankLink: jest.fn(),
-      handleBankLinkReturn: jest.fn(),
-      onBankLinkEvent: jest.fn((handler: (raw: string) => void) => {
-        handlers.add(handler);
-        return {
-          remove: () => {
-            handlers.delete(handler);
-          },
-        };
-      }),
-    },
-    __emitBankLinkEvent: (raw: string) => {
-      for (const handler of Array.from(handlers)) {
-        handler(raw);
-      }
-    },
-  };
-});
+jest.mock('../NativeSdkReactNative', () => ({
+  __esModule: true,
+  default: {
+    startVerification: jest.fn(),
+    startVerificationWithWorkflow: jest.fn(),
+    onTransactionUpdated: jest.fn(() => ({ remove: jest.fn() })),
+    presentBankLink: jest.fn(),
+    resumeBankLink: jest.fn(),
+    handleBankLinkReturn: jest.fn(),
+    onBankLinkEvent: jest.fn(),
+  },
+}));
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -96,13 +77,37 @@ const CONTRACT_PAYLOAD_KEYS = [
   'code',
 ];
 
-const nativeModule = jest.requireMock('../NativeSdkReactNative') as {
-  __emitBankLinkEvent: (raw: string) => void;
-};
+/**
+ * The Codegen `EventEmitter` is a function property of the TurboModule: native
+ * `emitOnBankLinkEvent` reaches only the handler registered on the module, so
+ * the fake keeps it and every test emits through it.
+ */
+let nativeHandler: ((raw: string) => void) | null = null;
+
+beforeEach(() => {
+  nativeHandler = null;
+  (NativeSdkReactNative.onBankLinkEvent as jest.Mock).mockImplementation(
+    (handler: (raw: string) => void) => {
+      nativeHandler = handler;
+      return {
+        remove: () => {
+          if (nativeHandler === handler) {
+            nativeHandler = null;
+          }
+        },
+      };
+    }
+  );
+});
 
 /** Emits one native event, exactly as the native modules do: a JSON string. */
 function emit(event: unknown): void {
-  nativeModule.__emitBankLinkEvent(JSON.stringify(event));
+  nativeHandler?.(JSON.stringify(event));
+}
+
+/** Emits one raw native payload, for a payload that is not valid JSON. */
+function emitRaw(raw: string): void {
+  nativeHandler?.(raw);
 }
 
 describe('presentBankLink', () => {
@@ -466,7 +471,7 @@ describe('onBankLinkEvent', () => {
       name: 'a_name_from_a_newer_server',
       payload: { link_id: 'link-1' },
     });
-    nativeModule.__emitBankLinkEvent('not json');
+    emitRaw('not json');
     stop();
 
     expect(listener).not.toHaveBeenCalled();
