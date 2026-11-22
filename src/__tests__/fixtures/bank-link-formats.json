@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "description": "Every identifier or token the Bank Link backend hands to a client (or a client sends back), where it travels and the regular expression every side checks it with. A value in a URL PATH is made of letters, digits, `_` and `-` only; a value in a query or fragment may also hold RFC 3986 unreserved characters (`.`, `~`). The backend test mints each one through the real minting function and asserts its pattern; the fixtures are checked against it by the contract replay test. Front ends copy this file into their own tests.",
+  "formats": [
+    {
+      "name": "link_id",
+      "description": "The id of a link (a UUID).",
+      "travels": [
+        "path",
+        "body",
+        "query"
+      ],
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "0b9c4f1e-6a2d-4e8b-9f31-7c5d2e1a8b40",
+      "fields": [
+        "link_id"
+      ],
+      "minted_by": "POST /v3/bank/links/ (id)"
+    },
+    {
+      "name": "url_token",
+      "description": "The token of the hosted link address, `<hosted base>/bank/link/<token>`; the SDK also reads it from the fragment (`#t=`).",
+      "travels": [
+        "path",
+        "fragment"
+      ],
+      "pattern": "^blu_[A-Za-z0-9_-]{16,128}$",
+      "example": "blu_Wd2Lm5Tn8Vc1Ks4Pa6Rb0Hq3Zx9Ye7Jc",
+      "fields": [],
+      "minted_by": "POST /v3/bank/links/ (url)"
+    },
+    {
+      "name": "client_token",
+      "description": "The token the customer's front end hands to the SDK.",
+      "travels": [
+        "body",
+        "fragment"
+      ],
+      "pattern": "^blt_[A-Za-z0-9_-]{16,128}$",
+      "example": "blt_Hs8Pa4Rb6Ye0Gf2Jc7Qm3Zx9Vd2Lc5W",
+      "fields": [
+        "client_token"
+      ],
+      "minted_by": "POST /v3/bank/links/ (client_token)"
+    },
+    {
+      "name": "session_credential",
+      "description": "The credential of a person's session (`Authorization: BankLink <credential>`).",
+      "travels": [
+        "body",
+        "header"
+      ],
+      "pattern": "^bls_[A-Za-z0-9_-]{16,128}$",
+      "example": "bls_9Kd2Xv7Qm4Tn1Wc8Lp5Rz3Hy6Ba0Ef",
+      "fields": [
+        "session"
+      ],
+      "minted_by": "POST /v3/bank/link-session/ (session)"
+    },
+    {
+      "name": "resume_code",
+      "description": "The code the hosted page keeps across the bank trip. Its head is the link id (32 hex characters, the format minted once `MINT_LINK_BASED_RESUME_CODES` is on) or the session's number (digits, the format still minted before that). The dot is allowed: a resume code travels in a query, a fragment or a body, never in a path.",
+      "travels": [
+        "query",
+        "fragment",
+        "body"
+      ],
+      "pattern": "^rsc_(?:[0-9a-f]{32}|[0-9]{1,18})\\.[A-Za-z0-9_-]{16,128}$",
+      "example": "rsc_0b9c4f1e6a2d4e8b9f317c5d2e1a8b40.7Hq3Zx9Wd2Lm5Tn8Vc1Ks4Pa6Rb0Uv3",
+      "fields": [
+        "resume_code"
+      ],
+      "minted_by": "POST /v3/bank/link-session/resume-code/"
+    },
+    {
+      "name": "frame_id",
+      "description": "The non-secret id of the embedded frame route `/bank/frame/<frame_id>`. It travels in a PATH, so it holds only letters, digits, `_` and `-`: `frm_<link id hex>-<expiry seconds>-<signature>`.",
+      "travels": [
+        "path",
+        "body"
+      ],
+      "pattern": "^frm_[A-Za-z0-9_-]{8,124}$",
+      "example": "frm_0b9c4f1e6a2d4e8b9f317c5d2e1a8b40-1795400000-3f9a1c7e5b2d8a60",
+      "fields": [
+        "frame_id"
+      ],
+      "minted_by": "POST /v3/bank/link-session/frame-policy/ (frame_id)"
+    },
+    {
+      "name": "state",
+      "description": "The `state` of a bank attempt: in the fragment of the Test Bank launcher address and in the query of the bank's return.",
+      "travels": [
+        "fragment",
+        "query"
+      ],
+      "pattern": "^bst_[A-Za-z0-9_-]{20,128}$",
+      "example": "bst_Wd2Lm5Tn8Vc1Ks4Pa6Rb0Hq3Zx9",
+      "fields": [],
+      "url_parts": [
+        {
+          "field": "launch.url",
+          "name": "state"
+        }
+      ],
+      "minted_by": "POST /v3/bank/link-session/bank-start/ (launch.url)"
+    },
+    {
+      "name": "link_ref",
+      "description": "The non-secret reference of a link in the return to the hosted page (`/bank/return?link_ref=`).",
+      "travels": [
+        "query",
+        "body"
+      ],
+      "pattern": "^lr_[0-9a-f]{12}$",
+      "example": "lr_4c9a7e1b2f6d",
+      "fields": [
+        "link_ref"
+      ],
+      "minted_by": "redirect states and frame messages"
+    },
+    {
+      "name": "manage_token",
+      "description": "The token of the person's own access page, `<hosted base>/bank/manage/<token>`: `mgu_<connection id hex>-<version>-<signature>`. It travels in a PATH.",
+      "travels": [
+        "path"
+      ],
+      "pattern": "^mgu_[0-9a-f]{32}-[0-9]{1,9}-[0-9a-f]{32}$",
+      "example": "mgu_0b9c4f1e6a2d4e8b9f317c5d2e1a8b40-1-3f9a1c7e5b2d8a603f9a1c7e5b2d8a60",
+      "fields": [],
+      "minted_by": "poll `manage_url`"
+    },
+    {
+      "name": "selection_token",
+      "description": "The token naming an offered account in the account choice.",
+      "travels": [
+        "body"
+      ],
+      "pattern": "^sel_[A-Za-z0-9_-]{19}$",
+      "example": "sel_Hs8Pa4Rb6Ye0Gf2Jc7x",
+      "fields": [
+        "selection_token"
+      ],
+      "minted_by": "GET /v3/bank/link-session/accounts/ (items[].selection_token)"
+    },
+    {
+      "name": "redirect_state",
+      "description": "The `state` the customer's `redirect_url` receives: a display-only signature.",
+      "travels": [
+        "query"
+      ],
+      "pattern": "^[0-9a-f]{32}$",
+      "example": "2f8d41c9e07a5b13c6d9a0e4f7b82c15",
+      "fields": [
+        "redirect.params.state"
+      ],
+      "minted_by": "poll `redirect.params.state`"
+    },
+    {
+      "name": "instance_id",
+      "description": "The id the hosted page or SDK generates once per page instance (a UUID); the backend binds a resume code to it.",
+      "travels": [
+        "body",
+        "header",
+        "query"
+      ],
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "example": "7b1d6a52-3c84-4e0f-9a21-5d8e3f6c0b19",
+      "fields": [
+        "instance_id"
+      ],
+      "minted_by": "the client (generated, never minted by the backend)"
+    },
+    {
+      "name": "error_code",
+      "description": "The `code` of an error body and of a link failure.",
+      "travels": [
+        "body"
+      ],
+      "pattern": "^[a-z][a-z0-9_]{0,63}$",
+      "example": "wrong_step",
+      "fields": [
+        "error.code",
+        "code"
+      ],
+      "minted_by": "every error body"
+    },
+    {
+      "name": "institution_id",
+      "description": "The public id of a bank.",
+      "travels": [
+        "body",
+        "path",
+        "query"
+      ],
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$",
+      "example": "es-banco-norte",
+      "fields": [
+        "detail.institution_id"
+      ],
+      "minted_by": "GET /v3/bank/link-session/institutions/"
+    }
+  ],
+  "addresses": [
+    {
+      "name": "sdk_handoff",
+      "description": "Full-page redirect handoff, step 1: the SDK sends the TOP window of the host page to the hosted page when the popup was blocked (or on a phone browser). Everything travels in the fragment, so no server log sees it; the hosted page removes the fragment from its address at once (history.replaceState) after reading it. The older `#t=<token>&resume=1&return=` form is gone: the token is never used, and `resume` is not a parameter (a page ignores it).",
+      "address": "<hosted origin>/bank/link/",
+      "where": "fragment",
+      "encoding": "application/x-www-form-urlencoded (every value percent-encoded)",
+      "params": [
+        {
+          "name": "resume_code",
+          "required": true,
+          "format": "resume_code",
+          "description": "The single-use code the frame obtained from `POST /v3/bank/link-session/resume-code/`."
+        },
+        {
+          "name": "instance_id",
+          "required": true,
+          "format": "instance_id",
+          "description": "The id the SDK generated once for this page instance; the code is bound to it."
+        },
+        {
+          "name": "v",
+          "required": true,
+          "pattern": "^[0-9]{1,3}$",
+          "example": "1",
+          "description": "The protocol number of the SDK (the wire contract is additive only)."
+        },
+        {
+          "name": "return",
+          "required": false,
+          "pattern": "^.{1,2048}$",
+          "example": "https://app.example.com/accounts/connect",
+          "description": "The host page's own address, a CANDIDATE only. The hosted page sends it to the backend as `return_to` and navigates only to the `return_url` the backend answers."
+        },
+        {
+          "name": "sdk_version",
+          "required": false,
+          "pattern": "^[0-9A-Za-z.+-]{1,32}$",
+          "example": "0.7.0",
+          "description": "The SDK's version, for diagnostics."
+        }
+      ]
+    },
+    {
+      "name": "hosted_return",
+      "description": "Full-page redirect handoff, step 3: after the bank the hosted page asks `POST /v3/bank/link-session/resume-code/` for a new code and sends the browser to the `return_url` of that answer (never to an address of its own) with `didit_resume=<code>` appended to the QUERY, before any hash. The host page's `resumeBankLink()` removes the parameter from the address and exchanges the code.",
+      "address": "<return_url from the backend>",
+      "where": "query",
+      "encoding": "RFC 3986 query",
+      "params": [
+        {
+          "name": "didit_resume",
+          "required": true,
+          "format": "resume_code",
+          "description": "The single-use resume code for the step after the bank."
+        }
+      ]
+    }
+  ]
+}
