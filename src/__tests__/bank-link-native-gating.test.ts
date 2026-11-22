@@ -47,6 +47,40 @@ describe('native Bank Link compile gate', () => {
     ).not.toContain('me.didit.sdk.BankLink');
   });
 
+  it('maps the native Android types, wire names and a declined presentation', () => {
+    // The enabled adapter compiles only when the pinned native source carries
+    // Bank Link, so CI's released jobs build the stand-in and never see it.
+    // These assertions stand in for that compile: the package the native
+    // types live in, the wire names JavaScript listens for, the wrapped
+    // result variants, and a declined presentation that still settles.
+    const json = read(
+      'android/src/bankLink/java/com/sdkreactnative/BankLinkJson.kt'
+    );
+    const support = read(
+      'android/src/bankLink/java/com/sdkreactnative/BankLinkSupport.kt'
+    );
+
+    expect(json).toContain(
+      'import me.didit.sdk.features.bank.link.BankLinkEvent'
+    );
+    expect(json).toContain(
+      'import me.didit.sdk.features.bank.link.BankLinkResult'
+    );
+    // The enum constants read `OPENED`; JavaScript listens for `opened`.
+    expect(json).toContain('.put("name", event.name.wire)');
+    expect(json).not.toMatch(/name\.toString\(\)|event\.name\.name/);
+    // Success and exit fields hang under the result variant that wraps them.
+    expect(json).toContain('is BankLinkResult.Success ->');
+    expect(json).toContain('result.success.linkId');
+    expect(json).toContain('is BankLinkResult.Exit ->');
+    expect(json).toContain('result.exit.reason.wire');
+    expect(json).toContain('result.exit.step?.wire');
+    // A declined presentation resolves no result, so the adapter must fail the
+    // call instead of leaving the host waiting and the slot occupied.
+    expect(support).toContain('val presented = DiditSdk.presentBankLink(');
+    expect(support).toContain('check(presented)');
+  });
+
   it('defines the iOS compile condition only when the native SDK has it', () => {
     const podspec = read('SdkReactNative.podspec');
 
