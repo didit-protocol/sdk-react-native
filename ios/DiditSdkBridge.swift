@@ -415,6 +415,19 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
     // MARK: - Bank Link
 
+    /// Whether the native SDK linked into this build has Bank Link. The
+    /// released-only build compiles the stand-in below, and the TurboModule
+    /// rejects with `not_available` before calling it.
+    public var bankLinkAvailable: Bool {
+#if DIDIT_BANK_LINK
+        true
+#else
+        false
+#endif
+    }
+
+#if DIDIT_BANK_LINK
+
     /// Opens a Bank Link with the link's `client_token`.
     ///
     /// Every screen, state and string is native; the bridge carries the events
@@ -545,6 +558,32 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             return NSNull()
         }
     }
+
+#else
+
+    // MARK: - Bank Link stand-in
+
+    /// The pinned released SDK predates Bank Link. These keep the Objective-C
+    /// bridge compiling; the TurboModule rejects before calling them.
+    public func presentBankLink(
+        token: String,
+        config: NSDictionary?,
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void
+    ) {
+        completion("null")
+    }
+
+    public func resumeBankLink(
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void
+    ) {
+        completion("null")
+    }
+
+    public func handleBankLinkReturn(url: String) {}
+
+#endif
 
     // MARK: - Transaction JSON Mapping
 

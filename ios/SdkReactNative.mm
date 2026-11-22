@@ -194,6 +194,10 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
                 resolve:(RCTPromiseResolveBlock)resolve
                  reject:(RCTPromiseRejectBlock)reject
 {
+    if (!_bridge.bankLinkAvailable) {
+        reject(@"not_available", @"This native SDK version does not include Bank Link.", nil);
+        return;
+    }
     NSDictionary *configDict = (&config != nullptr) ? [self configDictFrom:config] : nil;
     __weak SdkReactNative *weakSelf = self;
 
@@ -210,6 +214,10 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
 - (void)resumeBankLink:(RCTPromiseResolveBlock)resolve
                 reject:(RCTPromiseRejectBlock)reject
 {
+    if (!_bridge.bankLinkAvailable) {
+        reject(@"not_available", @"This native SDK version does not include Bank Link.", nil);
+        return;
+    }
     __weak SdkReactNative *weakSelf = self;
 
     [_bridge resumeBankLinkWithOnEvent:^(NSString *eventJson) {
@@ -222,6 +230,9 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
 
 - (void)handleBankLinkReturn:(NSString *)url
 {
+    if (!_bridge.bankLinkAvailable) {
+        return;
+    }
     [_bridge handleBankLinkReturnWithUrl:url];
 }
 
