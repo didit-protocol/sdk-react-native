@@ -33,15 +33,18 @@ describe('native Bank Link compile gate', () => {
   });
 
   it('keeps the native Android calls out of the released-only source', () => {
-    const nativeCalls = 'android/src/bankLink/java/com/sdkreactnative/BankLinkSupport.kt';
-    const released = 'android/src/released/java/com/sdkreactnative/BankLinkSupport.kt';
+    const nativeCalls =
+      'android/src/bankLink/java/com/sdkreactnative/BankLinkSupport.kt';
+    const released =
+      'android/src/released/java/com/sdkreactnative/BankLinkSupport.kt';
 
     expect(existsSync(join(repoRoot, nativeCalls))).toBe(true);
     expect(read(nativeCalls)).toContain('DiditSdk.presentBankLink');
     expect(existsSync(join(repoRoot, released))).toBe(true);
     expect(read(released)).toContain('const val available = false');
-    expect(read('android/src/main/java/com/sdkreactnative/SdkReactNativeModule.kt'))
-      .not.toContain('me.didit.sdk.BankLink');
+    expect(
+      read('android/src/main/java/com/sdkreactnative/SdkReactNativeModule.kt')
+    ).not.toContain('me.didit.sdk.BankLink');
   });
 
   it('defines the iOS compile condition only when the native SDK has it', () => {
