@@ -426,8 +426,9 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
     override fun resumeBankLink(promise: Promise) {
         val activity = reactApplicationContext.currentActivity
         if (activity == null) {
+            // Never reported as "nothing to resume": a link may well be pending.
             logDebugError("resumeBankLink: no active Activity at call time")
-            promise.resolve(BankLinkJson.NONE)
+            promise.reject("no_activity", "No active Activity available to resume Bank Link.")
             return
         }
         scope.launch {
