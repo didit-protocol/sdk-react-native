@@ -1,5 +1,6 @@
 package com.sdkreactnative
 
+import android.net.Uri
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.LifecycleEventListener
 import com.facebook.react.bridge.Promise
@@ -394,6 +395,65 @@ class SdkReactNativeModule(reactContext: ReactApplicationContext) :
                 promise.reject("validation", e.message ?: "Invalid transaction payload.", e)
             else ->
                 promise.reject("network", e.message ?: "Transaction request failed.", e)
+        }
+    }
+
+    // ─── Bank Link ───────────────────────────────────────────────────────────
+
+    override fun presentBankLink(token: String, config: ReadableMap?, promise: Promise) {
+        val activity = reactApplicationContext.currentActivity
+        if (activity == null) {
+            logDebugError("presentBankLink: no active Activity at call time")
+            promise.reject("no_activity", "No active Activity available to present Bank Link.")
+            return
+        }
+        scope.launch {
+            try {
+                DiditSdk.presentBankLink(
+                    activity = activity,
+                    token = token,
+                    configuration = parseConfiguration(config),
+                    onEvent = { event -> emitOnBankLinkEvent(BankLinkJson.event(event)) },
+                    onResult = { result -> promise.resolve(BankLinkJson.result(result)) }
+                )
+            } catch (e: Exception) {
+                logDebugError("presentBankLink: exception", e)
+                promise.reject("bank_link", e.message, e)
+            }
+        }
+    }
+
+    override fun resumeBankLink(promise: Promise) {
+        val activity = reactApplicationContext.currentActivity
+        if (activity == null) {
+            logDebugError("resumeBankLink: no active Activity at call time")
+            promise.resolve(BankLinkJson.NONE)
+            return
+        }
+        scope.launch {
+            try {
+                val resumed = DiditSdk.resumeBankLink(
+                    activity = activity,
+                    onEvent = { event -> emitOnBankLinkEvent(BankLinkJson.event(event)) },
+                    onResult = { result -> promise.resolve(BankLinkJson.result(result)) }
+                )
+                if (!resumed) {
+                    promise.resolve(BankLinkJson.NONE)
+                }
+            } catch (e: Exception) {
+                logDebugError("resumeBankLink: exception", e)
+                promise.reject("bank_link", e.message, e)
+            }
+        }
+    }
+
+    override fun handleBankLinkReturn(url: String) {
+        // Native decides whether the address is a Bank Link return. The address
+        // is never parsed here: a resume code arrives in a query parameter and
+        // contains a dot, so nothing may split or normalise it.
+        val uri = Uri.parse(url)
+        reactApplicationContext.runOnUiQueueThread {
+            DiditSdk.handleBankLinkReturn(uri)
         }
     }
 
