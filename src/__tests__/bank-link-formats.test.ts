@@ -9,8 +9,8 @@
  *
  * This test walks every example through the three places the wrapper touches a
  * value - the token of a presentation, a parameter of a return address (query
- * and fragment), and an event payload - and asserts each one is accepted and
- * forwarded unchanged. A validator here may be looser than the file, never
+ * and fragment), and the public event boundary. Opaque inputs survive
+ * unchanged and only fields defined for the event reach listeners. A validator here may be looser than the file, never
  * stricter: a rejection or a truncated value fails.
  */
 
@@ -188,13 +188,21 @@ describe('every example of the contract file', () => {
   );
 
   it('keeps credentials and unrelated fields out of event payloads', () => {
-    const fields = Object.fromEntries(formats.map((format) => [format.name, format.example]));
+    const fields = Object.fromEntries(
+      formats.map((format) => [format.name, format.example])
+    );
     const listener = jest.fn();
     const stop = onBankLinkEvent(listener);
-    nativeHandler?.(JSON.stringify({
-      name: 'opened',
-      payload: { ...fields, session: fields.session_credential, mode: { token: fields.client_token } },
-    }));
+    nativeHandler?.(
+      JSON.stringify({
+        name: 'opened',
+        payload: {
+          ...fields,
+          session: fields.session_credential,
+          mode: { token: fields.client_token },
+        },
+      })
+    );
     stop();
     expect(listener).toHaveBeenCalledWith({
       name: 'opened',

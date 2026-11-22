@@ -25,7 +25,10 @@ const EVENT_FIELDS = {
   success: ['connection_id', 'check_id', 'resumed'],
   exit: ['reason', 'step', 'resumed'],
   error: ['code'],
-} as const satisfies Record<BankLinkEventName, readonly (keyof BankLinkEventPayload)[]>;
+} as const satisfies Record<
+  BankLinkEventName,
+  readonly (keyof BankLinkEventPayload)[]
+>;
 
 const STEPS: readonly BankLinkStep[] = [
   'consent',
@@ -90,7 +93,11 @@ function parseEvent(raw: string): BankLinkEvent | null {
     return null;
   }
   const rawPayload = parsed.payload;
-  if (!rawPayload || typeof rawPayload !== 'object' || !('link_id' in rawPayload)) {
+  if (
+    !rawPayload ||
+    typeof rawPayload !== 'object' ||
+    !('link_id' in rawPayload)
+  ) {
     return null;
   }
   const { link_id } = rawPayload;

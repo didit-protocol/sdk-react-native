@@ -17,9 +17,22 @@ jest.mock('../NativeSdkReactNative', () => ({
   },
 }));
 
+// The example workspace can resolve a second copy of React Native.
+jest.mock(
+  require.resolve('react-native', {
+    paths: [require.resolve('../../example/package.json')],
+  }),
+  () => jest.requireActual('react-native')
+);
+jest.mock(
+  '@didit-protocol/sdk-react-native',
+  () => jest.requireActual('../index'),
+  { virtual: true }
+);
+import { listenForBankReturns } from '../../example/src/App';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { DeviceEventEmitter } from 'react-native';
+import { DeviceEventEmitter, Linking } from 'react-native';
 import NativeSdkReactNative from '../NativeSdkReactNative';
 import {
   presentBankLink,
@@ -394,7 +407,9 @@ describe('onBankLinkEvent', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    expect(() => emit({ name: 'opened', payload: { link_id: null } })).not.toThrow();
+    expect(() =>
+      emit({ name: 'opened', payload: { link_id: null } })
+    ).not.toThrow();
     expect(healthy).toHaveBeenCalledTimes(1);
     expect(consoleError).toHaveBeenCalled();
 
@@ -429,7 +444,10 @@ describe('onBankLinkEvent', () => {
       'success',
       { link_id: 'link-1', connection_id: 'connection-1', check_id: 'check-1' },
     ],
-    ['exit', { link_id: null, resumed: true, reason: 'closed', step: 'bank_hop' }],
+    [
+      'exit',
+      { link_id: null, resumed: true, reason: 'closed', step: 'bank_hop' },
+    ],
     ['error', { link_id: null, code: 'network' }],
   ])('delivers %s once with its payload as sent', (name, payload) => {
     const listener = jest.fn();
@@ -508,6 +526,42 @@ describe('onBankLinkEvent', () => {
 describe('handleBankLinkReturn', () => {
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('forwards the cold return before restoring the interrupted step and listens for warm returns', async () => {
+    const url =
+      'https://app.example.com/bank/return?didit_resume=rsc_example.secret';
+    const getUrl = jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(url);
+    const remove = jest.fn();
+    const subscribe = jest
+      .spyOn(Linking, 'addEventListener')
+      .mockReturnValue({ remove });
+    const saved = {
+      type: 'exit',
+      reason: 'closed',
+      step: 'bank_hop',
+      resumed: true,
+    };
+    resume.mockImplementationOnce(async () => {
+      expect(handleReturn).toHaveBeenCalledWith(url);
+      return JSON.stringify(saved);
+    });
+    let stop: (() => void) | undefined;
+    try {
+      const restored = await new Promise<BankLinkResult>((resolve) => {
+        stop = listenForBankReturns(resolve);
+      });
+      expect(restored).toEqual(saved);
+      const warm = 'example://bank/return?didit_resume=rsc_another.secret';
+      subscribe.mock.calls[0]![1]({ url: warm });
+      expect(handleReturn).toHaveBeenLastCalledWith(warm);
+      expect(resume).toHaveBeenCalledTimes(1);
+    } finally {
+      stop?.();
+      subscribe.mockRestore();
+      getUrl.mockRestore();
+    }
+    expect(remove).toHaveBeenCalledTimes(1);
   });
 
   it('forwards the address to native unchanged', () => {
