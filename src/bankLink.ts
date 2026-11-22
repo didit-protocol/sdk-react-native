@@ -14,18 +14,18 @@ import type {
   BankLinkSuccess,
 } from './types';
 
-const EVENT_NAMES: readonly BankLinkEventName[] = [
-  'opened',
-  'consent_shown',
-  'consent_accepted',
-  'institution_selected',
-  'bank_redirect',
-  'bank_returned',
-  'accounts_selected',
-  'success',
-  'exit',
-  'error',
-];
+const EVENT_FIELDS = {
+  opened: ['mode', 'access', 'presentation'],
+  consent_shown: ['consent_version'],
+  consent_accepted: ['consent_version'],
+  institution_selected: ['institution_id', 'country'],
+  bank_redirect: ['via'],
+  bank_returned: ['result'],
+  accounts_selected: ['count'],
+  success: ['connection_id', 'check_id', 'resumed'],
+  exit: ['reason', 'step', 'resumed'],
+  error: ['code'],
+} as const satisfies Record<BankLinkEventName, readonly (keyof BankLinkEventPayload)[]>;
 
 const STEPS: readonly BankLinkStep[] = [
   'consent',
@@ -85,18 +85,32 @@ function parseEvent(raw: string): BankLinkEvent | null {
   // requires: new events are additive.
   if (
     typeof name !== 'string' ||
-    !EVENT_NAMES.includes(name as BankLinkEventName)
+    !Object.prototype.hasOwnProperty.call(EVENT_FIELDS, name)
   ) {
     return null;
   }
-  const payload = parsed.payload;
-  return {
-    name: name as BankLinkEventName,
-    payload:
-      payload && typeof payload === 'object'
-        ? (payload as BankLinkEventPayload)
-        : {},
-  };
+  const rawPayload = parsed.payload;
+  if (!rawPayload || typeof rawPayload !== 'object' || !('link_id' in rawPayload)) {
+    return null;
+  }
+  const { link_id } = rawPayload;
+  if (link_id !== null && typeof link_id !== 'string') {
+    return null;
+  }
+
+  const payload: BankLinkEventPayload = { link_id };
+  const eventName = name as BankLinkEventName;
+  for (const key of EVENT_FIELDS[eventName]) {
+    const value = (rawPayload as Record<string, unknown>)[key];
+    if (key === 'count') {
+      if (typeof value === 'number') payload.count = value;
+    } else if (key === 'resumed') {
+      if (typeof value === 'boolean') payload.resumed = value;
+    } else if (typeof value === 'string' || value === null) {
+      Object.assign(payload, { [key]: value });
+    }
+  }
+  return { name: eventName, payload };
 }
 
 function dispatch(raw: string): void {

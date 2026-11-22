@@ -452,7 +452,7 @@ export type BankLinkEventName =
  */
 export interface BankLinkEventPayload {
   /** The link id; carried by every event. */
-  link_id?: string;
+  link_id: string | null;
   /** `opened`: `connect`, `renew` or `manage`. */
   mode?: 'connect' | 'renew' | 'manage';
   /** `opened` and the steps it words: the access the link effectively has. */
@@ -479,6 +479,8 @@ export interface BankLinkEventPayload {
   reason?: BankLinkExitReason;
   /** `exit`: the step the person was on. */
   step?: BankLinkStep | null;
+  /** `success` and `exit`: the terminal result was replayed. */
+  resumed?: boolean;
   /** `error`: the error code of a non-terminal client or transport error. */
   code?: string;
 }

@@ -110,13 +110,15 @@ const stop = onBankLinkEvent(({ name, payload }) => {
   console.log(name, payload.link_id);
 });
 
-const result: BankLinkResult = await presentBankLink(clientToken);
-stop();
-
-if (result.type === 'success') {
-  console.log('Linked', result.connectionId);
-} else {
-  console.log('Ended', result.reason, result.step);
+try {
+  const result: BankLinkResult = await presentBankLink(clientToken);
+  if (result.type === 'success') {
+    console.log('Linked', result.connectionId);
+  } else {
+    console.log('Ended', result.reason, result.step);
+  }
+} finally {
+  stop();
 }
 ```
 

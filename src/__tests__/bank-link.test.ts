@@ -75,6 +75,7 @@ const CONTRACT_PAYLOAD_KEYS = [
   'reason',
   'step',
   'code',
+  'resumed',
 ];
 
 /**
@@ -372,11 +373,11 @@ describe('onBankLinkEvent', () => {
     // TurboModule `EventEmitter` never emits there.
     DeviceEventEmitter.emit(
       'onBankLinkEvent',
-      JSON.stringify({ name: 'opened', payload: {} })
+      JSON.stringify({ name: 'opened', payload: { link_id: null } })
     );
     expect(listener).not.toHaveBeenCalled();
 
-    emit({ name: 'opened', payload: {} });
+    emit({ name: 'opened', payload: { link_id: null } });
     expect(listener).toHaveBeenCalledTimes(1);
 
     stop();
@@ -393,7 +394,7 @@ describe('onBankLinkEvent', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    expect(() => emit({ name: 'opened', payload: {} })).not.toThrow();
+    expect(() => emit({ name: 'opened', payload: { link_id: null } })).not.toThrow();
     expect(healthy).toHaveBeenCalledTimes(1);
     expect(consoleError).toHaveBeenCalled();
 
@@ -419,17 +420,17 @@ describe('onBankLinkEvent', () => {
     ],
     [
       'institution_selected',
-      { institution_id: 'institution-1', country: 'ES' },
+      { link_id: 'link-1', institution_id: 'institution-1', country: 'ES' },
     ],
-    ['bank_redirect', { via: 'popup' }],
-    ['bank_returned', { result: 'ok' }],
-    ['accounts_selected', { count: 2 }],
+    ['bank_redirect', { link_id: 'link-1', via: 'popup' }],
+    ['bank_returned', { link_id: 'link-1', result: 'ok' }],
+    ['accounts_selected', { link_id: 'link-1', count: 2 }],
     [
       'success',
       { link_id: 'link-1', connection_id: 'connection-1', check_id: 'check-1' },
     ],
-    ['exit', { reason: 'closed', step: 'bank_hop' }],
-    ['error', { code: 'network' }],
+    ['exit', { link_id: null, resumed: true, reason: 'closed', step: 'bank_hop' }],
+    ['error', { link_id: null, code: 'network' }],
   ])('delivers %s once with its payload as sent', (name, payload) => {
     const listener = jest.fn();
     const stop = onBankLinkEvent(listener);
@@ -463,7 +464,7 @@ describe('onBankLinkEvent', () => {
 
     stop();
     expect(() => stop()).not.toThrow();
-    emit({ name: 'opened', payload: {} });
+    emit({ name: 'opened', payload: { link_id: null } });
     expect(listener).not.toHaveBeenCalled();
   });
 
@@ -475,6 +476,8 @@ describe('onBankLinkEvent', () => {
       name: 'a_name_from_a_newer_server',
       payload: { link_id: 'link-1' },
     });
+    emit({ name: 'opened', payload: {} });
+    emit({ name: 'opened', payload: { link_id: {} } });
     emitRaw('not json');
     stop();
 

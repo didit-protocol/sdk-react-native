@@ -35,7 +35,6 @@ import {
   onBankLinkEvent,
   handleBankLinkReturn,
 } from '../index';
-import type { BankLinkEventPayload } from '../index';
 
 interface Format {
   name: string;
@@ -81,11 +80,6 @@ function returnAddress(where: 'query' | 'fragment', code: string): string {
   return where === 'query'
     ? `https://app.example.com/bank/return?${params}`
     : `https://app.example.com/bank/return#${params}`;
-}
-
-/** The payload key a value of this format travels in, when it has one. */
-function payloadKey(format: Format): keyof BankLinkEventPayload {
-  return (format.fields?.[0] ?? 'link_id') as keyof BankLinkEventPayload;
 }
 
 /**
@@ -193,24 +187,18 @@ describe('every example of the contract file', () => {
     }
   );
 
-  it.each(formats.map((format) => [format.name, format] as const))(
-    'arrives in an event payload as %s, unchanged',
-    (_name, format) => {
-      const listener = jest.fn();
-      const stop = onBankLinkEvent(listener);
-
-      nativeHandler?.(
-        JSON.stringify({
-          name: 'opened',
-          payload: { link_id: 'link-1', [payloadKey(format)]: format.example },
-        })
-      );
-      stop();
-
-      expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener.mock.calls[0][0].payload[payloadKey(format)]).toBe(
-        format.example
-      );
-    }
-  );
+  it('keeps credentials and unrelated fields out of event payloads', () => {
+    const fields = Object.fromEntries(formats.map((format) => [format.name, format.example]));
+    const listener = jest.fn();
+    const stop = onBankLinkEvent(listener);
+    nativeHandler?.(JSON.stringify({
+      name: 'opened',
+      payload: { ...fields, session: fields.session_credential, mode: { token: fields.client_token } },
+    }));
+    stop();
+    expect(listener).toHaveBeenCalledWith({
+      name: 'opened',
+      payload: { link_id: fields.link_id },
+    });
+  });
 });
