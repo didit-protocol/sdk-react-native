@@ -248,7 +248,10 @@ describe('presentBankLink', () => {
 
     // The presented promise still settles: its native callbacks were kept.
     finish(JSON.stringify({ type: 'exit', reason: 'closed' }));
-    await expect(presented).resolves.toEqual({ type: 'exit', reason: 'closed' });
+    await expect(presented).resolves.toEqual({
+      type: 'exit',
+      reason: 'closed',
+    });
   });
 
   it('rejects when native answers a result it cannot read', async () => {
