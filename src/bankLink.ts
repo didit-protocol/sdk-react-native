@@ -1,4 +1,3 @@
-import { NativeEventEmitter } from 'react-native';
 import type { EventSubscription } from 'react-native';
 import NativeSdkReactNative from './NativeSdkReactNative';
 import { toNativeConfig } from './nativeConfig';
@@ -15,12 +14,6 @@ import type {
   BankLinkSuccess,
 } from './types';
 
-/**
- * The event name the native modules emit on: the name of the TurboModule
- * `EventEmitter` property, shared by every platform.
- */
-const EVENT_NAME = 'onBankLinkEvent';
-
 const EVENT_NAMES: readonly BankLinkEventName[] = [
   'opened',
   'consent_shown',
@@ -32,6 +25,25 @@ const EVENT_NAMES: readonly BankLinkEventName[] = [
   'success',
   'exit',
   'error',
+];
+
+const STEPS: readonly BankLinkStep[] = [
+  'consent',
+  'segment',
+  'institution',
+  'unsupported',
+  'email',
+  'email_verify',
+  'bank_hop',
+  'accounts',
+  'confirm_reuse',
+  'confirm_one_time_fallback',
+  'renew',
+  'reconfirm',
+  'collecting',
+  'done',
+  'ended',
+  'unknown',
 ];
 
 const EXIT_REASONS: readonly BankLinkExitReason[] = [
@@ -55,18 +67,7 @@ interface BankLinkResultJS {
 
 // ─── Events ──────────────────────────────────────────────────────────────────
 
-/**
- * What `NativeEventEmitter` needs of the module: the listener counter the
- * Codegen base class provides on both platforms, which the spec it generates
- * does not declare.
- */
-interface NativeEventEmitterModule {
-  addListener: (eventType: string) => void;
-  removeListeners: (count: number) => void;
-}
-
 const listeners = new Set<BankLinkEventListener>();
-let emitter: NativeEventEmitter | null = null;
 let nativeSubscription: EventSubscription | null = null;
 
 function parseEvent(raw: string): BankLinkEvent | null {
@@ -106,7 +107,13 @@ function dispatch(raw: string): void {
   // Copied, so a listener that unsubscribes while being called does not make
   // the loop skip the next one.
   for (const listener of Array.from(listeners)) {
-    listener(event);
+    try {
+      listener(event);
+    } catch (error) {
+      // One listener must never starve the others, nor the native flow that
+      // emitted the event. The failure is reported, not rethrown into native.
+      console.error('A Bank Link event listener threw:', error);
+    }
   }
 }
 
@@ -114,12 +121,12 @@ function subscribeNative(): void {
   if (nativeSubscription || listeners.size === 0) {
     return;
   }
-  if (!emitter) {
-    emitter = new NativeEventEmitter(
-      NativeSdkReactNative as unknown as NativeEventEmitterModule
-    );
-  }
-  nativeSubscription = emitter.addListener(EVENT_NAME, (raw: unknown) =>
+  // The Bank Link events are a Codegen `EventEmitter`, which is a function
+  // property of the TurboModule: native delivers `emitOnBankLinkEvent` only to
+  // the handler registered here. A `NativeEventEmitter` listens on
+  // `RCTDeviceEventEmitter`, which this module never emits on, so subscribing
+  // that way would silently deliver nothing.
+  nativeSubscription = NativeSdkReactNative.onBankLinkEvent((raw: string) =>
     dispatch(String(raw))
   );
 }
