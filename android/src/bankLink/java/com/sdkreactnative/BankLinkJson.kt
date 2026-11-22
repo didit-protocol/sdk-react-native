@@ -1,7 +1,7 @@
 package com.sdkreactnative
 
-import me.didit.sdk.BankLinkEvent
-import me.didit.sdk.BankLinkResult
+import me.didit.sdk.features.bank.link.BankLinkEvent
+import me.didit.sdk.features.bank.link.BankLinkResult
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -22,15 +22,15 @@ internal object BankLinkJson {
 
     fun event(event: BankLinkEvent): String = try {
         JSONObject()
-            .put("name", event.name)
+            .put("name", event.name.wire)
             .put("payload", payloadJson(event.payload))
             .toString()
     } catch (e: JSONException) {
         // A payload the JSON writer cannot carry must not throw inside the
         // native event callback: the event still arrives, with what is safe.
         JSONObject()
-            .put("name", event.name)
-            .put("payload", JSONObject())
+            .put("name", event.name.wire)
+            .put("payload", JSONObject().put("link_id", JSONObject.NULL))
             .toString()
     }
 
@@ -67,13 +67,13 @@ internal object BankLinkJson {
     fun result(result: BankLinkResult): String = when (result) {
         is BankLinkResult.Success -> JSONObject()
             .put("type", "success")
-            .put("linkId", result.linkId)
-            .put("connectionId", result.connectionId ?: JSONObject.NULL)
-            .put("checkId", result.checkId ?: JSONObject.NULL)
-            .put("resumed", result.resumed)
+            .put("linkId", result.success.linkId)
+            .put("connectionId", result.success.connectionId ?: JSONObject.NULL)
+            .put("checkId", result.success.checkId ?: JSONObject.NULL)
+            .put("resumed", result.success.resumed)
             .toString()
 
-        is BankLinkResult.Exit -> exit(result.reason, result.step, result.resumed)
+        is BankLinkResult.Exit -> exit(result.exit.reason.wire, result.exit.step?.wire, result.exit.resumed)
     }
 
     fun exit(reason: String, step: String?, resumed: Boolean): String = JSONObject()

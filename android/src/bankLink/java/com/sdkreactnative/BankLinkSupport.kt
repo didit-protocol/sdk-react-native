@@ -26,13 +26,14 @@ internal object BankLinkSupport {
         onEvent: (String) -> Unit,
         onResult: (String) -> Unit
     ) {
-        DiditSdk.presentBankLink(
+        val presented = DiditSdk.presentBankLink(
             activity = activity,
             token = token,
             configuration = configuration,
             onEvent = { event -> onEvent(BankLinkJson.event(event)) },
             onResult = { result -> onResult(BankLinkJson.result(result)) }
         )
+        check(presented) { "Bank Link presentation was declined." }
     }
 
     fun resume(

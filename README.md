@@ -110,13 +110,15 @@ const stop = onBankLinkEvent(({ name, payload }) => {
   console.log(name, payload.link_id);
 });
 
-const result: BankLinkResult = await presentBankLink(clientToken);
-stop();
-
-if (result.type === 'success') {
-  console.log('Linked', result.connectionId);
-} else {
-  console.log('Ended', result.reason, result.step);
+try {
+  const result: BankLinkResult = await presentBankLink(clientToken);
+  if (result.type === 'success') {
+    console.log('Linked', result.connectionId);
+  } else {
+    console.log('Ended', result.reason, result.step);
+  }
+} finally {
+  stop();
 }
 ```
 
@@ -919,7 +921,7 @@ Returns: `() => void` - the unsubscribe function.
 | `exit` | `link_id`, `reason`, `step` |
 | `error` | `link_id`, `code` |
 
-Payloads carry ids only: never a name, an account number, a token or an email. `success` and `exit` fire at most once each, and never both for one link.
+Every payload includes `link_id`, which is `null` until the ID is known. Replayed terminal events may also carry `resumed`. Payloads carry ids only: never a name, an account number, a token or an email. `success` and `exit` fire at most once each, and never both for one link.
 
 ### `handleBankLinkReturn(url)`
 
