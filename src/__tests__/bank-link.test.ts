@@ -278,7 +278,7 @@ describe('onBankLinkEvent', () => {
     ],
     [
       'institution_selected',
-      { institution_id: 'es-banco-norte', country: 'ES' },
+      { institution_id: 'institution-1', country: 'ES' },
     ],
     ['bank_redirect', { via: 'popup' }],
     ['bank_returned', { result: 'ok' }],

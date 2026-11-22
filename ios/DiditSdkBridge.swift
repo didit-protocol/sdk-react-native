@@ -419,7 +419,8 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
     ///
     /// Every screen, state and string is native; the bridge carries the events
     /// and the one result to JS, as JSON. Presentation starts on the main
-    /// queue, from the topmost view controller, like verification does.
+    /// queue and lets the SDK pick the view controller, as it does for hosts
+    /// that call it directly.
     public func presentBankLink(
         token: String,
         config: NSDictionary?,
@@ -431,7 +432,6 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
             MainActor.assumeIsolated {
                 DiditSdk.shared.presentBankLink(
                     token: token,
-                    from: Self.findRootViewController(),
                     configuration: parsed.toConfiguration(),
                     onEvent: { event in
                         onEvent(Self.bankLinkEventJson(event))
@@ -454,7 +454,6 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         DispatchQueue.main.async {
             MainActor.assumeIsolated {
                 let resumed = DiditSdk.shared.resumeBankLink(
-                    from: Self.findRootViewController(),
                     onEvent: { event in
                         onEvent(Self.bankLinkEventJson(event))
                     },
