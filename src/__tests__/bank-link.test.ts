@@ -29,6 +29,7 @@ jest.mock(
   () => jest.requireActual('../index'),
   { virtual: true }
 );
+import formats from './fixtures/bank-link-formats.json';
 import { listenForBankReturns } from '../../example/src/App';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -529,8 +530,10 @@ describe('handleBankLinkReturn', () => {
   });
 
   it('forwards the cold return before restoring the interrupted step and listens for warm returns', async () => {
-    const url =
-      'https://app.example.com/bank/return?didit_resume=rsc_example.secret';
+    const code = formats.formats.find(
+      (format) => format.name === 'resume_code'
+    )!.example;
+    const url = `https://app.example.com/bank/return?didit_resume=${code}`;
     const getUrl = jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(url);
     const remove = jest.fn();
     const subscribe = jest

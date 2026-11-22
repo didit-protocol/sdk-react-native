@@ -7,11 +7,8 @@
  * once rejected a real resume code because its own expression was stricter than
  * the backend's and split on the dot, which broke the bank return on staging.
  *
- * This test walks every example through the three places the wrapper touches a
- * value - the token of a presentation, a parameter of a return address (query
- * and fragment), and the public event boundary. Opaque inputs survive
- * unchanged and only fields defined for the event reach listeners. A validator here may be looser than the file, never
- * stricter: a rejection or a truncated value fails.
+ * Each example passes unchanged through presentation and return URLs. Only
+ * the fields defined for an event may reach an event listener.
  */
 
 jest.mock('../NativeSdkReactNative', () => ({
