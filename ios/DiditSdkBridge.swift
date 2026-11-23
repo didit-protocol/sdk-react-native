@@ -413,6 +413,213 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
         }
     }
 
+    // MARK: - Bank Link
+
+    /// Whether the native SDK linked into this build has Bank Link. The
+    /// released-only build compiles the stand-in below, and the TurboModule
+    /// rejects with `not_available` before calling it.
+    public var bankLinkAvailable: Bool {
+#if DIDIT_BANK_LINK
+        true
+#else
+        false
+#endif
+    }
+
+#if DIDIT_BANK_LINK
+
+    /// The error of a presentation that could not open: one code and message
+    /// on both platforms (Android: `BankLinkSupport.present`).
+    static let bankLinkDeclinedCode = "bank_link"
+    static let bankLinkDeclinedMessage = "Bank Link presentation was declined."
+
+    /// Opens a Bank Link with the link's `client_token`.
+    ///
+    /// Every screen, state and string is native; the bridge carries the events
+    /// and the one result to JS, as JSON. The Objective-C++ module resolves the
+    /// presenting view controller (React Native's `RCTPresentedViewController`)
+    /// and passes it as `presenter`. With none, native is not called and the
+    /// promise rejects with the code and message Android uses for a declined
+    /// presentation, so a presentation that cannot open never leaves the
+    /// JavaScript promise pending, whichever native release is linked. The
+    /// native call is not bound to a typed value, so this compiles whether it
+    /// returns nothing or a discardable `Bool`.
+    public func presentBankLink(
+        token: String,
+        config: NSDictionary?,
+        presenter: UIViewController?,
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
+    ) {
+        let parsed = ParsedConfig(config)
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                guard let presenter = presenter else {
+                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
+                    return
+                }
+                // Untyped on purpose: native returns nothing in older releases
+                // and a discardable `Bool` (false: nothing opened) in newer
+                // ones. Read as `Any`, a `false` rejects, anything else is
+                // left to the result callback.
+                let opened = DiditSdk.shared.presentBankLink(
+                    token: token,
+                    from: presenter,
+                    configuration: parsed.toConfiguration(),
+                    onEvent: { event in
+                        onEvent(Self.bankLinkEventJson(event))
+                    },
+                    onResult: { result in
+                        completion(Self.bankLinkResultJson(result))
+                    }
+                )
+                if (opened as Any) as? Bool == false {
+                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
+                }
+            }
+        }
+    }
+
+    /// Picks up a link whose bank hop outlived the app. Resolves the JSON
+    /// `null` when native has nothing to resume, and the replayed or continued
+    /// result otherwise, with `resumed` set.
+    public func resumeBankLink(
+        presenter: UIViewController?,
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
+    ) {
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                guard let presenter = presenter else {
+                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
+                    return
+                }
+                let resumed = DiditSdk.shared.resumeBankLink(
+                    from: presenter,
+                    onEvent: { event in
+                        onEvent(Self.bankLinkEventJson(event))
+                    },
+                    onResult: { result in
+                        completion(Self.bankLinkResultJson(result))
+                    }
+                )
+                if !resumed {
+                    completion("null")
+                }
+            }
+        }
+    }
+
+    /// Hands the address the app was opened with to native, which decides
+    /// whether it is a Bank Link return. The address is never read here: a
+    /// resume code arrives as a query parameter and contains a dot, so nothing
+    /// in this bridge may split or normalise it.
+    public func handleBankLinkReturn(url: String) {
+        guard let address = URL(string: url) else { return }
+        DispatchQueue.main.async {
+            MainActor.assumeIsolated {
+                _ = DiditSdk.shared.handleBankLinkReturn(address)
+            }
+        }
+    }
+
+    // MARK: - Bank Link JSON Mapping
+
+    /// One event: its wire name and its ids-only payload.
+    private static func bankLinkEventJson(_ event: BankLinkEvent) -> String {
+        jsonString([
+            "name": event.name.rawValue,
+            "payload": jsonSafe(event.payload)
+        ])
+    }
+
+    /// The one result of a presentation, in the shape the JS layer maps.
+    private static func bankLinkResultJson(_ result: BankLinkResult) -> String {
+        switch result {
+        case .success(let success):
+            var json: [String: Any] = [
+                "type": "success",
+                "linkId": success.linkId,
+                "resumed": success.resumed
+            ]
+            if let connectionId = success.connectionId {
+                json["connectionId"] = connectionId
+            }
+            if let checkId = success.checkId {
+                json["checkId"] = checkId
+            }
+            return jsonString(json)
+
+        case .exit(let exit):
+            return jsonString([
+                "type": "exit",
+                "reason": exit.reason.rawValue,
+                "step": exit.step?.rawValue ?? NSNull(),
+                "resumed": exit.resumed
+            ])
+
+        @unknown default:
+            return jsonString([
+                "type": "exit",
+                "reason": "failed",
+                "step": NSNull(),
+                "resumed": false
+            ])
+        }
+    }
+
+    /// Event payloads carry ids, enums and numbers. A value that is not one of
+    /// those becomes `null` instead of travelling through `String(describing:)`,
+    /// which could carry a name, a token or an account number to JS.
+    private static func jsonSafe(_ value: Any) -> Any {
+        switch value {
+        case let string as String:
+            return string
+        case let number as NSNumber:
+            return number
+        case is NSNull:
+            return NSNull()
+        case let array as [Any]:
+            return array.map(jsonSafe)
+        case let dictionary as [String: Any]:
+            return dictionary.mapValues(jsonSafe)
+        default:
+            return NSNull()
+        }
+    }
+
+#else
+
+    // MARK: - Bank Link stand-in
+
+    /// The pinned released SDK predates Bank Link. These keep the Objective-C
+    /// bridge compiling; the TurboModule rejects before calling them.
+    public func presentBankLink(
+        token: String,
+        config: NSDictionary?,
+        presenter: UIViewController?,
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
+    ) {
+        completion("null")
+    }
+
+    public func resumeBankLink(
+        presenter: UIViewController?,
+        onEvent: @escaping @Sendable (String) -> Void,
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
+    ) {
+        completion("null")
+    }
+
+    public func handleBankLinkReturn(url: String) {}
+
+#endif
+
     // MARK: - Transaction JSON Mapping
 
     private static func jsonObject(from raw: String) throws -> [String: Any] {

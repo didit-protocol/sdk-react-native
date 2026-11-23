@@ -3,7 +3,8 @@
   "version": "4.15.6",
   "diditNativeSdkVersions": {
     "ios": "4.15.6",
-    "android": "4.15.6"
+    "android": "4.15.6",
+    "bankLink": false
   },
   "description": "React Native wrapper for Didit Identity Verification SDK",
   "main": "./lib/commonjs/index.js",

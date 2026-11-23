@@ -1,5 +1,7 @@
 #import "SdkReactNative.h"
 
+#import <React/RCTUtils.h>
+
 // Import the Swift-generated header for the bridge class.
 // The header name follows the pattern: <ProductModuleName>-Swift.h
 // where ProductModuleName is derived from the CocoaPods pod name (SdkReactNative).
@@ -185,6 +187,94 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
                                          reject:^(NSString *code, NSString *message, NSDictionary *userInfoFields) {
         reject(code, message, DiditTransactionNSError(message, userInfoFields));
     }];
+}
+
+// MARK: - Bank Link
+
+/// The view controller a Bank Link is presented from, resolved on the main
+/// queue with React Native's own helper. `nil` when the app has none.
+- (UIViewController *)bankLinkPresenter
+{
+    return RCTPresentedViewController();
+}
+
+/// Calls `then` on the main queue with the presenter. A host resumes once at
+/// start-up, before a window may exist, so the lookup retries for a short,
+/// bounded time (as Android waits for its Activity) and then hands `nil` on:
+/// the bridge rejects, it never leaves the promise pending.
+- (void)withBankLinkPresenterAttempts:(NSInteger)attemptsLeft
+                                 then:(void (^)(UIViewController *presenter))then
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *presenter = [self bankLinkPresenter];
+        if (presenter != nil || attemptsLeft <= 0) {
+            then(presenter);
+            return;
+        }
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(100 * NSEC_PER_MSEC)),
+                       dispatch_get_main_queue(), ^{
+            [self withBankLinkPresenterAttempts:attemptsLeft - 1 then:then];
+        });
+    });
+}
+
+- (void)presentBankLink:(NSString *)token
+                 config:(JS::NativeSdkReactNative::VerificationConfig &)config
+                resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject
+{
+    if (!_bridge.bankLinkAvailable) {
+        reject(@"not_available", @"This native SDK version does not include Bank Link.", nil);
+        return;
+    }
+    NSDictionary *configDict = (&config != nullptr) ? [self configDictFrom:config] : nil;
+    __weak SdkReactNative *weakSelf = self;
+
+    [self withBankLinkPresenterAttempts:0 then:^(UIViewController *presenter) {
+        [self->_bridge presentBankLinkWithToken:token
+                                         config:configDict
+                                      presenter:presenter
+                                        onEvent:^(NSString *eventJson) {
+            [weakSelf emitOnBankLinkEvent:eventJson];
+        }
+                                     completion:^(NSString *resultJson) {
+            resolve(resultJson);
+        }
+                                         reject:^(NSString *code, NSString *message) {
+            reject(code, message, nil);
+        }];
+    }];
+}
+
+- (void)resumeBankLink:(RCTPromiseResolveBlock)resolve
+                reject:(RCTPromiseRejectBlock)reject
+{
+    if (!_bridge.bankLinkAvailable) {
+        reject(@"not_available", @"This native SDK version does not include Bank Link.", nil);
+        return;
+    }
+    __weak SdkReactNative *weakSelf = self;
+
+    [self withBankLinkPresenterAttempts:50 then:^(UIViewController *presenter) {
+        [self->_bridge resumeBankLinkWithPresenter:presenter
+                                           onEvent:^(NSString *eventJson) {
+            [weakSelf emitOnBankLinkEvent:eventJson];
+        }
+                                        completion:^(NSString *resultJson) {
+            resolve(resultJson);
+        }
+                                            reject:^(NSString *code, NSString *message) {
+            reject(code, message, nil);
+        }];
+    }];
+}
+
+- (void)handleBankLinkReturn:(NSString *)url
+{
+    if (!_bridge.bankLinkAvailable) {
+        return;
+    }
+    [_bridge handleBankLinkReturnWithUrl:url];
 }
 
 // MARK: - TurboModule Registration

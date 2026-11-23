@@ -74,6 +74,15 @@ if package.dig("diditNativeSdkVersions", "source")
   raise "The pinned native source requires CocoaPods linkage." if didit_sdk_ios_linkage == "spm"
 end
 
+# Bank Link is only in the native source pin until a released SDK version
+# carries it; `diditNativeSdkVersions.bankLink` marks that release. Without
+# either, the bridge compiles a stand-in that rejects the calls, because the
+# released SDK it links against has no Bank Link API.
+didit_sdk_bank_link_enabled = (
+  !package.dig("diditNativeSdkVersions", "source").nil? ||
+    package.dig("diditNativeSdkVersions", "bankLink") == true
+)
+
 unless ["spm", "cocoapods"].include?(didit_sdk_ios_linkage)
   raise "Invalid DiditSdk iOS linkage '#{didit_sdk_ios_linkage}'. Set $DiditSdkIosLinkage or DIDIT_SDK_IOS_LINKAGE to one of: spm, cocoapods."
 end
@@ -115,6 +124,10 @@ Pod::Spec.new do |s|
       '"${PODS_XCFRAMEWORKS_BUILD_DIR}/DiditSDK/All-Location"'
     ].join(" ")
   }
+
+  if didit_sdk_bank_link_enabled
+    s.pod_target_xcconfig["SWIFT_ACTIVE_COMPILATION_CONDITIONS"] = "$(inherited) DIDIT_BANK_LINK"
+  end
 
   if didit_sdk_ios_linkage == "spm"
     spm_dependency(s,
