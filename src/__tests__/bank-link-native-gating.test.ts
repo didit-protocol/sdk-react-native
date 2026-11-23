@@ -150,10 +150,10 @@ describe('native Bank Link compile gate', () => {
     // It is handed to native for a presentation and for a resume.
     expect(bridge).toContain('from: presenter,');
     expect(bridge.split('from: presenter,').length - 1).toBe(2);
-    // Native's result is never bound to a typed value (Void or Bool).
-    expect(bridge).not.toMatch(
-      /(let|var) \w+(: Bool)? = DiditSdk\.shared\.presentBankLink/
-    );
+    // Native's result is read untyped (Void or Bool) and a false rejects.
+    expect(bridge).toContain('let opened = DiditSdk.shared.presentBankLink(');
+    expect(bridge).not.toMatch(/: Bool = DiditSdk\.shared\.presentBankLink/);
+    expect(bridge).toContain('if (opened as Any) as? Bool == false {');
     // A missing presenter rejects instead of calling native.
     expect(
       bridge.split(

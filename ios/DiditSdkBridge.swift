@@ -459,7 +459,11 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                     reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
                     return
                 }
-                DiditSdk.shared.presentBankLink(
+                // Untyped on purpose: native returns nothing in older releases
+                // and a discardable `Bool` (false: nothing opened) in newer
+                // ones. Read as `Any`, a `false` rejects, anything else is
+                // left to the result callback.
+                let opened = DiditSdk.shared.presentBankLink(
                     token: token,
                     from: presenter,
                     configuration: parsed.toConfiguration(),
@@ -470,6 +474,9 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
                         completion(Self.bankLinkResultJson(result))
                     }
                 )
+                if (opened as Any) as? Bool == false {
+                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
+                }
             }
         }
     }
