@@ -1,6 +1,7 @@
 import type { EventSubscription } from 'react-native';
 import NativeSdkReactNative from './NativeSdkReactNative';
 import type { VerificationResultJS } from './NativeSdkReactNative';
+import { toNativeConfig } from './nativeConfig';
 import { VerificationStatus, DiditTransactionError } from './types';
 import type {
   VerificationResult,
@@ -14,6 +15,12 @@ import type {
 
 // Re-export all public types
 export { VerificationStatus, CameraLens, DiditTransactionError } from './types';
+export {
+  presentBankLink,
+  resumeBankLink,
+  onBankLinkEvent,
+  handleBankLinkReturn,
+} from './bankLink';
 export type {
   VerificationResult,
   VerificationCompleted,
@@ -35,6 +42,16 @@ export type {
   DiditTransactionResult,
   DiditTransactionOptions,
   DiditTransactionErrorCode,
+  BankLinkOptions,
+  BankLinkResult,
+  BankLinkSuccess,
+  BankLinkExit,
+  BankLinkExitReason,
+  BankLinkStep,
+  BankLinkEvent,
+  BankLinkEventName,
+  BankLinkEventPayload,
+  BankLinkEventListener,
 } from './types';
 
 // ─── Internal Helpers ────────────────────────────────────────────────────────
@@ -182,21 +199,7 @@ export async function startVerification(
   token: string,
   config?: DiditConfig
 ): Promise<VerificationResult> {
-  const nativeConfig = config
-    ? {
-        languageCode: config.languageCode,
-        showLanguageSelector: config.showLanguageSelector,
-        fontFamily: config.fontFamily,
-        loggingEnabled: config.loggingEnabled,
-        showCloseButton: config.showCloseButton,
-        showExitConfirmation: config.showExitConfirmation,
-        closeOnComplete: config.closeOnComplete,
-        defaultDocumentCamera: config.defaultDocumentCamera,
-        defaultLivenessCamera: config.defaultLivenessCamera,
-        showDocumentCameraSwitchButton: config.showDocumentCameraSwitchButton,
-        showLivenessCameraSwitchButton: config.showLivenessCameraSwitchButton,
-      }
-    : {};
+  const nativeConfig = toNativeConfig(config);
 
   return runExclusively(JSON.stringify(['token', token, nativeConfig]), () =>
     NativeSdkReactNative.startVerification(token, nativeConfig)
@@ -228,23 +231,7 @@ export async function startVerificationWithWorkflow(
   workflowId: string,
   options?: WorkflowOptions
 ): Promise<VerificationResult> {
-  const nativeConfig = options?.config
-    ? {
-        languageCode: options.config.languageCode,
-        showLanguageSelector: options.config.showLanguageSelector,
-        fontFamily: options.config.fontFamily,
-        loggingEnabled: options.config.loggingEnabled,
-        showCloseButton: options.config.showCloseButton,
-        showExitConfirmation: options.config.showExitConfirmation,
-        closeOnComplete: options.config.closeOnComplete,
-        defaultDocumentCamera: options.config.defaultDocumentCamera,
-        defaultLivenessCamera: options.config.defaultLivenessCamera,
-        showDocumentCameraSwitchButton:
-          options.config.showDocumentCameraSwitchButton,
-        showLivenessCameraSwitchButton:
-          options.config.showLivenessCameraSwitchButton,
-      }
-    : {};
+  const nativeConfig = toNativeConfig(options?.config);
 
   const nativeContactDetails = options?.contactDetails
     ? {

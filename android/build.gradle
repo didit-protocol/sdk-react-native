@@ -43,6 +43,12 @@ if (nativePins.source && !gradle.ext.has("diditNativeSourceRepository")) {
   throw new GradleException("Apply the wrapper android/native-source.gradle in settings.gradle to use the pinned native source.")
 }
 
+// Bank Link is only in the native source pin until a released SDK version
+// carries it; `diditNativeSdkVersions.bankLink` marks that release. Without
+// either, the module builds against a released SDK that has no Bank Link API,
+// so compile the released-only stand-in instead of the native calls.
+def bankLinkEnabled = nativePins.source != null || nativePins.bankLink == true
+
 def diditSdkAndroidVariantProperty = (
   rootProject.findProperty("diditSdkAndroidVariant")
     ?: findProperty("diditSdkAndroidVariant")
@@ -109,6 +115,12 @@ android {
 
   kotlinOptions {
     jvmTarget = "17"
+  }
+
+  sourceSets {
+    main {
+      java.srcDirs += bankLinkEnabled ? "src/bankLink/java" : "src/released/java"
+    }
   }
 
   if (diditSdkAndroidUsesNfc) {

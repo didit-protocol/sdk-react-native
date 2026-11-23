@@ -187,6 +187,55 @@ static NSError *DiditTransactionNSError(NSString *message, NSDictionary *userInf
     }];
 }
 
+// MARK: - Bank Link
+
+- (void)presentBankLink:(NSString *)token
+                 config:(JS::NativeSdkReactNative::VerificationConfig &)config
+                resolve:(RCTPromiseResolveBlock)resolve
+                 reject:(RCTPromiseRejectBlock)reject
+{
+    if (!_bridge.bankLinkAvailable) {
+        reject(@"not_available", @"This native SDK version does not include Bank Link.", nil);
+        return;
+    }
+    NSDictionary *configDict = (&config != nullptr) ? [self configDictFrom:config] : nil;
+    __weak SdkReactNative *weakSelf = self;
+
+    [_bridge presentBankLinkWithToken:token
+                               config:configDict
+                              onEvent:^(NSString *eventJson) {
+        [weakSelf emitOnBankLinkEvent:eventJson];
+    }
+                       completion:^(NSString *resultJson) {
+        resolve(resultJson);
+    }];
+}
+
+- (void)resumeBankLink:(RCTPromiseResolveBlock)resolve
+                reject:(RCTPromiseRejectBlock)reject
+{
+    if (!_bridge.bankLinkAvailable) {
+        reject(@"not_available", @"This native SDK version does not include Bank Link.", nil);
+        return;
+    }
+    __weak SdkReactNative *weakSelf = self;
+
+    [_bridge resumeBankLinkOnEvent:^(NSString *eventJson) {
+        [weakSelf emitOnBankLinkEvent:eventJson];
+    }
+                           completion:^(NSString *resultJson) {
+        resolve(resultJson);
+    }];
+}
+
+- (void)handleBankLinkReturn:(NSString *)url
+{
+    if (!_bridge.bankLinkAvailable) {
+        return;
+    }
+    [_bridge handleBankLinkReturnWithUrl:url];
+}
+
 // MARK: - TurboModule Registration
 
 - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:

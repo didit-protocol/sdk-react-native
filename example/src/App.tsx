@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
+  Linking,
   Text,
   View,
   StyleSheet,
@@ -15,13 +16,46 @@ import {
   startVerification,
   startVerificationWithWorkflow,
   submitTransaction,
+  presentBankLink,
+  resumeBankLink,
+  handleBankLinkReturn,
+  onBankLinkEvent,
   DiditTransactionError,
   VerificationStatus,
   type VerificationResult,
   type DiditTransactionResult,
+  type BankLinkEvent,
+  type BankLinkResult,
 } from '@didit-protocol/sdk-react-native';
 
 const DEMO_WALLET_ADDRESS = '0x71C7656EC7ab88b098defB751B7401B5f6d8976F';
+
+export function listenForBankReturns(
+  onResult: (result: BankLinkResult) => void
+) {
+  let mounted = true;
+  const subscription = Linking.addEventListener('url', ({ url }) => {
+    handleBankLinkReturn(url);
+  });
+
+  async function resumeLaunch() {
+    try {
+      const url = await Linking.getInitialURL();
+      if (!mounted || !url) return;
+      handleBankLinkReturn(url);
+      const result = await resumeBankLink();
+      if (mounted && result) onResult(result);
+    } catch (error) {
+      if (mounted) Alert.alert('Error', `Bank Link not resumed: ${error}`);
+    }
+  }
+
+  resumeLaunch();
+  return () => {
+    mounted = false;
+    subscription.remove();
+  };
+}
 
 export default function App() {
   const [token, setToken] = useState('');
@@ -32,6 +66,64 @@ export default function App() {
   );
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
+  const [bankLinkToken, setBankLinkToken] = useState('');
+  const [bankLinkEvents, setBankLinkEvents] = useState<string[]>([]);
+  const [bankLinkResult, setBankLinkResult] = useState<BankLinkResult | null>(
+    null
+  );
+  const [bankLinkLoading, setBankLinkLoading] = useState(false);
+
+  // The live event log is what the manual device matrix compares with native.
+  useEffect(
+    () =>
+      onBankLinkEvent((event: BankLinkEvent) => {
+        setBankLinkEvents((previous) =>
+          [`${event.name} ${JSON.stringify(event.payload)}`, ...previous].slice(
+            0,
+            20
+          )
+        );
+      }),
+    []
+  );
+
+  useEffect(() => listenForBankReturns(setBankLinkResult), []);
+
+  const handlePresentBankLink = useCallback(async () => {
+    if (!bankLinkToken.trim()) {
+      Alert.alert('Error', 'Please enter a Bank Link client token.');
+      return;
+    }
+
+    setBankLinkLoading(true);
+    setBankLinkEvents([]);
+    setBankLinkResult(null);
+
+    try {
+      setBankLinkResult(await presentBankLink(bankLinkToken.trim()));
+    } catch (error) {
+      Alert.alert('Error', `Bank Link not opened: ${error}`);
+    } finally {
+      setBankLinkLoading(false);
+    }
+  }, [bankLinkToken]);
+
+  const handleResumeBankLink = useCallback(async () => {
+    setBankLinkLoading(true);
+
+    try {
+      const resumed = await resumeBankLink();
+      if (resumed) {
+        setBankLinkResult(resumed);
+      } else {
+        Alert.alert('Nothing to resume', 'No Bank Link is pending.');
+      }
+    } catch (error) {
+      Alert.alert('Error', `Bank Link not resumed: ${error}`);
+    } finally {
+      setBankLinkLoading(false);
+    }
+  }, []);
 
   const handleStartWithToken = useCallback(async () => {
     if (!token.trim()) {
@@ -279,6 +371,66 @@ export default function App() {
               <Text style={styles.transactionResultText}>
                 {transactionResult}
               </Text>
+            </View>
+          )}
+        </View>
+
+        {/* Bank Link */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Bank Link</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter Bank Link client token (blt_...)..."
+            placeholderTextColor="#999"
+            value={bankLinkToken}
+            onChangeText={setBankLinkToken}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.buttonSecondary,
+              bankLinkLoading && styles.buttonDisabled,
+            ]}
+            onPress={handlePresentBankLink}
+            disabled={bankLinkLoading}
+          >
+            {bankLinkLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Open Bank Link</Text>
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.button,
+              styles.buttonSecondary,
+              bankLinkLoading && styles.buttonDisabled,
+            ]}
+            onPress={handleResumeBankLink}
+            disabled={bankLinkLoading}
+          >
+            <Text style={styles.buttonText}>Resume after relaunch</Text>
+          </TouchableOpacity>
+          {bankLinkResult && (
+            <View style={styles.resultCard}>
+              <Text style={styles.resultType}>
+                Result:{' '}
+                <Text style={styles.resultValue}>
+                  {JSON.stringify(bankLinkResult)}
+                </Text>
+              </Text>
+            </View>
+          )}
+          {bankLinkEvents.length > 0 && (
+            <View style={styles.resultCard}>
+              <Text style={styles.sectionTitle}>Events</Text>
+              {bankLinkEvents.map((line, index) => (
+                <Text key={`${index}-${line}`} style={styles.resultType}>
+                  {line}
+                </Text>
+              ))}
             </View>
           )}
         </View>
