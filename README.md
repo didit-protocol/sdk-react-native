@@ -97,6 +97,8 @@ Workflows can include a **Bank** step (the person links a bank account) and a **
 
 Bank Link is the standalone bank product: it opens the connection flow on its own, outside a verification session, and keeps reading balances and transactions for as long as the person allows (or reads once, for a one-time link). Every screen, state and string is native; this package only carries the result and the events, under the same names, events and payload keys as native and the web SDK.
 
+Bank Link needs the native SDK release that ships it (4.16.0 or later). On a build that links an earlier native release, `presentBankLink` and `resumeBankLink` reject with the code `not_available`. When a presentation cannot open (no screen to present from), the promise rejects with the code `bank_link` and the message `Bank Link presentation was declined.`, on both platforms.
+
 Create the link on your backend with `POST /v3/bank/links/` and pass its `client_token` (`blt_...`) to the app. **The API key stays on the server: it never reaches your app.**
 
 ```tsx

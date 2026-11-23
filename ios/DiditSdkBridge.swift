@@ -428,23 +428,40 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
 
 #if DIDIT_BANK_LINK
 
+    /// The error of a presentation that could not open: one code and message
+    /// on both platforms (Android: `BankLinkSupport.present`).
+    static let bankLinkDeclinedCode = "bank_link"
+    static let bankLinkDeclinedMessage = "Bank Link presentation was declined."
+
     /// Opens a Bank Link with the link's `client_token`.
     ///
     /// Every screen, state and string is native; the bridge carries the events
-    /// and the one result to JS, as JSON. Presentation starts on the main
-    /// queue and lets the SDK pick the view controller, as it does for hosts
-    /// that call it directly.
+    /// and the one result to JS, as JSON. The Objective-C++ module resolves the
+    /// presenting view controller (React Native's `RCTPresentedViewController`)
+    /// and passes it as `presenter`. With none, native is not called and the
+    /// promise rejects with the code and message Android uses for a declined
+    /// presentation, so a presentation that cannot open never leaves the
+    /// JavaScript promise pending, whichever native release is linked. The
+    /// native call is not bound to a typed value, so this compiles whether it
+    /// returns nothing or a discardable `Bool`.
     public func presentBankLink(
         token: String,
         config: NSDictionary?,
+        presenter: UIViewController?,
         onEvent: @escaping @Sendable (String) -> Void,
-        completion: @escaping @Sendable (String) -> Void
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
     ) {
         let parsed = ParsedConfig(config)
         DispatchQueue.main.async {
             MainActor.assumeIsolated {
+                guard let presenter = presenter else {
+                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
+                    return
+                }
                 DiditSdk.shared.presentBankLink(
                     token: token,
+                    from: presenter,
                     configuration: parsed.toConfiguration(),
                     onEvent: { event in
                         onEvent(Self.bankLinkEventJson(event))
@@ -461,12 +478,19 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
     /// `null` when native has nothing to resume, and the replayed or continued
     /// result otherwise, with `resumed` set.
     public func resumeBankLink(
+        presenter: UIViewController?,
         onEvent: @escaping @Sendable (String) -> Void,
-        completion: @escaping @Sendable (String) -> Void
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
     ) {
         DispatchQueue.main.async {
             MainActor.assumeIsolated {
+                guard let presenter = presenter else {
+                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)
+                    return
+                }
                 let resumed = DiditSdk.shared.resumeBankLink(
+                    from: presenter,
                     onEvent: { event in
                         onEvent(Self.bankLinkEventJson(event))
                     },
@@ -568,15 +592,19 @@ public class DiditSdkBridge: NSObject, @unchecked Sendable {
     public func presentBankLink(
         token: String,
         config: NSDictionary?,
+        presenter: UIViewController?,
         onEvent: @escaping @Sendable (String) -> Void,
-        completion: @escaping @Sendable (String) -> Void
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
     ) {
         completion("null")
     }
 
     public func resumeBankLink(
+        presenter: UIViewController?,
         onEvent: @escaping @Sendable (String) -> Void,
-        completion: @escaping @Sendable (String) -> Void
+        completion: @escaping @Sendable (String) -> Void,
+        reject: @escaping @Sendable (String, String) -> Void
     ) {
         completion("null")
     }

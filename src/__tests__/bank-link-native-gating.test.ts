@@ -109,10 +109,9 @@ describe('native Bank Link compile gate', () => {
 
   it('calls the Bank Link selectors Swift exports for both bridge variants', () => {
     // `@objcMembers` derives the Objective-C names. Swift adds `With` before a
-    // first label like `token`, but not before one that starts with a
-    // preposition like `onEvent`, so `resumeBankLink(onEvent:completion:)`
-    // is `resumeBankLinkOnEvent:completion:`. The `With` spelling fails the
-    // iOS build for every app, Bank Link or not.
+    // first label like `token` or `presenter`, but not before one that starts
+    // with a preposition like `onEvent`. A wrong spelling fails the iOS build
+    // for every app, Bank Link or not.
     const bridge = read('ios/DiditSdkBridge.swift');
     const objc = read('ios/SdkReactNative.mm');
 
@@ -121,12 +120,58 @@ describe('native Bank Link compile gate', () => {
     expect(
       swiftCount('public func presentBankLink(\n        token: String,')
     ).toBe(2);
-    expect(swiftCount('public func resumeBankLink(\n        onEvent:')).toBe(2);
+    expect(swiftCount('public func resumeBankLink(\n        presenter:')).toBe(
+      2
+    );
     expect(swiftCount('public func handleBankLinkReturn(url: String)')).toBe(2);
 
-    expect(objc).toContain('[_bridge presentBankLinkWithToken:');
-    expect(objc).toContain('[_bridge resumeBankLinkOnEvent:');
-    expect(objc).not.toContain('resumeBankLinkWithOnEvent');
+    expect(objc).toContain('[self->_bridge presentBankLinkWithToken:');
+    expect(objc).toContain('[self->_bridge resumeBankLinkWithPresenter:');
+    expect(objc).not.toContain('resumeBankLinkOnEvent');
     expect(objc).toContain('[_bridge handleBankLinkReturnWithUrl:');
+  });
+
+  it('resolves the iOS presenter, and a missing one rejects as Android does', () => {
+    // A presentation with no view controller must never leave the JavaScript
+    // promise pending: it rejects with the code and message Android uses.
+    const bridge = read('ios/DiditSdkBridge.swift');
+    const objc = read('ios/SdkReactNative.mm');
+    const support = read(
+      'android/src/bankLink/java/com/sdkreactnative/BankLinkSupport.kt'
+    );
+    const module = read(
+      'android/src/main/java/com/sdkreactnative/SdkReactNativeModule.kt'
+    );
+
+    // The presenter is resolved with React Native's helper, on the main queue.
+    expect(objc).toContain('#import <React/RCTUtils.h>');
+    expect(objc).toContain('return RCTPresentedViewController();');
+    expect(objc).toContain('dispatch_async(dispatch_get_main_queue()');
+    // It is handed to native for a presentation and for a resume.
+    expect(bridge).toContain('from: presenter,');
+    expect(bridge.split('from: presenter,').length - 1).toBe(2);
+    // Native's result is never bound to a typed value (Void or Bool).
+    expect(bridge).not.toMatch(
+      /(let|var) \w+(: Bool)? = DiditSdk\.shared\.presentBankLink/
+    );
+    // A missing presenter rejects instead of calling native.
+    expect(
+      bridge.split(
+        'guard let presenter = presenter else {\n                    reject(Self.bankLinkDeclinedCode, Self.bankLinkDeclinedMessage)'
+      ).length - 1
+    ).toBe(2);
+    expect(objc).toContain('reject(code, message, nil);');
+    // One error on both platforms.
+    const androidCode = module.match(/promise\.reject\("(bank_link)"/)?.[1];
+    const androidMessage = support.match(
+      /check\(presented\) \{ "([^"]+)" \}/
+    )?.[1];
+    expect(androidCode).toBe('bank_link');
+    expect(bridge).toContain(
+      `static let bankLinkDeclinedCode = "${androidCode}"`
+    );
+    expect(bridge).toContain(
+      `static let bankLinkDeclinedMessage = "${androidMessage}"`
+    );
   });
 });

@@ -275,6 +275,27 @@ describe('presentBankLink', () => {
     await expect(presentBankLink('blt_token')).rejects.toThrow(/link id/);
   });
 
+  it('rejects with the declined-presentation error native raises when nothing opened', async () => {
+    // Both platforms reject `bank_link` / "Bank Link presentation was
+    // declined." when nothing could be presented (no Activity or view
+    // controller), so the promise never stays pending and the slot frees.
+    const declined = Object.assign(
+      new Error('Bank Link presentation was declined.'),
+      { code: 'bank_link' }
+    );
+    present.mockRejectedValueOnce(declined);
+    resume.mockRejectedValueOnce(declined);
+
+    await expect(presentBankLink('blt_token')).rejects.toMatchObject({
+      code: 'bank_link',
+      message: 'Bank Link presentation was declined.',
+    });
+    await expect(resumeBankLink()).rejects.toMatchObject({
+      code: 'bank_link',
+      message: 'Bank Link presentation was declined.',
+    });
+  });
+
   it('releases the wrapper when native rejects, so the next link can open', async () => {
     present.mockRejectedValueOnce(new Error('native failed'));
     present.mockResolvedValueOnce(
